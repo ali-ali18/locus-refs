@@ -9,7 +9,13 @@
     "lint": "biome check",
     "format": "biome format --write",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "commit": "cz"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./.cz-config.js"
+    }
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
@@ -45,6 +51,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "commitizen": "^4.3.1",
     "prisma": "^7.4.1",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",

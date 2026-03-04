@@ -21,7 +21,7 @@ export function DropdownMenuApp({
 }: Props) {
   return (
     <DropdownMenu >
-      <DropdownMenuTrigger className={cn("group outline-none hover:bg-muted rounded-full transition-all duration-300 p-1.5", className)}>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuTrigger className={cn("group outline-none hover:bg-muted rounded-full transition-all duration-300", className)}>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent className={cn(contentClassName)}>
         {children}
       </DropdownMenuContent>

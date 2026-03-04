@@ -6,10 +6,7 @@ import { Logo } from "../Logo";
 import { DropdownHeader } from "./DropdownHeader";
 
 export function Header() {
-  const {
-    data: session,
-    isPending, 
-  } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   console.log(session);
 
@@ -19,7 +16,12 @@ export function Header() {
         <Logo href="/dashboard" />
 
         <div>
-          <DropdownHeader name={session?.user?.name ?? ""} email={session?.user?.email ?? ""} srcAvatar={session?.user?.image ?? ""} isPending={isPending}/>
+          <DropdownHeader
+            name={session?.user?.name ?? ""}
+            email={session?.user?.email ?? ""}
+            srcAvatar={session?.user?.image ?? ""}
+            isPending={isPending}
+          />
         </div>
       </Container>
     </header>
