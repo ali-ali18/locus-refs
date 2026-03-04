@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { GET, POST } from "./routes";
+import { GET, POST } from "./route";
 
 const { mockFindUnique, mockCreate, mockFindMany, mockResources } = vi.hoisted(
   () => {
@@ -71,7 +71,7 @@ describe("API Resources", () => {
 
   describe("GET /api/resources", () => {
     it("returns 200 and user resources list with categories", async () => {
-      const response = await GET();
+      const response = await GET(new NextRequest("http://localhost/api/resources"));
       const data = await response.json();
 
       expect(response.status).toBe(200);

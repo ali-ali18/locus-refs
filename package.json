@@ -10,7 +10,8 @@
     "format": "biome format --write",
     "test": "vitest",
     "test:run": "vitest run",
-    "commit": "cz"
+    "commit": "cz",
+    "prepare": "husky"
   },
   "config": {
     "commitizen": {
@@ -52,6 +53,7 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "commitizen": "^4.3.1",
+    "husky": "^9.1.7",
     "prisma": "^7.4.1",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
