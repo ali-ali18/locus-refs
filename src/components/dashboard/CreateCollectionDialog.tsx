@@ -1,10 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Folder01Icon, Loading02Icon } from "@hugeicons/core-free-icons";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { Folder01Icon, Loading02Icon } from "@hugeicons/core-free-icons";
-
+import { FieldGroupApp } from "@/components/base";
+import { Icon } from "@/components/shared/Icon";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,27 +15,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { FieldGroupApp } from "@/components/base";
 import {
   type CreateCollectionSchema,
   createCollectionSchema,
 } from "@/types/collection.schema";
-import { Icon } from "@/components/shared/Icon";
+import { useCollections } from "./hooks/useCollections";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateCollection: (name: string) => Promise<unknown>;
-  isCreating: boolean;
 }
 
-export function CreateCollectionDialog({
-  open,
-  onOpenChange,
-  onCreateCollection,
-  isCreating,
-}: Props) {
+export function CreateCollectionDialog({ open, onOpenChange }: Props) {
+  const { createCollection, isCreating } = useCollections();
+
   const form = useForm<CreateCollectionSchema>({
     resolver: zodResolver(createCollectionSchema),
     defaultValues: {
@@ -43,7 +38,7 @@ export function CreateCollectionDialog({
 
   const onSubmit = async (data: CreateCollectionSchema) => {
     try {
-      await onCreateCollection(data.name);
+      await createCollection(data.name);
       toast.success("Coleção criada com sucesso!");
       form.reset();
       onOpenChange(false);

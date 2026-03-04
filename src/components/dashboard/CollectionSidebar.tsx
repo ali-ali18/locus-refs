@@ -20,6 +20,7 @@ export function CollectionSidebar({
   onSelectCollection,
   handleDialog,
 }: CollectionSidebarProps) {
+  
   if (collections.length === 0) {
     return (
       <EmpetyApp

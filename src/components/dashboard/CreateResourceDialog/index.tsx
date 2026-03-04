@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactElement } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,65 +10,42 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { Collection } from "@/types/collection.type";
+import { useCategories } from "../hooks/useCategories";
+import { useCategory } from "../hooks/useCategory";
+import { useResourceMutations } from "../hooks/useResourceMutations";
 import { CreateCategoryInlineDialog } from "./CreateCategoryInlineDialog";
 import { ResourceDialogMetadataPreview } from "./ResourceDialogMetadataPreview";
 import { ResourceDialogStepDetailsForm } from "./ResourceDialogStepDetailsForm";
 import { ResourceDialogStepUrlForm } from "./ResourceDialogStepUrlForm";
 import { useCreateResourceDialog } from "./useCreateResourceDialog";
-import type { Category } from "../services/useCategory";
-import type { Metadata } from "../services/useFetchMetadata";
-import type { CreateResourcePayload } from "../services/useResource";
-
-export interface CreateResourceDialogMetadataState {
-  metadata: Metadata | null;
-  isFetchingMetadata: boolean;
-  metadataError: Error | null;
-}
-
-export interface CreateResourceDialogCategoryActions {
-  categories: Category[];
-  onCreateCategory: (
-    name: string,
-  ) => Promise<{ message: string; category: Category }>;
-  isCreatingCategory: boolean;
-}
-
-export interface CreateResourceDialogResourceActions {
-  onCreateResource: (payload: CreateResourcePayload) => Promise<unknown>;
-  isCreating: boolean;
-}
 
 interface CreateResourceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onFetchMetadataRequest: (url: string) => void;
-  metadataState: CreateResourceDialogMetadataState;
   defaultCollectionId: string | null;
   collections: Collection[];
-  categoryActions: CreateResourceDialogCategoryActions;
-  resourceActions: CreateResourceDialogResourceActions;
 }
 
 export function CreateResourceDialog({
   open,
   onOpenChange,
-  onFetchMetadataRequest,
-  metadataState,
   defaultCollectionId,
   collections,
-  categoryActions,
-  resourceActions,
-}: CreateResourceDialogProps): React.ReactElement {
-  const { metadata, isFetchingMetadata, metadataError } = metadataState;
-  const { categories, onCreateCategory, isCreatingCategory } = categoryActions;
-  const { onCreateResource, isCreating } = resourceActions;
+}: CreateResourceDialogProps): ReactElement {
+  const { data: categories = [] } = useCategories();
+  const { createCategory, isCreatingCategory } = useCategory();
+  const { createResource, isCreating } = useResourceMutations();
 
   const {
     step,
     formStep1,
     formStep2,
-    newCategoryName,
+    metadata,
+    isFetchingMetadata,
+    metadataError,
+    handleOpenChange,
     setNewCategoryName,
+    newCategoryName,
     isCreateCategoryDialogOpen,
     setIsCreateCategoryDialogOpen,
     onStep1Submit,
@@ -77,24 +55,22 @@ export function CreateResourceDialog({
   } = useCreateResourceDialog({
     open,
     defaultCollectionId,
-    metadata,
     onOpenChange,
-    onFetchMetadataRequest,
-    onCreateCategory,
-    onCreateResource,
+    onCreateCategory: createCategory,
+    onCreateResource: createResource,
   });
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className={cn("sm:max-w-2xl")}>
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">
               Novo Recurso
             </DialogTitle>
             <DialogDescription>
-              Crie um novo recurso para centralizar o que você precisa para o seu
-              dia a dia.
+              Crie um novo recurso para centralizar o que você precisa para o
+              seu dia a dia.
             </DialogDescription>
           </DialogHeader>
 
@@ -104,7 +80,7 @@ export function CreateResourceDialog({
               formState={formStep1.formState}
               isFetchingMetadata={isFetchingMetadata}
               metadataError={metadataError}
-              onCancel={() => onOpenChange(false)}
+              onCancel={() => handleOpenChange(false)}
               onSubmit={formStep1.handleSubmit(onStep1Submit)}
             />
           )}

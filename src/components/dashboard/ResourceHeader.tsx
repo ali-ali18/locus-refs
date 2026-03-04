@@ -21,16 +21,13 @@ import {
   DropdownMenuSeparator,
 } from "../ui/dropdown-menu";
 import { EditCollectionDialog } from "./EditCollectionDialog";
+import { useCollections } from "./hooks/useCollections";
 
 interface ResourceHeaderProps {
   title: string;
   resourcesCount: number;
   collectionId: string | null;
   handleOpenDialogCreateResource: () => void;
-  onDeleteCollection: () => void;
-  isDeleting: boolean;
-  onUpdateCollection: (id: string, name: string) => Promise<unknown>;
-  isUpdating: boolean;
   searchQuery: string;
   setSearchQuery: Dispatch<SetStateAction<string>>;
 }
@@ -40,14 +37,13 @@ export function ResourceHeader({
   resourcesCount,
   collectionId,
   handleOpenDialogCreateResource,
-  onDeleteCollection,
-  isDeleting,
-  onUpdateCollection,
-  isUpdating,
   searchQuery,
   setSearchQuery,
 }: ResourceHeaderProps) {
+  const { deleteCollection, isDeleting,  } =
+    useCollections();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
   return (
     <div className="flex flex-col gap-6 w-full min-w-0">
       <div className="flex items-center gap-1.5">
@@ -80,7 +76,7 @@ export function ResourceHeader({
                   rounded="full"
                   size="lg"
                   className="w-full justify-start"
-                  onClick={onDeleteCollection}
+                  onClick={() => deleteCollection(collectionId ?? "")}
                   disabled={isDeleting}
                 >
                   <Icon icon={Trash2} className="size-5" /> Deletar
@@ -97,7 +93,6 @@ export function ResourceHeader({
                   size="lg"
                   className="w-full justify-start"
                   onClick={() => setIsEditDialogOpen(true)}
-                  disabled={isUpdating || !collectionId}
                 >
                   <Icon icon={PencilEdit01Icon} className="size-5" /> Editar
                 </Button>
@@ -139,8 +134,6 @@ export function ResourceHeader({
         onOpenChange={setIsEditDialogOpen}
         collectionId={collectionId ?? ""}
         currentName={title}
-        onUpdateCollection={onUpdateCollection}
-        isUpdating={isUpdating}
       />
     </div>
   );

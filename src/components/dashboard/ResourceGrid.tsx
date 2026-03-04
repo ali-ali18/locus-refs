@@ -14,39 +14,33 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { getInitials } from "@/lib/utils";
 import { EmpetyApp } from "../base/EmpetyApp";
 import { Skeleton } from "../ui/skeleton";
-
-function getInitials(title: string): string {
-  const words = title.trim().split(/\s+/);
-  if (words.length >= 2) {
-    return (words[0][0] + words[1][0]).toUpperCase().slice(0, 2);
-  }
-  return title.slice(0, 2).toUpperCase() || "Aa";
-}
+import { EditResourceDialog } from "./EditResourceDialog";
+import { useResourceMutations } from "./hooks/useResourceMutations";
 
 interface ResourceGridProps {
   resources: ResourceFromApi[];
   isLoading?: boolean;
-  onDeleteResource?: (id: string) => void;
-  isDeletingResource?: boolean;
-  onEditResource?: (resource: ResourceFromApi) => void;
 }
 
 export function ResourceGrid({
   resources,
   isLoading,
-  onDeleteResource,
-  isDeletingResource,
-  onEditResource,
 }: ResourceGridProps) {
+  const [resourceBeingEdited, setResourceBeingEdited] =
+    useState<ResourceFromApi | null>(null);
+
+  const { deleteResource, isDeletingResource } = useResourceMutations();
+
   const [resourceIdToDelete, setResourceIdToDelete] = useState<string | null>(
     null,
   );
 
   const handleConfirmDelete = () => {
-    if (resourceIdToDelete && onDeleteResource) {
-      onDeleteResource(resourceIdToDelete);
+    if (resourceIdToDelete) {
+      deleteResource(resourceIdToDelete);
       setResourceIdToDelete(null);
     }
   };
@@ -84,16 +78,8 @@ export function ResourceGrid({
             description={resource.description}
             iconUrl={resource.iconUrl}
             initials={getInitials(resource.title)}
-            onEdit={
-              onEditResource
-                ? () => onEditResource(resource)
-                : undefined
-            }
-            onDelete={
-              onDeleteResource
-                ? () => setResourceIdToDelete(resource.id)
-                : undefined
-            }
+            onEdit={() => setResourceBeingEdited(resource)}
+            onDelete={() => setResourceIdToDelete(resource.id)}
           />
         ))}
       </div>
@@ -126,6 +112,12 @@ export function ResourceGrid({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <EditResourceDialog
+        open={resourceBeingEdited != null}
+        onOpenChange={(open) => !open && setResourceBeingEdited(null)}
+        resource={resourceBeingEdited}
+      />
     </>
   );
 }

@@ -8,8 +8,8 @@ import {
   type FieldValues,
 } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { InputGroupApp } from "./InputGroupApp";
 import { cn } from "@/lib/utils";
+import { InputGroupApp } from "./InputGroupApp";
 
 export interface FieldGroupAppProps<T extends FieldValues> {
   name: FieldPath<T>;
@@ -17,7 +17,19 @@ export interface FieldGroupAppProps<T extends FieldValues> {
   control: Control<T>;
   firstElement?: ReactNode;
   lastElement?: ReactNode;
-  type?: "text" | "password" | "email" | "number" | "tel" | "url" | "search" | "date" | "time" | "datetime-local" | "month" | "week";
+  type?:
+    | "text"
+    | "password"
+    | "email"
+    | "number"
+    | "tel"
+    | "url"
+    | "search"
+    | "date"
+    | "time"
+    | "datetime-local"
+    | "month"
+    | "week";
   placeholder?: string;
   align?: "inline-start" | "inline-end" | "block-start" | "block-end";
   className?: string;
@@ -59,3 +71,4 @@ export function FieldGroupApp<T extends FieldValues>({
     />
   );
 }
+

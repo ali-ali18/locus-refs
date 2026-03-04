@@ -10,16 +10,14 @@ import {
   createResourceSchema,
   createResourceStep2Schema,
 } from "@/types/resource.schema";
+import { useFetchMetadata } from "../hooks/useFetchMetadata";
 import type { Category } from "../services/useCategory";
-import type { Metadata } from "../services/useFetchMetadata";
 import type { CreateResourcePayload } from "../services/useResource";
 
 interface UseCreateResourceDialogProps {
   open: boolean;
   defaultCollectionId: string | null;
-  metadata: Metadata | null;
   onOpenChange: (open: boolean) => void;
-  onFetchMetadataRequest: (url: string) => void;
   onCreateCategory: (
     name: string,
   ) => Promise<{ message: string; category: Category }>;
@@ -29,9 +27,7 @@ interface UseCreateResourceDialogProps {
 export function useCreateResourceDialog({
   open,
   defaultCollectionId,
-  metadata,
   onOpenChange,
-  onFetchMetadataRequest,
   onCreateCategory,
   onCreateResource,
 }: UseCreateResourceDialogProps) {
@@ -39,6 +35,8 @@ export function useCreateResourceDialog({
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isCreateCategoryDialogOpen, setIsCreateCategoryDialogOpen] =
     useState(false);
+  const [urlToFetch, setUrlToFetch] = useState<string | null>(null);
+
   const userClickedBackRef = useRef(false);
 
   const formStep1 = useForm<CreateResourceSchema>({
@@ -56,6 +54,19 @@ export function useCreateResourceDialog({
       categoryIds: [],
     },
   });
+
+  const {
+    data: metadata = null,
+    isLoading: isFetchingMetadata,
+    error: metadataError,
+  } = useFetchMetadata(urlToFetch ?? "");
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setUrlToFetch(null);
+    }
+    onOpenChange(open);
+  };
 
   useEffect(() => {
     if (metadata && step === 1 && !userClickedBackRef.current) {
@@ -92,7 +103,7 @@ export function useCreateResourceDialog({
 
   const onStep1Submit = (data: CreateResourceSchema) => {
     userClickedBackRef.current = false;
-    onFetchMetadataRequest(data.url);
+    setUrlToFetch(data.url);
     if (metadata) {
       formStep2.reset({
         title: metadata.title ?? "",
@@ -150,8 +161,14 @@ export function useCreateResourceDialog({
     step,
     formStep1,
     formStep2,
-    newCategoryName,
+    metadata,
+    isFetchingMetadata,
+    metadataError,
+    urlToFetch,
+    setUrlToFetch,
+    handleOpenChange,
     setNewCategoryName,
+    newCategoryName,
     isCreateCategoryDialogOpen,
     setIsCreateCategoryDialogOpen,
     onStep1Submit,

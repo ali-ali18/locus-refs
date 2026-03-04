@@ -1,10 +1,8 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Loading02Icon } from "@hugeicons/core-free-icons";
-import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
+import type { ReactElement } from "react";
+import { Controller } from "react-hook-form";
 import { FieldGroupApp } from "@/components/base";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
@@ -23,81 +21,30 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import type { Collection } from "@/types/collection.type";
-import {
-  type CreateResourceStep2Schema,
-  createResourceStep2Schema,
-} from "@/types/resource.schema";
-import type { UpdateResourceBody } from "@/types/resources";
-import type { Category } from "./services/useCategory";
+import type { CreateResourceStep2Schema } from "@/types/resource.schema";
+import { useCategories } from "./hooks/useCategories";
+import { useCollections } from "./hooks/useCollections";
+import { useEditResourceDialog } from "./hooks/useEditResourceDialog";
 import type { ResourceFromApi } from "./services/useResource";
 
 interface EditResourceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   resource: ResourceFromApi | null;
-  collections: Collection[];
-  categories: Category[];
-  onUpdateResource: (id: string, body: UpdateResourceBody) => Promise<unknown>;
-  isUpdating: boolean;
 }
-
-const EMPTY_VALUES: CreateResourceStep2Schema = {
-  title: "",
-  description: "",
-  url: "",
-  collectionId: "",
-  categoryIds: [],
-};
 
 export function EditResourceDialog({
   open,
   onOpenChange,
   resource,
-  collections,
-  categories,
-  onUpdateResource,
-  isUpdating,
-}: EditResourceDialogProps): React.ReactElement {
-  const form = useForm<CreateResourceStep2Schema>({
-    resolver: zodResolver(createResourceStep2Schema),
-    defaultValues: EMPTY_VALUES,
-  });
+}: EditResourceDialogProps): ReactElement {
+  const { collections } = useCollections();
+  const { data: categories = [] } = useCategories();
 
-  useEffect(() => {
-    if (open && resource) {
-      form.reset({
-        title: resource.title ?? "",
-        description: resource.description ?? "",
-        url: resource.url ?? "",
-        collectionId: resource.collectionId ?? "",
-        categoryIds: resource.categories.map((category) => category.id),
-      });
-      return;
-    }
-
-    if (!open) {
-      form.reset(EMPTY_VALUES);
-    }
-  }, [open, resource, form]);
-
-  const handleSubmit = form.handleSubmit(async (data) => {
-    if (!resource) return;
-
-    try {
-      await onUpdateResource(resource.id, {
-        title: data.title,
-        description: data.description || null,
-        url: data.url,
-        collectionId: data.collectionId,
-        categoryIds: data.categoryIds,
-      });
-      toast.success("Recurso atualizado com sucesso!");
-      onOpenChange(false);
-    } catch (error) {
-      toast.error("Erro ao atualizar recurso. Tente novamente.");
-      console.error(error);
-    }
+  const { form, handleSubmit, isUpdatingResource } = useEditResourceDialog({
+    open,
+    resource,
+    onOpenChange,
   });
 
   return (
@@ -151,8 +98,8 @@ export function EditResourceDialog({
                   <SelectTrigger className="w-full rounded-xl">
                     <span className="flex flex-1 truncate text-left">
                       {field.value
-                        ? (collections.find((c) => c.id === field.value)?.name ??
-                          "Selecione uma coleção")
+                        ? (collections.find((c) => c.id === field.value)
+                            ?.name ?? "Selecione uma coleção")
                         : "Selecione uma coleção"}
                     </span>
                   </SelectTrigger>
@@ -166,7 +113,9 @@ export function EditResourceDialog({
                 </Select>
               )}
             />
-            <FieldError>{form.formState.errors.collectionId?.message}</FieldError>
+            <FieldError>
+              {form.formState.errors.collectionId?.message}
+            </FieldError>
           </Field>
 
           <Field data-slot="field-set" className="flex flex-col gap-2">
@@ -210,7 +159,9 @@ export function EditResourceDialog({
                 );
               }}
             />
-            <FieldError>{form.formState.errors.categoryIds?.message}</FieldError>
+            <FieldError>
+              {form.formState.errors.categoryIds?.message}
+            </FieldError>
           </Field>
 
           <DialogFooter>
@@ -222,10 +173,17 @@ export function EditResourceDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit" rounded="full" disabled={isUpdating || !resource}>
-              {isUpdating ? (
+            <Button
+              type="submit"
+              rounded="full"
+              disabled={isUpdatingResource || !resource}
+            >
+              {isUpdatingResource ? (
                 <>
-                  <Icon icon={Loading02Icon} className="mr-2 size-4 animate-spin" />
+                  <Icon
+                    icon={Loading02Icon}
+                    className="mr-2 size-4 animate-spin"
+                  />
                   Salvando...
                 </>
               ) : (
@@ -238,4 +196,3 @@ export function EditResourceDialog({
     </Dialog>
   );
 }
-

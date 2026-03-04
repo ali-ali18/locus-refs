@@ -28,7 +28,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryClient>{children}</QueryClient>
-          <Toaster position="top-right" expand />
+          <Toaster position="top-right" expand theme="light"/>
         </ThemeProvider>
       </body>
     </html>
