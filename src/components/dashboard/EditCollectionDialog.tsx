@@ -19,7 +19,7 @@ import {
 import {
   type CreateCollectionSchema,
   createCollectionSchema,
-} from "@/types/collection.schema";
+} from "@/types/schema/collection.schema";
 import { useCollections } from "./hooks/useCollections";
 
 interface EditCollectionDialogProps {

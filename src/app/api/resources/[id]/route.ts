@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { Prisma } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import { requireSession } from "@/server/requireSession";
-import { updateSchema } from "@/types/resources";
+import { updateSchema } from "@/types/schema/resources.schema";
 
 export async function PATCH(
   request: NextRequest,

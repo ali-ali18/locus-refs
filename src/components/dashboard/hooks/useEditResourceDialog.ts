@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import {
   type CreateResourceStep2Schema,
   createResourceStep2Schema,
-} from "@/types/resource.schema";
+} from "@/types/schema/resource.schema";
 import type { ResourceFromApi } from "../services/useResource";
 import { useResourceMutations } from "./useResourceMutations";
 

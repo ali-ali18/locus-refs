@@ -16,7 +16,7 @@ export function Container({
 }: Props) {
   return (
     <Component
-      className={cn("mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full", className)}
+      className={cn("mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full my-12", className)}
       id={id}
     >
       {children}

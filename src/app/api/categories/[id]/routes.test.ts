@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DELETE } from "./routes";
+import { DELETE } from "./route";
 
 const { mockFindUnique, mockDelete } = vi.hoisted(() => {
   return {

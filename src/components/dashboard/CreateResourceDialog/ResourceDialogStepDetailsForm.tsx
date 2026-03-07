@@ -15,7 +15,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import type { Collection } from "@/types/collection.type";
-import type { CreateResourceStep2Schema } from "@/types/resource.schema";
+import type { CreateResourceStep2Schema } from "@/types/schema/resource.schema";
 import type { Category } from "../services/useCategory";
 
 interface ResourceDialogStepDetailsFormProps {
