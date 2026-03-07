@@ -5,7 +5,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { FieldGroupApp } from "@/components/base";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
-import type { CreateResourceSchema } from "@/types/resource.schema";
+import type { CreateResourceSchema } from "@/types/schema/resource.schema";
 import type { Control } from "react-hook-form";
 
 interface ResourceDialogStepUrlFormProps {

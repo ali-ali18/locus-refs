@@ -2,7 +2,7 @@
 
 import { Loading02Icon, Mail01Icon } from "@hugeicons/core-free-icons";
 import { FieldGroupApp } from "@/components/base";
-import type { RegisterSchema } from "@/types/auth.schema";
+import type { RegisterSchema } from "@/types/schema/auth.schema";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";
 import { FieldGroup } from "../ui/field";

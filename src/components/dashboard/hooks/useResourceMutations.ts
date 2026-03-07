@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { UpdateResourceBody } from "@/types/resources";
+import type { UpdateResourceBody } from "@/types/schema/resources.schema";
 import {
   type CreateResourcePayload,
   createResource,

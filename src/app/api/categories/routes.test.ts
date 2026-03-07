@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { GET, POST } from "./routes";
+import { GET, POST } from "./route";
 
 const { mockFindMany, mockCreate, mockCategories } = vi.hoisted(() => {
   const categories = [
@@ -59,6 +59,13 @@ describe("API Categories", () => {
       expect(data).toEqual(mockCategories);
       expect(mockFindMany).toHaveBeenCalledWith({
         where: { userId: "user-1" },
+        include: {
+          _count: {
+            select: {
+              resources: true,
+            },
+          },
+        },
         orderBy: { name: "asc" },
       });
     });

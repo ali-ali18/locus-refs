@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { Collection } from "@/types/collection.type";
-import { useCategories } from "../hooks/useCategories";
-import { useCategory } from "../hooks/useCategory";
+import { useCategories } from "../../../hook/categories/useCategories";
+import { useCategory } from "../../../hook/categories/useCategory";
 import { useResourceMutations } from "../hooks/useResourceMutations";
 import { CreateCategoryInlineDialog } from "./CreateCategoryInlineDialog";
 import { ResourceDialogMetadataPreview } from "./ResourceDialogMetadataPreview";

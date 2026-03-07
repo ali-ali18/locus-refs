@@ -21,8 +21,8 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import type { CreateResourceStep2Schema } from "@/types/resource.schema";
-import { useCategories } from "./hooks/useCategories";
+import type { CreateResourceStep2Schema } from "@/types/schema/resource.schema";
+import { useCategories } from "../../hook/categories/useCategories";
 import { useCollections } from "./hooks/useCollections";
 import { useEditResourceDialog } from "./hooks/useEditResourceDialog";
 import type { ResourceFromApi } from "./services/useResource";

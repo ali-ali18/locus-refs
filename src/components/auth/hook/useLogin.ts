@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
-import { type FormSchema, formSchema } from "@/types/auth.schema";
+import { type FormSchema, formSchema } from "@/types/schema/auth.schema";
 
 export function useLogin() {
   const [passwordType, setPasswordType] = useState<"password" | "text">(

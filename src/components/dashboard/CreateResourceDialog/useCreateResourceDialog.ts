@@ -9,7 +9,7 @@ import {
   type CreateResourceStep2Schema,
   createResourceSchema,
   createResourceStep2Schema,
-} from "@/types/resource.schema";
+} from "@/types/schema/resource.schema";
 import { useFetchMetadata } from "../hooks/useFetchMetadata";
 import type { Category } from "../services/useCategory";
 import type { CreateResourcePayload } from "../services/useResource";

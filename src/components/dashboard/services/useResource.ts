@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import type { UpdateResourceBody } from "@/types/resources";
+import type { UpdateResourceBody } from "@/types/schema/resources.schema";
 
 export interface ResourceFromApi {
   id: string;
