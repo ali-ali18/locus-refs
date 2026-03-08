@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
+import { domAnimation, LazyMotion } from "motion/react";
 import { Toaster } from "sonner";
 import { QueryClient } from "@/components/shared/QueryClient";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
@@ -27,8 +28,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryClient>{children}</QueryClient>
-          <Toaster position="top-right" expand theme="light"/>
+          <LazyMotion features={domAnimation}>
+            <QueryClient>{children}</QueryClient>
+          </LazyMotion>
+          <Toaster position="top-right" expand theme="light" />
         </ThemeProvider>
       </body>
     </html>

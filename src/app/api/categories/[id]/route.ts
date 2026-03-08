@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
+import slugify from "slugify";
 import prisma from "@/lib/prisma";
 import { requireSession } from "@/server/requireSession";
-import slugify from "slugify";
 
 export async function DELETE(
   _request: NextRequest,

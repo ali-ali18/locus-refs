@@ -10,14 +10,21 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-//   socialProviders: {
-//     github: {
-//       clientId: process.env.GITHUB_CLIENT_ID as string,
-//       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-//     },
-//     google: {
-//       clientId: process.env.GOOGLE_CLIENT_ID as string,
-//       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-//     },
-//   },
+  //   socialProviders: {
+  //     github: {
+  //       clientId: process.env.GITHUB_CLIENT_ID as string,
+  //       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+  //     },
+  //     google: {
+  //       clientId: process.env.GOOGLE_CLIENT_ID as string,
+  //       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+  //     },
+  //   },
+
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL as string,
+    "http://localhost:3000",
+    "http://192.168.0.106:3000",
+    process.env.CLOUDFLARE_URL as string,
+  ].filter(Boolean),
 });
