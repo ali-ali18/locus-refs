@@ -10,13 +10,7 @@
     "format": "biome format --write",
     "test": "vitest",
     "test:run": "vitest run",
-    "commit": "cz",
-    "prepare": "husky"
-  },
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,css,md}": [
-      "biome check --write"
-    ]
+    "commit": "cz"
   },
   "config": {
     "commitizen": {
