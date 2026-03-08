@@ -21,7 +21,10 @@ export async function PATCH(
     return NextResponse.json({ error: "Resource not found" }, { status: 404 });
   }
 
-  if (body.collectionId !== undefined && body.collectionId !== resource.collectionId) {
+  if (
+    body.collectionId !== undefined &&
+    body.collectionId !== resource.collectionId
+  ) {
     const newCollection = await prisma.collection.findUnique({
       where: { id: body.collectionId, userId: session.user.id },
     });
@@ -40,7 +43,8 @@ export async function PATCH(
   if (body.url !== undefined) updateData.url = body.url;
   if (body.iconUrl !== undefined) updateData.iconUrl = body.iconUrl;
   if (body.ogImageUrl !== undefined) updateData.ogImageUrl = body.ogImageUrl;
-  if (body.collectionId !== undefined) updateData.collectionId = body.collectionId;
+  if (body.collectionId !== undefined)
+    updateData.collectionId = body.collectionId;
   if (body.categoryIds !== undefined) {
     updateData.categories = {
       set: body.categoryIds.map((categoryId) => ({ id: categoryId })),
@@ -66,24 +70,30 @@ export async function PATCH(
 }
 
 export async function DELETE(
-    _request: NextRequest,
-    { params }: { params: Promise<{ id: string }> },
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-    const session = await requireSession();
-    const { id } = await params;
+  const session = await requireSession();
+  const { id } = await params;
 
-    const resource = await prisma.resource.findFirst({
-        where: { id, collection: { userId: session.user.id } },
-    });
+  const resource = await prisma.resource.findFirst({
+    where: { id, collection: { userId: session.user.id } },
+  });
 
-    if (!resource) {
-        return NextResponse.json({ error: "Resource not found" }, { status: 404 });
-    }
+  if (!resource) {
+    return NextResponse.json({ error: "Resource not found" }, { status: 404 });
+  }
 
-    try {
-        await prisma.resource.delete({ where: { id } });
-        return NextResponse.json({ message: "Resource deleted successfully" }, { status: 200 });
-    } catch (_error) {
-        return NextResponse.json({ error: "Failed to delete resource" }, { status: 500 });
-    }
+  try {
+    await prisma.resource.delete({ where: { id } });
+    return NextResponse.json(
+      { message: "Resource deleted successfully" },
+      { status: 200 },
+    );
+  } catch (_error) {
+    return NextResponse.json(
+      { error: "Failed to delete resource" },
+      { status: 500 },
+    );
+  }
 }

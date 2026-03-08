@@ -1,4 +1,3 @@
-
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireSession } from "@/server/requireSession";

@@ -12,22 +12,17 @@ import { authClient } from "@/lib/auth-client";
 import { Icon } from "../Icon";
 import { ToggleButton } from "../ToggleButton";
 
-interface Props {
-  srcAvatar?: string;
-  name: string;
-  email: string;
-  isPending: boolean;
-}
-
-export function DropdownHeader({
-  srcAvatar,
-  name = "Usuario",
-  email = "usuario@email.com",
-  isPending,
-}: Props) {
+export function DropdownHeader() {
+  const { data: session, isPending } = authClient.useSession();
+  
   const router = useRouter();
-  const nextName = name.split(" ")[0];
-  const avatarSrc = srcAvatar === "" ? undefined : srcAvatar;
+
+  const name = session?.user?.name ?? "Guest";
+  const email = session?.user?.email ?? "Não informado/Não autenticado";
+
+  const nextName = session?.user?.name?.split(" ")[0];
+  const avatarSrc =
+    session?.user?.image === "" ? undefined : session?.user?.image ?? "";
 
   const menuItems = [
     {
