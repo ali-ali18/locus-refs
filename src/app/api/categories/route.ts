@@ -12,7 +12,6 @@ export async function GET() {
     include: { _count: { select: { resources: true } } },
   });
 
-  console.log(categories);
   return NextResponse.json(categories);
 }
 

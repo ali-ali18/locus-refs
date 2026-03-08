@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireSession } from "@/server/requireSession";
+import slugify from "slugify";
 
 export async function DELETE(
   _request: NextRequest,
@@ -52,10 +53,12 @@ export async function PATCH(
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
   }
 
+  const slug = slugify(name, { lower: true, strict: true });
+
   try {
     const updatedCategory = await prisma.category.update({
       where: { id },
-      data: { name },
+      data: { name, slug },
     });
     return NextResponse.json(
       { message: "Category updated successfully", category: updatedCategory },

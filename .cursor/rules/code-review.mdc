@@ -1,0 +1,24 @@
+---
+description: Revisão de código antes do commit
+globs:
+alwaysApply: false
+---
+
+Se o usuário pedir "code review" ou "revisar mudanças":
+
+1. Execute `git status` para listar arquivos modificados
+2. Execute `git diff` para mudanças ainda não staged
+3. Execute `git diff --staged` para mudanças já staged
+4. Analise os diffs em busca de:
+   -  Bugs e regressões lógicas
+   -  Credenciais, tokens ou dados sensíveis expostos
+   -  console.log, debugger ou print esquecidos
+   -  Código morto, TODOs não resolvidos
+   -  Imports não utilizados ou quebrados
+   -  Problemas de performance óbvios
+5. Liste os problemas encontrados com: arquivo, linha e sugestão de correção
+6. Se nenhum problema for encontrado, confirme que está limpo para commitar
+
+NUNCA use --no-verify em comandos git.
+NUNCA desabilite git hooks.
+Se um hook falhar, corrija o problema.

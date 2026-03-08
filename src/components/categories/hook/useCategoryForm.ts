@@ -4,9 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { Category } from "@/components/dashboard/services/useCategory";
 import { useCategory } from "@/hook/categories/useCategory";
-import { type CategorySchema, categorySchema } from "@/types/schema/category.schema";
+import type { Category } from "@/types/categories.type";
+import {
+  type CategorySchema,
+  categorySchema,
+} from "@/types/schema/category.schema";
 
 interface UseCategoryFormOptions {
   onSuccess?: () => void;
@@ -14,13 +17,8 @@ interface UseCategoryFormOptions {
 }
 
 export function useCategoryForm(options?: UseCategoryFormOptions) {
-  const {
-    createCategory,
-    updateCategory,
-    isLoading
-  } = useCategory();
+  const { createCategory, updateCategory, isLoading } = useCategory();
 
-  
   const form = useForm<CategorySchema>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
@@ -41,7 +39,6 @@ export function useCategoryForm(options?: UseCategoryFormOptions) {
       if (options?.category) {
         await updateCategory({ id: options.category.id, name: data.name });
         toast.success("Categoria atualizada com sucesso!");
-        options?.onSuccess?.();
       } else {
         await createCategory(data.name);
       }
@@ -55,6 +52,6 @@ export function useCategoryForm(options?: UseCategoryFormOptions) {
   return {
     form,
     onSubmit,
-    isLoading
+    isLoading,
   };
 }
