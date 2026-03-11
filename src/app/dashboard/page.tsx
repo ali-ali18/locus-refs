@@ -50,10 +50,7 @@ export default function DashboardPage() {
             resourcesCount={resources.length}
             collectionId={selectedCollectionId}
           />
-          <ResourceGrid
-            resources={resources}
-            isLoading={isLoadingResources}
-          />
+          <ResourceGrid resources={resources} isLoading={isLoadingResources} />
         </div>
       </div>
 
@@ -62,13 +59,12 @@ export default function DashboardPage() {
         onOpenChange={handleResourceDialogOpenChange}
         defaultCollectionId={selectedCollectionId}
         collections={collections}
-      	/>
+      />
 
       <CreateCollectionDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
       />
-
 
     </Container>
   );

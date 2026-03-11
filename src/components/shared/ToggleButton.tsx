@@ -7,10 +7,10 @@ import {
 } from "@hugeicons/core-free-icons";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "../ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Icon } from "./Icon";
-import { cn } from "@/lib/utils";
 
 const icons = [
   {

@@ -34,7 +34,7 @@ export function NavigationMenu({ className, items }: Props) {
     >
       <ul className="flex items-center gap-1">
         {items.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href 
 
           return (
             <li key={item.href}>

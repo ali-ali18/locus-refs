@@ -1,4 +1,8 @@
-import { Folder01Icon, HomeFreeIcons } from "@hugeicons/core-free-icons";
+import {
+  Folder01Icon,
+  HomeFreeIcons,
+  Note01Icon,
+} from "@hugeicons/core-free-icons";
 
 export const navigationMenuData = [
   {
@@ -10,5 +14,10 @@ export const navigationMenuData = [
     icon: Folder01Icon,
     label: "Categorias",
     href: "/dashboard/categories",
+  },
+  {
+    icon: Note01Icon,
+    label: "Notas",
+    href: "/dashboard/notes",
   },
 ];
