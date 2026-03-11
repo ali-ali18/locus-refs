@@ -27,7 +27,7 @@ export function PageHeaderNote({ title, icon, id }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="h-42 w-full rounded-xl  bg-linear-to-br from-[#423E37] via-[#262626] to-[#171717] aspect-video" />
+      <div className="h-42 w-full rounded-xl bg-linear-to-br from-[#423E37] via-[#262626] to-[#171717] aspect-video" />
 
       <div className="flex flex-col gap-2">
         <div className="min-h-[20px] flex items-center gap-2 text-xs">
@@ -73,7 +73,7 @@ export function PageHeaderNote({ title, icon, id }: Props) {
               value={currentIcon}
               onChange={handleIconChange}
               trigger={
-                <div className="border rounded-2xl p-2 bg-muted cursor-pointer hover:bg-muted/80 transition-colors duration-300">
+                <div className="rounded-2xl p-1.5 cursor-pointer hover:bg-muted/80 transition-colors duration-300">
                   <Icon icon={resolvedIcon} className="size-9" />
                 </div>
               }
@@ -86,7 +86,7 @@ export function PageHeaderNote({ title, icon, id }: Props) {
           >
             <textarea
               {...titleField}
-              className="w-full outline-none text-2xl p-2 rounded-xl resize-none leading-snug overflow-hidden"
+              className="w-full outline-none text-2xl p-2 rounded-xl resize-none leading-snug overflow-hidden font-semibold"
               placeholder="Título da nota"
               rows={1}
             />
