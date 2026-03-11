@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,11 +19,12 @@ import { Icon } from "../shared/Icon";
 interface IconPickerProps {
   value: string | null;
   onChange: (value: string | null) => void;
+  trigger?: ReactNode;
 }
 
 const PAGE_SIZE = 18;
 
-export function IconPicker({ value, onChange }: IconPickerProps) {
+export function IconPicker({ value, onChange, trigger }: IconPickerProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
@@ -48,24 +50,34 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
 
   const selectedLabel = value ?? "Nenhum ícone selecionado";
 
+  const defaultTrigger = (
+    <Button
+      type="button"
+      variant="outline"
+      rounded="xl"
+      className="w-full justify-between"
+      onClick={() => setOpen(true)}
+    >
+      <span className="truncate text-sm flex items-center gap-2">
+        {value && (
+          <span className="border rounded-xl p-1 bg-muted">
+            <Icon icon={resolveIcon(value)} className="size-5.5" />
+          </span>
+        )}
+        {selectedLabel}
+      </span>
+    </Button>
+  );
+
   return (
     <div className="space-y-2">
-      <Button
+      <button
         type="button"
-        variant="outline"
-        rounded="xl"
-        className="w-full justify-between"
         onClick={() => setOpen(true)}
+        className={trigger ? "inline-flex" : undefined}
       >
-        <span className="truncate text-sm flex items-center gap-2">
-          {value && (
-            <span className="border rounded-xl p-1 bg-muted">
-              <Icon icon={resolveIcon(value)} className="size-5.5" />
-            </span>
-          )}
-          {selectedLabel}
-        </span>
-      </Button>
+        {trigger ?? defaultTrigger}
+      </button>
 
       <CommandDialog
         className="w-full sm:min-w-xl min-h-"

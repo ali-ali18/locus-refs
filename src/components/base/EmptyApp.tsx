@@ -11,26 +11,28 @@ import {
   EmptyTitle,
 } from "../ui/empty";
 
-interface EmpetyAppProps {
-  title: string;
+interface EmptyAppProps {
+  title: ReactNode;
   description: string;
   icon: IconSvgElement;
   action?: ReactNode;
   className?: string;
+  classNameIcon?: string;
 }
 
-export function EmpetyApp({
+export function EmptyApp({
   title,
   description,
   icon,
   action,
   className,
-}: EmpetyAppProps) {
+  classNameIcon,
+}: EmptyAppProps) {
   return (
     <Empty className={cn(className)}>
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <Icon icon={icon} />
+          <Icon icon={icon} className={classNameIcon}/>
         </EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>

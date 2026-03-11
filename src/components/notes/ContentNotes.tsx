@@ -2,7 +2,7 @@
 
 import { Note02FreeIcons } from "@hugeicons/core-free-icons";
 import { useNotes } from "@/hook/notes/useNotes";
-import { EmpetyApp } from "../base/EmpetyApp";
+import { EmptyApp } from "../base/EmptyApp";
 import { Skeleton } from "../ui/skeleton";
 import { NotesList } from "./NotesList";
 
@@ -11,7 +11,7 @@ export function ContentNotes() {
 
   if (data && data.length === 0 && !isLoading) {
     return (
-      <EmpetyApp
+      <EmptyApp
         className="rounded-xl border"
         title="Você ainda não tem nenhuma nota"
         description="Crie uma nova nota para começar a anotar"
@@ -30,7 +30,5 @@ export function ContentNotes() {
     );
   }
 
-  return (
-    <NotesList notes={data ?? []} />
-  );
+  return <NotesList notes={data ?? []} />;
 }

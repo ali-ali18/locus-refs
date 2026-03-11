@@ -2,7 +2,7 @@
 
 import { Folder01Icon, Plus } from "@hugeicons/core-free-icons";
 import type { Collection } from "@/types/collection.type";
-import { EmpetyApp } from "../base/EmpetyApp";
+import { EmptyApp } from "../base/EmptyApp";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";
 import { CollectionItem } from "./CollectionItem";
@@ -20,10 +20,9 @@ export function CollectionSidebar({
   onSelectCollection,
   handleDialog,
 }: CollectionSidebarProps) {
-  
   if (collections.length === 0) {
     return (
-      <EmpetyApp
+      <EmptyApp
         className="border"
         title="Você ainda não tem nenhuma collection"
         description="Crie uma nova collection para começar a organizar seus recursos"

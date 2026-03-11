@@ -2,6 +2,7 @@ import Emoji, { gitHubEmojis } from "@tiptap/extension-emoji";
 import Heading from "@tiptap/extension-heading";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
+import { CodeBlockIcon } from "@/components/tiptap-icons/code-block-icon";
 import type {
   SlashMenuConfig,
   SlashMenuItemType,
@@ -47,6 +48,7 @@ export function getNotesEditorExtensions(
         HTMLAttributes: { class: "my-6 ml-6 list-decimal [&>li]:mt-2" },
       },
       codeBlock: {
+        defaultLanguage: "typescript",
         HTMLAttributes: {
           class: [
             "relative rounded-xl border border-border",
@@ -81,6 +83,7 @@ export const NOTES_EDITOR_PROPS = {
   attributes: {
     class: "focus:outline-none min-h-[200px] px-1 py-2",
   },
+  
 };
 
 const NOTES_SLASH_ENABLED_ITEMS: SlashMenuItemType[] = [
@@ -96,15 +99,27 @@ const NOTES_SLASH_ENABLED_ITEMS: SlashMenuItemType[] = [
 
 export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
   enabledItems: NOTES_SLASH_ENABLED_ITEMS,
+  customItems: [
+    {
+      title: "Inline Code",
+      subtext: "Insert an inline code",
+      keywords: ["code", "inline", "inline code"],
+      badge: CodeBlockIcon,
+      group: "Blocos",
+      onSelect: ({ editor }) => {
+        editor.chain().focus().toggleNode("code", "paragraph", ).run();
+      },
+    }
+  ],
   showGroups: true,
   itemGroups: {
-    text: "Formatting",
-    heading_1: "Formatting",
-    heading_2: "Formatting",
-    heading_3: "Formatting",
-    bullet_list: "Lists",
-    ordered_list: "Lists",
-    quote: "Blocks",
-    code_block: "Blocks",
+    text: "Formatação",
+    heading_1: "Formatação",
+    heading_2: "Formatação",
+    heading_3: "Formatação",
+    bullet_list: "Listas",
+    ordered_list: "Listas",
+    quote: "Blocos",
+    code_block: "Blocos",
   },
 };

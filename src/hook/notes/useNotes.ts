@@ -25,7 +25,7 @@ export function useNotes() {
 }
 
 export function useNote(id: string) {
-  return useQuery({
+  return useQuery<Note>({
     queryKey: noteKeys.detail(id),
     queryFn: () => getNote(id),
     enabled: !!id,
