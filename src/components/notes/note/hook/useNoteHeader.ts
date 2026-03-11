@@ -8,8 +8,7 @@ import {
   type UpdateHeaderNoteSchema,
   updateHeaderNoteSchema,
 } from "@/types/schema/note.schema";
-
-type SaveStatus = "idle" | "saving" | "saved" | "error";
+import type { SaveStatus } from "@/types/saveStatus.type";
 
 interface UseNoteHeaderParams {
   id: string;

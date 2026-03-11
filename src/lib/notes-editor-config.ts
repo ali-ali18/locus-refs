@@ -36,7 +36,7 @@ export function getNotesEditorExtensions(
     StarterKit.configure({
       heading: false,
       paragraph: {
-        HTMLAttributes: { class: "leading-7 [&:not(:first-child)]:mt-6" },
+        HTMLAttributes: { class: "leading-7" },
       },
       blockquote: {
         HTMLAttributes: { class: "mt-6 border-l-2 pl-6 italic" },
@@ -64,6 +64,11 @@ export function getNotesEditorExtensions(
             "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold",
         },
       },
+      link: {
+        HTMLAttributes: {
+          class: "text-primary underline",
+        },
+      }
     }),
     CustomHeading.configure({ levels: [1, 2, 3] }),
     Emoji.configure({
@@ -107,7 +112,7 @@ export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
       badge: CodeBlockIcon,
       group: "Blocos",
       onSelect: ({ editor }) => {
-        editor.chain().focus().toggleNode("code", "paragraph", ).run();
+        editor.chain().focus().toggleNode("codeBlock", "paragraph").run();
       },
     }
   ],

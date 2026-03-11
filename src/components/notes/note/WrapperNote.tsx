@@ -7,6 +7,8 @@ import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNote } from "@/hook/notes/useNotes";
+import { ContentNote } from "./ContentNote";
+import { useNoteContentStatus } from "./hook/useNoteContentStatus";
 import { PageHeaderNote } from "./PageHeaderNote";
 
 interface Props {
@@ -15,6 +17,7 @@ interface Props {
 
 export function WrapperNote({ id }: Props) {
   const { data: note, isLoading } = useNote(id);
+  const { status, handleContentChange } = useNoteContentStatus({ id });
 
   if (isLoading) {
     return (
@@ -49,5 +52,14 @@ export function WrapperNote({ id }: Props) {
     );
   }
 
-  return <PageHeaderNote title={note.title} icon={note.icon} id={id} />;
+  return (
+    <>
+      <PageHeaderNote title={note.title} icon={note.icon} id={id} />
+      <ContentNote
+        content={note.content}
+        onChange={handleContentChange}
+        status={status}
+      />
+    </>
+  );
 }
