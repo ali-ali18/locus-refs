@@ -26,7 +26,7 @@ export function PageHeaderNote({ title, icon, id }: Props) {
   } = useNoteHeader({ id, initialTitle: title, initialIcon: icon });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-0">
       <div className="h-42 w-full rounded-xl bg-linear-to-br from-[#423E37] via-[#262626] to-[#171717] aspect-video" />
 
       <div className="flex flex-col gap-2">

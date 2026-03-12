@@ -1,7 +1,6 @@
 "use client";
 
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
-import { useEffect } from "react";
 import { SlashDropdownMenu } from "@/components/tiptap-ui/slash-dropdown-menu";
 import {
   getNotesEditorExtensions,
@@ -21,21 +20,14 @@ export function Editor({ content, onChange }: EditorProps) {
     extensions: getNotesEditorExtensions({
       placeholder: NOTES_EDITOR_PLACEHOLDER,
     }),
-    content: content || "",
+    content: content,
     immediatelyRender: false,
     editorProps: NOTES_EDITOR_PROPS,
     onUpdate({ editor }) {
       if (!onChange) return;
-
       onChange(editor.getHTML());
     },
   });
-
-  useEffect(() => {
-    if (editor && !editor.isDestroyed) {
-      editor.commands.focus();
-    }
-  }, [editor]);
 
   return (
     <EditorContext.Provider value={{ editor }}>

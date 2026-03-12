@@ -8,7 +8,7 @@ interface Props {
 export default async function NotePage({ params }: Props) {
   const { id } = await params;
   return (
-    <Container>
+    <Container >
       <WrapperNote id={id} />
     </Container>
   );

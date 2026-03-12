@@ -4,6 +4,8 @@
 @import "../styles/_variables.scss";
 @import "../styles/_keyframe-animations.scss";
 
+@import 'highlight.js/styles/github.css';
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

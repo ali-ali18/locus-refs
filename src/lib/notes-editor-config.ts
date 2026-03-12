@@ -2,11 +2,11 @@ import Emoji, { gitHubEmojis } from "@tiptap/extension-emoji";
 import Heading from "@tiptap/extension-heading";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
-import { CodeBlockIcon } from "@/components/tiptap-icons/code-block-icon";
 import type {
   SlashMenuConfig,
   SlashMenuItemType,
 } from "@/components/tiptap-ui/slash-dropdown-menu/use-slash-dropdown-menu";
+import { CustomCodeBlock } from "@/lib/extension/CustomCodeBlock";
 
 const CustomHeading = Heading.extend({
   renderHTML({ node, HTMLAttributes }) {
@@ -47,17 +47,7 @@ export function getNotesEditorExtensions(
       orderedList: {
         HTMLAttributes: { class: "my-6 ml-6 list-decimal [&>li]:mt-2" },
       },
-      codeBlock: {
-        defaultLanguage: "typescript",
-        HTMLAttributes: {
-          class: [
-            "relative rounded-xl border border-border",
-            "bg-muted text-muted-foreground",
-            "font-mono text-sm",
-            "p-4 my-4 overflow-x-auto",
-          ].join(" "),
-        },
-      },
+      codeBlock: false,
       code: {
         HTMLAttributes: {
           class:
@@ -68,8 +58,9 @@ export function getNotesEditorExtensions(
         HTMLAttributes: {
           class: "text-primary underline",
         },
-      }
+      },
     }),
+    CustomCodeBlock,
     CustomHeading.configure({ levels: [1, 2, 3] }),
     Emoji.configure({
       emojis: gitHubEmojis,
@@ -88,7 +79,6 @@ export const NOTES_EDITOR_PROPS = {
   attributes: {
     class: "focus:outline-none min-h-[200px] px-1 py-2",
   },
-  
 };
 
 const NOTES_SLASH_ENABLED_ITEMS: SlashMenuItemType[] = [
@@ -107,14 +97,17 @@ export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
   customItems: [
     {
       title: "Inline Code",
-      subtext: "Insert an inline code",
-      keywords: ["code", "inline", "inline code"],
-      badge: CodeBlockIcon,
-      group: "Blocos",
       onSelect: ({ editor }) => {
-        editor.chain().focus().toggleNode("codeBlock", "paragraph").run();
+        editor.chain().focus().toggleCode().run();
       },
-    }
+    },
+    {
+      title: "Code Block",
+      onSelect: ({ editor }) => {
+        editor.chain().focus().setNode("codeBlockCustom").run();
+      },
+    },
+    
   ],
   showGroups: true,
   itemGroups: {
