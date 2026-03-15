@@ -37,7 +37,7 @@ export function ToggleButton({ className }: { className?: string }) {
 
   return (
     <ToggleGroup
-      className={cn("rounded-full", className)}
+      className={cn("", className)}
       variant={"outline"}
       size={"default"}
       orientation="horizontal"

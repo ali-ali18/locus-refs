@@ -6,7 +6,7 @@ import { Icon } from "@/components/shared/Icon";
 import { Badge } from "@/components/ui/badge";
 import statusConfig from "@/lib/data/statusConfig";
 import type { SaveStatus } from "@/types/saveStatus.type";
-import { Editor } from "../Editor";
+import { Editor } from "../../ui/baseNote/Editor";
 
 interface Props {
   content?: string | null;

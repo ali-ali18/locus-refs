@@ -55,7 +55,7 @@ export function CodeBlockView({ node, updateAttributes }: NodeViewProps) {
       <pre
         className={`p-4 overflow-x-auto bg-transparent font-mono text-sm ${geistMono.className} language-${node.attrs.language}`}
       >
-        <NodeViewContent as={"code"} />
+        <NodeViewContent as={"div"} />
       </pre>
     </NodeViewWrapper>
   );

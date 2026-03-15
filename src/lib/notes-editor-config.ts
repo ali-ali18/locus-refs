@@ -1,5 +1,6 @@
 import Emoji, { gitHubEmojis } from "@tiptap/extension-emoji";
 import Heading from "@tiptap/extension-heading";
+import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import type {
@@ -39,7 +40,7 @@ export function getNotesEditorExtensions(
         HTMLAttributes: { class: "leading-7" },
       },
       blockquote: {
-        HTMLAttributes: { class: "mt-6 border-l-2 pl-6 italic" },
+        HTMLAttributes: { class: "mt-6 border-l-4 pl-6 italic" },
       },
       bulletList: {
         HTMLAttributes: { class: "my-6 ml-6 list-disc [&>li]:mt-2" },
@@ -54,13 +55,9 @@ export function getNotesEditorExtensions(
             "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold",
         },
       },
-      link: {
-        HTMLAttributes: {
-          class: "text-primary underline",
-        },
-      },
     }),
     CustomCodeBlock,
+
     CustomHeading.configure({ levels: [1, 2, 3] }),
     Emoji.configure({
       emojis: gitHubEmojis,
@@ -69,6 +66,15 @@ export function getNotesEditorExtensions(
         class: "align-middle mx-[0.05em]",
       },
     }),
+
+    Link.configure({
+      autolink: true,
+      openOnClick: false,
+      HTMLAttributes: {
+        class: "text-accent-foreground underline cursor-pointer",
+      },
+    }),
+
     Placeholder.configure({
       placeholder,
     }),
@@ -107,7 +113,6 @@ export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
         editor.chain().focus().setNode("codeBlockCustom").run();
       },
     },
-    
   ],
   showGroups: true,
   itemGroups: {
