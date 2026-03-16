@@ -1,4 +1,5 @@
 import { MoreHorizontal } from "@hugeicons/core-free-icons";
+import type { IconSvgElement } from "@hugeicons/react";
 import type { Editor } from "@tiptap/react";
 import { useEditorState } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
@@ -37,6 +38,7 @@ export function DropdownNote({ editor }: Props) {
       bold: editor.isActive("bold"),
       italic: editor.isActive("italic"),
       underline: editor.isActive("underline"),
+      link: editor.isActive("link"),
     }),
   });
 
@@ -71,7 +73,11 @@ export function DropdownNote({ editor }: Props) {
             />
           ),
         )}
-        <LinkPopover editor={editor} onOpenChange={setLinkPopoverOpen} />
+        <LinkPopover
+          editor={editor}
+          onOpenChange={setLinkPopoverOpen}
+          isActive={activeMarks.link}
+        />
 
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger>
@@ -120,29 +126,69 @@ export function DropdownNote({ editor }: Props) {
                     );
                   }
 
-                  return (
-                    <DropdownMenuSub
-                      key={`submenu-${group.label ?? "group"}-${item.label}-${ii}`}
-                    >
-                      <DropdownMenuSubTrigger className="rounded-xl">
-                        {item.icon && <Icon icon={item.icon} />}
-                        {item.label}
-                      </DropdownMenuSubTrigger>
+                  if (item.kind === "submenu") {
+                    return (
+                      <DropdownMenuSub
+                        key={`submenu-${group.label ?? "group"}-${item.label}-${ii}`}
+                      >
+                        <DropdownMenuSubTrigger className="rounded-xl">
+                          {item.icon && <Icon icon={item.icon} />}
+                          {item.label}
+                        </DropdownMenuSubTrigger>
 
-                      <DropdownMenuSubContent className="rounded-xl mx-2 w-42">
-                        {item.children.map((child, ci) => (
-                          <DropdownMenuItem
-                            key={`submenu-child-${group.label ?? "group"}-${item.label}-${child.label}-${ci}`}
-                            onClick={() => child.onSelect(editor)}
-                            className="rounded-xl"
-                          >
-                            {child.icon && <Icon icon={child.icon} />}
-                            {child.label}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                  );
+                        <DropdownMenuSubContent className="rounded-xl mx-2 w-42">
+                          {item.children.map((child, ci) => {
+                            const isColor =
+                              "value" in child && child.kind === "color";
+                            if (isColor) {
+                              return (
+                                <DropdownMenuItem
+                                  key={`submenu-child-${group.label ?? "group"}-${item.label}-${(child as { label: string }).label}-${ci}`}
+                                  onClick={() =>
+                                    (
+                                      child as {
+                                        onSelect: (editor: Editor) => void;
+                                      }
+                                    ).onSelect(editor)
+                                  }
+                                  className="rounded-xl gap-2"
+                                >
+                                  <div
+                                    className={`size-4 rounded-xl border bg-accent-foreground`}
+
+                                    style={{
+                                      backgroundColor:
+                                        (child as { value: string }).value
+                                    }}
+                                  />
+                                  {(child as { label: string }).label}
+                                </DropdownMenuItem>
+                              );
+                            }
+                            const actionChild = child as {
+                              icon?: IconSvgElement;
+                              label: string;
+                              onSelect: (editor: Editor) => void;
+                            };
+                            return (
+                              <DropdownMenuItem
+                                key={`submenu-child-${group.label ?? "group"}-${item.label}-${actionChild.label}-${ci}`}
+                                onClick={() => actionChild.onSelect(editor)}
+                                className="rounded-xl"
+                              >
+                                {actionChild.icon && (
+                                  <Icon icon={actionChild.icon} />
+                                )}
+                                {actionChild.label}
+                              </DropdownMenuItem>
+                            );
+                          })}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                    );
+                  }
+
+                  return null;
                 })}
               </DropdownMenuGroup>
             ))}

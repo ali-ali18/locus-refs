@@ -22,17 +22,16 @@ import { cn } from "@/lib/utils";
 interface Props {
   editor: Editor;
   onOpenChange?: (open: boolean) => void;
+  isActive?: boolean;
 }
 
 function looksLikeUrl(text: string): boolean {
   return /^https?:\/\//i.test(text) || /^www\./i.test(text);
 }
 
-export function LinkPopover({ editor, onOpenChange }: Props) {
+export function LinkPopover({ editor, onOpenChange, isActive }: Props) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
-
-  const isActive = editor.isActive("link");
 
   const handleOpenChange = (next: boolean) => {
     if (next) {

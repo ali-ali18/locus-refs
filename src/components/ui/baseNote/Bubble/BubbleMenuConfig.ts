@@ -12,6 +12,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { Editor } from "@tiptap/react";
+import { TEXT_COLORS } from "@/lib/data/colorsNote";
 
 export type MenuItemAction = {
   kind: "action";
@@ -25,14 +26,25 @@ export type MenuItemSubmenu = {
   kind: "submenu";
   label: string;
   icon?: IconSvgElement;
-  children: MenuItemAction[];
+  children: (MenuItemAction | MenuItemColor)[];
 };
 
 export interface MenuItemSeparator {
   kind: "separator";
 }
 
-export type MenuItem = MenuItemAction | MenuItemSubmenu | MenuItemSeparator;
+export type MenuItemColor = {
+  kind: "color";
+  label: string;
+  value: string;
+  onSelect: (editor: Editor) => void;
+};
+
+export type MenuItem =
+  | MenuItemAction
+  | MenuItemSubmenu
+  | MenuItemSeparator
+  | MenuItemColor;
 
 export type MenuGroup = {
   label?: string;
@@ -88,19 +100,21 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
         icon: BrushIcon,
         children: [
           {
-            kind: "action",
-            label: "Cor 1",
+            kind: "color",
+            label: "Padrão",
+            value: "",
             onSelect: (editor) => {
-              console.log("Cor 1", editor);
+              editor.chain().focus().unsetColor().run();
             },
           },
-          {
-            kind: "action",
-            label: "Cor 2",
-            onSelect: (editor) => {
-              console.log("Cor 2", editor);
+          ...TEXT_COLORS.map((color) => ({
+            kind: "color" as const,
+            label: color.label,
+            value: color.value,
+            onSelect: (editor: Editor) => {
+              editor.chain().focus().setColor(color.value).run();
             },
-          },
+          })),
         ],
       },
       {

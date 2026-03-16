@@ -2,6 +2,7 @@ import Emoji, { gitHubEmojis } from "@tiptap/extension-emoji";
 import Heading from "@tiptap/extension-heading";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import { Color, TextStyle } from "@tiptap/extension-text-style";
 import StarterKit from "@tiptap/starter-kit";
 import type {
   SlashMenuConfig,
@@ -74,6 +75,9 @@ export function getNotesEditorExtensions(
         class: "text-accent-foreground underline cursor-pointer",
       },
     }),
+    
+    TextStyle,
+    Color,
 
     Placeholder.configure({
       placeholder,
