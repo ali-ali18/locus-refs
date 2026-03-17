@@ -2,7 +2,11 @@ import Emoji, { gitHubEmojis } from "@tiptap/extension-emoji";
 import Heading from "@tiptap/extension-heading";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Color, TextStyle } from "@tiptap/extension-text-style";
+import {
+  BackgroundColor,
+  Color,
+  TextStyle,
+} from "@tiptap/extension-text-style";
 import StarterKit from "@tiptap/starter-kit";
 import type {
   SlashMenuConfig,
@@ -75,19 +79,23 @@ export function getNotesEditorExtensions(
         class: "text-accent-foreground underline cursor-pointer",
       },
     }),
-    
+
     TextStyle,
     Color,
+    BackgroundColor,
 
     Placeholder.configure({
-      placeholder,
+      placeholder: () => placeholder,
+      showOnlyCurrent: false,
+      includeChildren: true,
+      emptyEditorClass: "is-editor-empty",
     }),
   ];
 }
 
 export const NOTES_EDITOR_PROPS = {
   attributes: {
-    class: "focus:outline-none min-h-[200px] px-1 py-2",
+    class: "focus:outline-none min-h-[200px] px-1 py-2 space-y-4",
   },
 };
 

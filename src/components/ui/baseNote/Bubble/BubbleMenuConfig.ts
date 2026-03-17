@@ -12,7 +12,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { Editor } from "@tiptap/react";
-import { TEXT_COLORS } from "@/lib/data/colorsNote";
+import { BACKGROUND_COLORS, TEXT_COLORS } from "@/lib/data/colorsNote";
 
 export type MenuItemAction = {
   kind: "action";
@@ -118,12 +118,27 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
         ],
       },
       {
-        kind: "action",
-        label: "Cor do fundo",
+        kind: "submenu",
+        label: "Cor de fundo",
         icon: PaintBucketIcon,
-        onSelect: (editor) => {
-          console.log("Cor do fundo", editor);
-        },
+        children: [
+          {
+            kind: "color",
+            label: "Padrão",
+            value: "",
+            onSelect: (editor) => {
+              editor.chain().focus().unsetBackgroundColor().run();
+            },
+          },
+          ...BACKGROUND_COLORS.map((color) => ({
+            kind: "color" as const,
+            label: color.label,
+            value: color.value,
+            onSelect: (editor: Editor) => {
+              editor.chain().focus().setBackgroundColor(color.value).run();
+            },
+          })),
+        ],
       },
     ],
   },
