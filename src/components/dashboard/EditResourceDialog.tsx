@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import type { CreateResourceStep2Schema } from "@/types/schema/resource.schema";
 import { useCategories } from "../../hook/categories/useCategories";
-import { useCollections } from "./hooks/useCollections";
+import { useCollections } from "../../hook/collections/useCollections";
 import { useEditResourceDialog } from "./hooks/useEditResourceDialog";
 import type { ResourceFromApi } from "./services/useResource";
 

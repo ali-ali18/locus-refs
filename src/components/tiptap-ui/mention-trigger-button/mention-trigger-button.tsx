@@ -6,7 +6,7 @@ import { forwardRef, useCallback } from "react"
 import { parseShortcutKeys } from "@/lib/tiptap-utils"
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { useTiptapEditor } from "@/hook/use-tiptap-editor"
 
 // --- Tiptap UI ---
 import type { UseMentionTriggerConfig } from "@/components/tiptap-ui/mention-trigger-button"

@@ -1,32 +1,15 @@
 "use client";
 
-import {
-  Folder02Icon,
-  MoreVerticalIcon,
-  PencilEdit01Icon,
-  Plus,
-  Search01Icon,
-  Trash2,
-} from "@hugeicons/core-free-icons";
-import { type Dispatch, type SetStateAction, useState } from "react";
+import { Folder02Icon, Plus, Search01Icon } from "@hugeicons/core-free-icons";
+import { type Dispatch, type SetStateAction } from "react";
 import { InputGroupApp } from "@/components/base";
 import { Icon } from "@/components/shared/Icon";
 import { Separator } from "@/components/ui/separator";
-import { DropdownMenuApp } from "../base/DropdownMenuApp";
 import { Button } from "../ui/button";
-import {
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "../ui/dropdown-menu";
-import { EditCollectionDialog } from "./EditCollectionDialog";
-import { useCollections } from "./hooks/useCollections";
 
 interface ResourceHeaderProps {
   title: string;
   resourcesCount: number;
-  collectionId: string | null;
   handleOpenDialogCreateResource: () => void;
   searchQuery: string;
   setSearchQuery: Dispatch<SetStateAction<string>>;
@@ -35,15 +18,10 @@ interface ResourceHeaderProps {
 export function ResourceHeader({
   title,
   resourcesCount,
-  collectionId,
   handleOpenDialogCreateResource,
   searchQuery,
   setSearchQuery,
 }: ResourceHeaderProps) {
-  const { deleteCollection, isDeleting,  } =
-    useCollections();
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
   return (
     <div className="flex flex-col gap-6 w-full min-w-0">
       <div className="flex items-center gap-1.5">
@@ -51,55 +29,13 @@ export function ResourceHeader({
           <span className="p-2 border rounded-xl bg-background shadow-sm">
             <Icon icon={Folder02Icon} className="size-6 text-foreground/80" />
           </span>
-          <h2 className="text-xl md:text-2xl font-semibold tracking-tight inline-flex items-center gap-2">
+          <h2 className="text-xl md:text-2xl font-semibold tracking-tight">
             {title}
           </h2>
         </div>
         <span className="text-muted-foreground text-sm font-medium ml-1">
           ({resourcesCount} recursos)
         </span>
-        <DropdownMenuApp
-          trigger={<Icon icon={MoreVerticalIcon} className="size-5" />}
-          contentClassName="w-52"
-        >
-          <DropdownMenuGroup>
-            <DropdownMenuLabel className="text-sm font-medium">
-              Funções
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              nativeButton
-              className="rounded-xl"
-              render={
-                <Button
-                  variant="ghost"
-                  rounded="full"
-                  size="lg"
-                  className="w-full justify-start"
-                  onClick={() => deleteCollection(collectionId ?? "")}
-                  disabled={isDeleting}
-                >
-                  <Icon icon={Trash2} className="size-5" /> Deletar
-                </Button>
-              }
-            />
-            <DropdownMenuItem
-              nativeButton
-              className="rounded-xl"
-              render={
-                <Button
-                  variant="ghost"
-                  rounded="full"
-                  size="lg"
-                  className="w-full justify-start"
-                  onClick={() => setIsEditDialogOpen(true)}
-                >
-                  <Icon icon={PencilEdit01Icon} className="size-5" /> Editar
-                </Button>
-              }
-            />
-          </DropdownMenuGroup>
-        </DropdownMenuApp>
       </div>
 
       <div className="w-full flex items-center justify-between gap-2">
@@ -128,13 +64,6 @@ export function ResourceHeader({
       </div>
 
       <Separator />
-
-      <EditCollectionDialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        collectionId={collectionId ?? ""}
-        currentName={title}
-      />
     </div>
   );
 }

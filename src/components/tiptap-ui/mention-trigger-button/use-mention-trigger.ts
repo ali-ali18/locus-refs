@@ -6,8 +6,8 @@ import { type Editor } from "@tiptap/react"
 import type { Node } from "@tiptap/pm/model"
 
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
-import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
+import { useTiptapEditor } from "@/hook/use-tiptap-editor"
+import { useIsBreakpoint } from "@/hook/use-is-breakpoint"
 
 // --- Lib ---
 import {

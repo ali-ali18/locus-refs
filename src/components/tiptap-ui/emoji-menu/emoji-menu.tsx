@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import type { EmojiItem } from "@tiptap/extension-emoji"
 
 // --- Hooks ---
-import { useMenuNavigation } from "@/hooks/use-menu-navigation"
+import { useMenuNavigation } from "@/hook/use-menu-navigation"
 
 // --- Lib ---
 import { getElementOverflowPosition } from "@/lib/tiptap-collab-utils"

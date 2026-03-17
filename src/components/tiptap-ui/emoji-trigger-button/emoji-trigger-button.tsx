@@ -4,9 +4,8 @@ import { forwardRef, useCallback } from "react"
 
 // --- Lib ---
 import { parseShortcutKeys } from "@/lib/tiptap-utils"
-
 // --- Hooks ---
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { useTiptapEditor } from "@/hook/use-tiptap-editor"
 
 // --- Tiptap UI ---
 import type { UseEmojiTriggerConfig } from "@/components/tiptap-ui/emoji-trigger-button"

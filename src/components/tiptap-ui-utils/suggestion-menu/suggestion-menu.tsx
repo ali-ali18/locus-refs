@@ -5,9 +5,9 @@ import { flip, offset, shift, size } from "@floating-ui/react"
 import { PluginKey } from "@tiptap/pm/state"
 
 // --- Hooks ---
-import { useFloatingElement } from "@/hooks/use-floating-element"
-import { useMenuNavigation } from "@/hooks/use-menu-navigation"
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { useFloatingElement } from "@/hook/use-floating-element"
+import { useMenuNavigation } from "@/hook/use-menu-navigation"
+import { useTiptapEditor } from "@/hook/use-tiptap-editor"
 
 // --- Tiptap Editor ---
 import type { Range } from "@tiptap/react"

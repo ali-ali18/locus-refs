@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useCollections } from "./useCollections";
+import { useCollections } from "../../../hook/collections/useCollections";
 import { useResources } from "./useResources";
 
 export function useDashboardPage() {
