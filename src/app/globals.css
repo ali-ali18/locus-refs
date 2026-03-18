@@ -198,15 +198,18 @@
   --shadow-2xl: 0px 15px 25px -10px hsl(0 0% 0% / 1.25);
 }
 
-.tiptap p.is-empty::before {
+.tiptap p.is-empty::before,
+.tiptap h1.is-empty::before,
+.tiptap h2.is-empty::before,
+.tiptap h3.is-empty::before {
   content: attr(data-placeholder);
   float: left;
   color: var(--muted-foreground);
   pointer-events: none;
   height: 0;
+  font-size: 1rem !important;
+  font-weight: 400 !important;
   line-height: 1.5;
-  font-size: 1rem;
-  font-weight: 400;
 }
 
 .tiptap .is-editor-empty:first-child::before {
@@ -215,6 +218,8 @@
   color: var(--muted-foreground);
   pointer-events: none;
   height: 0;
+  font-size: 1rem !important;
+  font-weight: 400 !important;
 }
 
 .tiptap span[data-emoji] {
