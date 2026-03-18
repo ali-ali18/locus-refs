@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: Index serve apenas para marcar os skelletons*/
 "use client";
 
 import {
@@ -30,11 +31,14 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useCollections } from "@/hook/collections/useCollections";
+import { Skeleton } from "../ui/skeleton";
 
 export function NavMain() {
   const { collections, isLoading, deleteCollection } = useCollections();
+  const { setOpenMobile, openMobile } = useSidebar();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -44,8 +48,6 @@ export function NavMain() {
     id: string;
     name: string;
   } | null>(null);
-
-  if (isLoading) return null;
 
   const collectionSlice = isAllCollections
     ? collections
@@ -57,6 +59,14 @@ export function NavMain() {
     }
     await deleteCollection(id);
   };
+
+  if (isLoading) {
+    const skeletons = Array.from({ length: 3 }).map((_, i) => (
+      <Skeleton key={i} className="w-full h-8 rounded-xl" />
+    ));
+
+    return <div className="p-2 space-y-2 ">{skeletons}</div>;
+  }
 
   return (
     <>
@@ -74,7 +84,9 @@ export function NavMain() {
           {collectionSlice.map((collection) => (
             <SidebarMenuItem key={collection.id}>
               <SidebarMenuButton
+                suppressHydrationWarning
                 className="rounded-xl"
+                onClick={() => setOpenMobile(!openMobile)}
                 render={
                   <Link href={`/dashboard/collections/${collection.id}`} />
                 }
@@ -89,6 +101,7 @@ export function NavMain() {
 
               <DropdownMenu>
                 <DropdownMenuTrigger
+                  suppressHydrationWarning
                   className={"rounded-xl"}
                   render={
                     <SidebarMenuAction
@@ -131,14 +144,17 @@ export function NavMain() {
           {collections.length > 3 && (
             <SidebarMenuButton
               onClick={() => setIsAllCollections(!isAllCollections)}
+              tooltip={isAllCollections ? "Ver menos" : "Ver mais"}
             >
               {isAllCollections ? (
                 <>
-                  <Icon icon={MinusSignIcon} /> Ver menos
+                  <Icon icon={MinusSignIcon} />
+                  Ver menos
                 </>
               ) : (
                 <>
-                  <Icon icon={Plus} /> Ver mais
+                  <Icon icon={Add01Icon} />
+                  Ver mais
                 </>
               )}
             </SidebarMenuButton>

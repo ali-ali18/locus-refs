@@ -109,6 +109,7 @@ export function DataTableApp<TData, TValue>({
                 variant="outline"
                 size="icon"
                 rounded={"xl"}
+                suppressHydrationWarning
                 render={
                   <span>
                     <Icon

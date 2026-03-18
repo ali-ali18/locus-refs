@@ -40,6 +40,7 @@ export function DropdownMenuApp({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
+        suppressHydrationWarning
         className={cn(
           "group outline-none hover:bg-muted rounded-full transition-all duration-300 ",
           className,
@@ -64,9 +65,8 @@ export function DropdownMenuApp({
                 key={item.label}
                 className={cn("rounded-xl", item.className)}
                 onClick={item.onClick}
-                render={
-                  <Link href={item.href}>{content}</Link>
-                }
+                render={<Link href={item.href}>{content}</Link>}
+                suppressHydrationWarning
               />
             );
           }
