@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: Para manter o estilo base do componente tivemos q aplicar um div ao invés de um button */
 "use client";
 
 import type { ReactNode } from "react";
@@ -61,7 +62,7 @@ export function IconPicker({ value, onChange, trigger }: IconPickerProps) {
       <span className="truncate text-sm flex items-center gap-2">
         {value && (
           <span className="border rounded-xl p-1 bg-muted">
-            <Icon icon={resolveIcon(value)} className="size-5.5" />
+            <Icon icon={resolveIcon(value)} className="size-4.5" />
           </span>
         )}
         {selectedLabel}
@@ -71,13 +72,18 @@ export function IconPicker({ value, onChange, trigger }: IconPickerProps) {
 
   return (
     <div className="space-y-2">
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className={trigger ? "inline-flex" : undefined}
-      >
-        {trigger ?? defaultTrigger}
-      </button>
+      {trigger ? (
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => setOpen(true)}
+          className="inline-flex"
+        >
+          {trigger}
+        </div>
+      ) : (
+        defaultTrigger
+      )}
 
       <CommandDialog
         className="w-full sm:min-w-xl min-h-"

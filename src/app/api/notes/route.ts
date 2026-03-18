@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireSession } from "@/server/requireSession";
+import { requireSessionApiOrThrow } from "@/server/requireSession";
 
 export async function GET() {
-  const session = await requireSession();
+  const session = await requireSessionApiOrThrow();
 
   try {
     const notes = await prisma.note.findMany({
@@ -25,7 +25,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await requireSession();
+  const session = await requireSessionApiOrThrow();
 
   try {
     const { title, icon, collectionId } = await request.json();

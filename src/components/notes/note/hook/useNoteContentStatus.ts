@@ -11,18 +11,15 @@ export function useNoteContentStatus({ id }: UseNoteContentStatusParams) {
   const { updateNote } = useNoteMutations();
   const [status, setStatus] = useState<SaveStatus>("idle");
 
-  const saveContent = useDebounceCallback(
-    async (content: string) => {
-      try {
-        setStatus("saving");
-        await updateNote({ id, content });
-        setStatus("saved");
-      } catch {
-        setStatus("error");
-      }
-    },
-    500,
-  );
+  const saveContent = useDebounceCallback(async (content: string) => {
+    try {
+      setStatus("saving");
+      await updateNote({ id, content });
+      setStatus("saved");
+    } catch {
+      setStatus("error");
+    }
+  }, 500);
 
   const handleContentChange = useCallback(
     (content: string) => {
@@ -46,4 +43,3 @@ export function useNoteContentStatus({ id }: UseNoteContentStatusParams) {
     handleContentChange,
   };
 }
-

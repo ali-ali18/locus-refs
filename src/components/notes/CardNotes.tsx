@@ -37,7 +37,11 @@ export function CardNotes({ icon, title, updatedAt, createdAt, id }: Props) {
           <h3 className="text-lg font-bold truncate line-clamp-1">{title}</h3>
         </div>
         <div className="flex items-center gap-2">
-          <Icon icon={Clock01FreeIcons} className="size-4 shrink-0" strokeWidth={1.5} />
+          <Icon
+            icon={Clock01FreeIcons}
+            className="size-4 shrink-0"
+            strokeWidth={1.5}
+          />
           <span className="text-sm text-muted-foreground">
             {formatDateLabel(updatedAt, createdAt)}
           </span>

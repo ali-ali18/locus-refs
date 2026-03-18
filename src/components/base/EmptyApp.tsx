@@ -32,7 +32,7 @@ export function EmptyApp({
     <Empty className={cn(className)}>
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <Icon icon={icon} className={classNameIcon}/>
+          <Icon icon={icon} className={classNameIcon} />
         </EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>

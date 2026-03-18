@@ -9,11 +9,9 @@ export const categorySchema = z.object({
 
 export const categoryDeleteSchema = (slug: string) =>
   z.object({
-    confirm: z
-      .string()
-      .refine((value) => value === `categoria/${slug}`, {
-        message: `Digite exatamente: categoria/${slug}`,
-      }),
+    confirm: z.string().refine((value) => value === `categoria/${slug}`, {
+      message: `Digite exatamente: categoria/${slug}`,
+    }),
   });
 
 export type CategorySchema = z.infer<typeof categorySchema>;

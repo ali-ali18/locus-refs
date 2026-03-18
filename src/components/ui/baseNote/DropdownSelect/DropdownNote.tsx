@@ -155,10 +155,10 @@ export function DropdownNote({ editor }: Props) {
                                 >
                                   <div
                                     className={`size-4 rounded-xl border bg-accent-foreground`}
-
                                     style={{
-                                      backgroundColor:
-                                        (child as { value: string }).value
+                                      backgroundColor: (
+                                        child as { value: string }
+                                      ).value,
                                     }}
                                   />
                                   {(child as { label: string }).label}

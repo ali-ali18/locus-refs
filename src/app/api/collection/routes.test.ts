@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET, POST } from "./route";
 
 const { mockFindMany, mockCreate, mockCollections } = vi.hoisted(() => {
@@ -16,24 +16,8 @@ const { mockFindMany, mockCreate, mockCollections } = vi.hoisted(() => {
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("next/headers", () => ({
-  headers: vi.fn(() =>
-    Promise.resolve(
-      new Headers({
-        Cookie: "better-auth.session_token=fake-session-token",
-      })
-    )
-  ),
-}));
-
-vi.mock("@/lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: vi.fn().mockResolvedValue({
-        user: { id: "user-1" },
-      }),
-    },
-  },
+vi.mock("@/server/getSession", () => ({
+  getSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
 }));
 
 vi.mock("@/lib/prisma", () => ({

@@ -1,9 +1,9 @@
 import * as cheerio from "cheerio";
 import { type NextRequest, NextResponse } from "next/server";
-import { requireSession } from "@/server/requireSession";
+import { requireSessionApiOrThrow } from "@/server/requireSession";
 
 export async function POST(request: NextRequest) {
-  await requireSession();
+  await requireSessionApiOrThrow();
 
   const { url } = await request.json();
 

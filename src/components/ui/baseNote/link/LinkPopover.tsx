@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  ArrowRight02Icon,
-  Link01Icon,
-} from "@hugeicons/core-free-icons";
+import { ArrowRight02Icon, Link01Icon } from "@hugeicons/core-free-icons";
 import type { Editor } from "@tiptap/react";
 import { useState } from "react";
 import { InputGroupApp } from "@/components/base";

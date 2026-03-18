@@ -5,7 +5,6 @@ import { api } from "@/lib/api";
 import type { Note } from "@/types/note.type";
 import { noteKeys } from "./noteKeys";
 
-
 async function getNotes(): Promise<Note[]> {
   const { data } = await api.get<Note[]>("/api/notes");
   return data;

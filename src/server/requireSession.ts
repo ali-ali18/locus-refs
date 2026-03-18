@@ -11,3 +11,13 @@ export async function requireSession() {
 
   return session;
 }
+
+export async function requireSessionApiOrThrow() {
+  const session = await getSession();
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  return session;
+}

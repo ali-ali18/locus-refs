@@ -6,8 +6,8 @@ import { FieldGroupApp } from "@/components/base";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "../ui/dialog";
-import { IconPicker } from "./IconPicker";
 import { useFormCreateNote } from "./hooks/useFormCreateNote";
+import { IconPicker } from "./IconPicker";
 
 export function FormCreateNote() {
   const { form, onSubmit, isLoading } = useFormCreateNote();

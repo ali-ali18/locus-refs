@@ -45,7 +45,7 @@ export function CreateCategoryInlineDialog({
 
         <div className="flex flex-col gap-4">
           <InputGroupApp
-          className="rounded-xl	h-11"
+            className="rounded-xl	h-11"
             type="text"
             value={newCategoryName}
             onChange={(e) => onNameChange(e.target.value)}

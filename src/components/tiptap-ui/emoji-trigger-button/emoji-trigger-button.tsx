@@ -1,43 +1,44 @@
-"use client"
+"use client";
 
-import { forwardRef, useCallback } from "react"
+import { forwardRef, useCallback } from "react";
 
 // --- Lib ---
-import { parseShortcutKeys } from "@/lib/tiptap-utils"
+import { parseShortcutKeys } from "@/lib/tiptap-utils";
 // --- Hooks ---
-import { useTiptapEditor } from "@/hook/use-tiptap-editor"
+import { useTiptapEditor } from "@/hook/use-tiptap-editor";
 
 // --- Tiptap UI ---
-import type { UseEmojiTriggerConfig } from "@/components/tiptap-ui/emoji-trigger-button"
+import type { UseEmojiTriggerConfig } from "@/components/tiptap-ui/emoji-trigger-button";
 import {
   EMOJI_TRIGGER_SHORTCUT_KEY,
   useEmojiTrigger,
-} from "@/components/tiptap-ui/emoji-trigger-button"
+} from "@/components/tiptap-ui/emoji-trigger-button";
 
 // --- UI Primitives ---
-import type { ButtonProps } from "@/components/tiptap-ui-primitive/button"
-import { Button } from "@/components/tiptap-ui-primitive/button"
-import { Badge } from "@/components/tiptap-ui-primitive/badge"
+import type { ButtonProps } from "@/components/tiptap-ui-primitive/button";
+import { Button } from "@/components/tiptap-ui-primitive/button";
+import { Badge } from "@/components/tiptap-ui-primitive/badge";
 
 export interface EmojiTriggerButtonProps
-  extends Omit<ButtonProps, "type">, UseEmojiTriggerConfig {
+  extends Omit<ButtonProps, "type">,
+    UseEmojiTriggerConfig {
   /**
    * Optional text to display alongside the icon.
    */
-  text?: string
+  text?: string;
   /**
    * Optional show shortcut keys in the button.
    * @default false
    */
-  showShortcut?: boolean
+  showShortcut?: boolean;
 }
 
 export function EmojiTriggerShortcutBadge({
   shortcutKeys = EMOJI_TRIGGER_SHORTCUT_KEY,
 }: {
-  shortcutKeys?: string
+  shortcutKeys?: string;
 }) {
-  return <Badge>{parseShortcutKeys({ shortcutKeys })}</Badge>
+  return <Badge>{parseShortcutKeys({ shortcutKeys })}</Badge>;
 }
 
 /**
@@ -63,9 +64,9 @@ export const EmojiTriggerButton = forwardRef<
       children,
       ...buttonProps
     },
-    ref
+    ref,
   ) => {
-    const { editor } = useTiptapEditor(providedEditor)
+    const { editor } = useTiptapEditor(providedEditor);
     const {
       isVisible,
       canAddTrigger,
@@ -80,19 +81,19 @@ export const EmojiTriggerButton = forwardRef<
       trigger,
       hideWhenUnavailable,
       onTriggerApplied,
-    })
+    });
 
     const handleClick = useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
-        onClick?.(event)
-        if (event.defaultPrevented) return
-        handleAddTrigger()
+        onClick?.(event);
+        if (event.defaultPrevented) return;
+        handleAddTrigger();
       },
-      [handleAddTrigger, onClick]
-    )
+      [handleAddTrigger, onClick],
+    );
 
     if (!isVisible) {
-      return null
+      return null;
     }
 
     return (
@@ -119,8 +120,8 @@ export const EmojiTriggerButton = forwardRef<
           </>
         )}
       </Button>
-    )
-  }
-)
+    );
+  },
+);
 
-EmojiTriggerButton.displayName = "EmojiTriggerButton"
+EmojiTriggerButton.displayName = "EmojiTriggerButton";

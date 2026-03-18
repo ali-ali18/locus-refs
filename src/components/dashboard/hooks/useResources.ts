@@ -11,4 +11,3 @@ export function useResources(collectionId: string | null) {
     staleTime: 1000 * 60 * 5,
   });
 }
-

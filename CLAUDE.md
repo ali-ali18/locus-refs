@@ -80,3 +80,17 @@ return Response.json({ error: "User-friendly message", code: "ERROR_CODE" }, { s
 - UI: use shadcn/ui components, not Radix primitives directly
 - Tiptap editor config lives in `src/lib/notes-editor-config.ts`; custom extensions in `src/lib/extension/`
 - Tests use `vi.mock()` and `vi.hoisted()` from Vitest; test files are `*.test.ts` co-located with API routes
+
+## Design Patterns
+
+### Components
+- **Always use shadcn/ui** for UI components (`src/components/ui/`). Only create a component from scratch if shadcn/ui has no equivalent.
+- **Border radius:** always use `rounded-xl` (never `rounded`, `rounded-md`, `rounded-lg`, etc.) unless a specific context requires otherwise (e.g. `rounded-full` for avatars/pills).
+
+### Colors
+- **Never hardcode colors** such as `bg-blue-500`, `text-red-600`, `border-green-300`, etc.
+- All colors must derive from the design tokens defined in `src/app/globals.css` and used via Tailwind semantic classes:
+  - Backgrounds: `bg-background`, `bg-card`, `bg-muted`, `bg-accent`, `bg-primary`, `bg-secondary`, `bg-destructive`, `bg-popover`, `bg-sidebar`, `bg-sidebar-accent`
+  - Text: `text-foreground`, `text-muted-foreground`, `text-primary`, `text-secondary-foreground`, `text-accent-foreground`, `text-destructive`, `text-sidebar-foreground`
+  - Borders: `border-border`, `border-input`, `border-sidebar-border`
+  - Rings: `ring-ring`, `ring-sidebar-ring`

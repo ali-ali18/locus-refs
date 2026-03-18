@@ -23,4 +23,3 @@ export function NotesList({ notes }: NotesListProps) {
     </div>
   );
 }
-

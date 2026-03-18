@@ -6,7 +6,11 @@ import type { RegisterSchema } from "@/types/schema/auth.schema";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";
 import { FieldGroup } from "../ui/field";
-import { AuthFormError, PasswordRevealButton, SocialButtons } from "./AuthFormParts";
+import {
+  AuthFormError,
+  PasswordRevealButton,
+  SocialButtons,
+} from "./AuthFormParts";
 import { useRegister } from "./hook/useRegister";
 
 interface Props extends React.ComponentProps<"form"> {}
@@ -49,7 +53,10 @@ export function FormRegister({ children, ...props }: Props) {
           placeholder="Mypassword123@"
           type={passwordType}
           lastElement={
-            <PasswordRevealButton type={passwordType} onReveal={revealPassword} />
+            <PasswordRevealButton
+              type={passwordType}
+              onReveal={revealPassword}
+            />
           }
         />
         <FieldGroupApp<RegisterSchema>

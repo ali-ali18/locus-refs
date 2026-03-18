@@ -55,13 +55,16 @@ export function SelectLanguage({
   useEffect(() => {
     if (!open) return;
     const item = containerRef.current?.querySelector<HTMLElement>(
-      "[data-focused='true']"
+      "[data-focused='true']",
     );
     item?.scrollIntoView({ block: "nearest" });
   }, [focusedIndex, open]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!open && (e.key === "Enter" || e.key === " " || e.key === "ArrowDown")) {
+    if (
+      !open &&
+      (e.key === "Enter" || e.key === " " || e.key === "ArrowDown")
+    ) {
       e.preventDefault();
       setOpen(true);
       return;
@@ -165,7 +168,7 @@ const SelectTrigger = forwardRef<
     className={cn(
       "flex h-9 w-full items-center font-semibold justify-between rounded-xl px-3 py-2 text-sm bg-popover",
       "focus:outline-none focus:ring-1 focus:ring-ring",
-      open && "ring-1 ring-ring"
+      open && "ring-1 ring-ring",
     )}
   >
     <span className={cn(!selectedLabel && "text-muted-foreground")}>
@@ -220,7 +223,7 @@ function SelectItem({
         "relative rounded-xl flex cursor-default w-full select-none items-center py-1.5 pl-2 pr-8 text-sm outline-none transition-colors",
         isFocused && !option.disabled && "bg-accent text-accent-foreground",
         isSelected && "font-medium",
-        option.disabled && "pointer-events-none opacity-50"
+        option.disabled && "pointer-events-none opacity-50",
       )}
     >
       {isSelected && (

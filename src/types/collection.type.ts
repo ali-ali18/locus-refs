@@ -3,6 +3,6 @@ export interface Collection {
   name: string;
   slug: string;
   userId: string;
-  createdAt: string; 
+  createdAt: string;
   updatedAt: string;
 }

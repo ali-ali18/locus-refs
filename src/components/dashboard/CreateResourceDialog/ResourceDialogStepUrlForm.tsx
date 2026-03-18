@@ -1,6 +1,10 @@
 "use client";
 
-import { ArrowRight02FreeIcons, Link01Icon, Loading02Icon } from "@hugeicons/core-free-icons";
+import {
+  ArrowRight02FreeIcons,
+  Link01Icon,
+  Loading02Icon,
+} from "@hugeicons/core-free-icons";
 import { DialogFooter } from "@/components/ui/dialog";
 import { FieldGroupApp } from "@/components/base";
 import { Icon } from "@/components/shared/Icon";
@@ -36,13 +40,15 @@ export function ResourceDialogStepUrlForm({
         firstElement={<Icon icon={Link01Icon} />}
         align="inline-end"
         lastElement={
-                <Button
+          <Button
             type="submit"
             rounded="full"
             variant="secondary"
             size="icon-sm"
             disabled={formState.isSubmitting || isFetchingMetadata}
-            aria-label={isFetchingMetadata ? "Buscando metadados..." : "Buscar metadados"}
+            aria-label={
+              isFetchingMetadata ? "Buscando metadados..." : "Buscar metadados"
+            }
           >
             {isFetchingMetadata ? (
               <Icon

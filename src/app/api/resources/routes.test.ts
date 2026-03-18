@@ -32,24 +32,8 @@ const { mockFindUnique, mockCreate, mockFindMany, mockResources } = vi.hoisted(
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("next/headers", () => ({
-  headers: vi.fn(() =>
-    Promise.resolve(
-      new Headers({
-        Cookie: "better-auth.session_token=fake-session-token",
-      }),
-    ),
-  ),
-}));
-
-vi.mock("@/lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: vi.fn().mockResolvedValue({
-        user: { id: "user-1" },
-      }),
-    },
-  },
+vi.mock("@/server/getSession", () => ({
+  getSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -71,7 +55,9 @@ describe("API Resources", () => {
 
   describe("GET /api/resources", () => {
     it("returns 200 and user resources list with categories", async () => {
-      const response = await GET(new NextRequest("http://localhost/api/resources"));
+      const response = await GET(
+        new NextRequest("http://localhost/api/resources"),
+      );
       const data = await response.json();
 
       expect(response.status).toBe(200);

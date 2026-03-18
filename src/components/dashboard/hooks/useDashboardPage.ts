@@ -15,9 +15,7 @@ export function useDashboardPage() {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const {
-    collections,
-  } = useCollections();
+  const { collections } = useCollections();
 
   const { data: resources = [], isLoading: isLoadingResources } =
     useResources(selectedCollectionId);
@@ -45,12 +43,9 @@ export function useDashboardPage() {
     (c) => c.id === selectedCollectionId,
   );
 
-
-
   const handleResourceDialogOpenChange = (open: boolean) => {
     setIsOpenDialogCreateResource(open);
   };
-
 
   const openCreateCollectionDialog = () => setIsDialogOpen(true);
   const openCreateResourceDialog = () =>
@@ -78,6 +73,5 @@ export function useDashboardPage() {
 
     // Collection selection
     setSelectedCollectionId,
-
   };
 }

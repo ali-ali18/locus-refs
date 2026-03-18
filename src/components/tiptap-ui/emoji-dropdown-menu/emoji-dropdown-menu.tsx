@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
-import type { Editor, Range } from "@tiptap/react"
-import type { EmojiItem } from "@tiptap/extension-emoji"
+import { useMemo } from "react";
+import type { Editor, Range } from "@tiptap/react";
+import type { EmojiItem } from "@tiptap/extension-emoji";
 
 // --- Tiptap UI ---
 import type {
   SuggestionItem,
   SuggestionMenuProps,
   SuggestionMenuRenderProps,
-} from "@/components/tiptap-ui-utils/suggestion-menu"
-import { SuggestionMenu } from "@/components/tiptap-ui-utils/suggestion-menu"
+} from "@/components/tiptap-ui-utils/suggestion-menu";
+import { SuggestionMenu } from "@/components/tiptap-ui-utils/suggestion-menu";
 import {
   EmojiMenuItem,
   getFilteredEmojis,
-} from "@/components/tiptap-ui/emoji-menu"
-import { Card, CardBody } from "@/components/tiptap-ui-primitive/card"
-import { ButtonGroup } from "@/components/tiptap-ui-primitive/button"
+} from "@/components/tiptap-ui/emoji-menu";
+import { Card, CardBody } from "@/components/tiptap-ui-primitive/card";
+import { ButtonGroup } from "@/components/tiptap-ui-primitive/button";
 
 export type EmojiDropdownMenuProps = Omit<
   SuggestionMenuProps,
   "items" | "children"
->
+>;
 
 export const EmojiDropdownMenu = (props: EmojiDropdownMenuProps) => {
   return (
@@ -35,12 +35,12 @@ export const EmojiDropdownMenu = (props: EmojiDropdownMenuProps) => {
     >
       {(props) => <EmojiList {...props} />}
     </SuggestionMenu>
-  )
-}
+  );
+};
 
 const getSuggestionItems = async (props: { query: string; editor: Editor }) => {
-  const emojis: EmojiItem[] = props.editor.extensionStorage.emoji.emojis || []
-  const filteredEmojis = getFilteredEmojis({ query: props.query, emojis })
+  const emojis: EmojiItem[] = props.editor.extensionStorage.emoji.emojis || [];
+  const filteredEmojis = getFilteredEmojis({ query: props.query, emojis });
 
   return filteredEmojis.map(
     (emoji): SuggestionItem => ({
@@ -48,16 +48,16 @@ const getSuggestionItems = async (props: { query: string; editor: Editor }) => {
       subtext: emoji.shortcodes.join(", "),
       context: emoji,
       onSelect: (props: {
-        editor: Editor
-        range: Range
-        context?: EmojiItem
+        editor: Editor;
+        range: Range;
+        context?: EmojiItem;
       }) => {
-        if (!props.editor || !props.range || !props.context) return
-        props.editor.chain().focus().setEmoji(props.context.name).run()
+        if (!props.editor || !props.range || !props.context) return;
+        props.editor.chain().focus().setEmoji(props.context.name).run();
       },
-    })
-  )
-}
+    }),
+  );
+};
 
 const EmojiList = ({
   items,
@@ -65,10 +65,10 @@ const EmojiList = ({
   onSelect,
 }: SuggestionMenuRenderProps<EmojiItem>) => {
   const renderedItems = useMemo(() => {
-    const rendered: React.ReactElement[] = []
+    const rendered: React.ReactElement[] = [];
 
     items.forEach((item, index) => {
-      if (!item.context) return
+      if (!item.context) return;
 
       rendered.push(
         <EmojiMenuItem
@@ -78,15 +78,15 @@ const EmojiList = ({
           isSelected={index === selectedIndex}
           onSelect={() => onSelect(item)}
           selector="[data-selector='tiptap-emoji-dropdown-menu']"
-        />
-      )
-    })
+        />,
+      );
+    });
 
-    return rendered
-  }, [items, selectedIndex, onSelect])
+    return rendered;
+  }, [items, selectedIndex, onSelect]);
 
   if (!renderedItems.length) {
-    return null
+    return null;
   }
 
   return (
@@ -99,5 +99,5 @@ const EmojiList = ({
         <ButtonGroup>{renderedItems}</ButtonGroup>
       </CardBody>
     </Card>
-  )
-}
+  );
+};

@@ -17,4 +17,6 @@ export const createResourceStep2Schema = z.object({
   categoryIds: z.array(z.string()).min(1, "Selecione ao menos uma categoria"),
 });
 
-export type CreateResourceStep2Schema = z.infer<typeof createResourceStep2Schema>;
+export type CreateResourceStep2Schema = z.infer<
+  typeof createResourceStep2Schema
+>;

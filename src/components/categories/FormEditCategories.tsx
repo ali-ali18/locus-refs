@@ -12,7 +12,10 @@ interface FormEditCategoriesProps {
   category: Category | null;
 }
 
-export function FormEditCategories({ onSuccess, category }: FormEditCategoriesProps) {
+export function FormEditCategories({
+  onSuccess,
+  category,
+}: FormEditCategoriesProps) {
   const { form, onSubmit, isLoading } = useCategoryForm({
     onSuccess,
     category,
