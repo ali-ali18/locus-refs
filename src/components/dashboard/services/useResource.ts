@@ -35,10 +35,10 @@ export async function getResources(collectionId: string | null) {
 }
 
 export async function createResource(payload: CreateResourcePayload) {
-  const { data } = await api.post<{ message: string; resource: ResourceFromApi }>(
-    "/api/resources",
-    payload,
-  );
+  const { data } = await api.post<{
+    message: string;
+    resource: ResourceFromApi;
+  }>("/api/resources", payload);
   return data;
 }
 

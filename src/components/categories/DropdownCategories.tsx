@@ -15,7 +15,6 @@ export function DropdownCategories({
   onEdit,
   onDelete,
 }: DropdownCategoriesProps) {
-  
   const menuItems = [
     {
       icon: Edit01Icon,

@@ -1,11 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import slugify from "slugify";
 import prisma from "@/lib/prisma";
-import { requireSession } from "@/server/requireSession";
+import { requireSessionApiOrThrow } from "@/server/requireSession";
 
 export async function GET() {
   try {
-    const session = await requireSession();
+    const session = await requireSessionApiOrThrow();
+
     const collections = await prisma.collection.findMany({
       where: { userId: session.user.id },
       orderBy: { name: "asc" },
@@ -13,6 +14,7 @@ export async function GET() {
 
     return NextResponse.json(collections);
   } catch (_error) {
+    console.log(_error);
     return NextResponse.json(
       { error: "Failed to get collections" },
       { status: 500 },
@@ -21,7 +23,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await requireSession();
+  const session = await requireSessionApiOrThrow();
 
   const { name } = await request.json();
 

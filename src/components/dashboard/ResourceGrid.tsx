@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { getInitials } from "@/lib/utils";
-import { EmpetyApp } from "../base/EmpetyApp";
+import { EmptyApp } from "../base/EmptyApp";
 import { Skeleton } from "../ui/skeleton";
 import { EditResourceDialog } from "./EditResourceDialog";
 import { useResourceMutations } from "./hooks/useResourceMutations";
@@ -25,10 +25,7 @@ interface ResourceGridProps {
   isLoading?: boolean;
 }
 
-export function ResourceGrid({
-  resources,
-  isLoading,
-}: ResourceGridProps) {
+export function ResourceGrid({ resources, isLoading }: ResourceGridProps) {
   const [resourceBeingEdited, setResourceBeingEdited] =
     useState<ResourceFromApi | null>(null);
 
@@ -57,7 +54,7 @@ export function ResourceGrid({
 
   if (resources.length === 0) {
     return (
-      <EmpetyApp
+      <EmptyApp
         className="border"
         title="Opsss... Nenhum recurso encontrado"
         description="Você ainda não tem nenhum recurso nesta coleção"

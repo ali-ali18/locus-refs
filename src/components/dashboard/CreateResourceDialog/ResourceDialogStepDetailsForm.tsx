@@ -46,7 +46,10 @@ export function ResourceDialogStepDetailsForm({
   onSubmit,
 }: ResourceDialogStepDetailsFormProps) {
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-6 w-full max-w-xl mx-auto">
+    <form
+      onSubmit={onSubmit}
+      className="flex flex-col gap-6 w-full max-w-xl mx-auto"
+    >
       <FieldGroupApp<CreateResourceStep2Schema>
         control={control}
         name="title"

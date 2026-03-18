@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 const updateSchema = z.object({
   title: z.string().optional(),
@@ -8,7 +8,7 @@ const updateSchema = z.object({
   ogImageUrl: z.string().nullable().optional(),
   collectionId: z.string().optional(),
   categoryIds: z.array(z.string()).optional(),
-})
+});
 
 type UpdateResourceBody = z.infer<typeof updateSchema>;
 

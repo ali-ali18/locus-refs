@@ -30,9 +30,9 @@ export function DialogApp({
   return (
     <Dialog {...props}>
       {typeof trigger === "string" ? (
-        <DialogTrigger>{trigger}</DialogTrigger>
+        <DialogTrigger suppressHydrationWarning>{trigger}</DialogTrigger>
       ) : (
-        <DialogTrigger render={trigger} />
+        <DialogTrigger render={trigger} suppressHydrationWarning />
       )}
       <DialogContent className={cn("w-full max-w-md rounded-2xl", className)}>
         <DialogHeader>

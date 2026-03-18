@@ -23,6 +23,7 @@ import { type ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";
+import { DropdownMenuCheckboxItem } from "../ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -32,9 +33,8 @@ import {
   TableRow,
 } from "../ui/table";
 import { InputGroupApp } from ".";
-import { EmpetyApp } from "./EmpetyApp";
 import { DropdownMenuApp } from "./DropdownMenuApp";
-import { DropdownMenuCheckboxItem } from "../ui/dropdown-menu";
+import { EmptyApp } from "./EmptyApp";
 
 interface DataTableAppProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -109,6 +109,7 @@ export function DataTableApp<TData, TValue>({
                 variant="outline"
                 size="icon"
                 rounded={"xl"}
+                suppressHydrationWarning
                 render={
                   <span>
                     <Icon
@@ -189,7 +190,7 @@ export function DataTableApp<TData, TValue>({
                   {emptyComponent ? (
                     emptyComponent
                   ) : (
-                    <EmpetyApp
+                    <EmptyApp
                       title="Nenhum resultado encontrado"
                       description="Não foi possivel encontrar nenhum resultado"
                       icon={SearchListIcon}

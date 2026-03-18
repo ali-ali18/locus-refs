@@ -1,10 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import slugify from "slugify";
 import prisma from "@/lib/prisma";
-import { requireSession } from "@/server/requireSession";
+import { requireSessionApiOrThrow } from "@/server/requireSession";
 
 export async function GET() {
-  const session = await requireSession();
+  const session = await requireSessionApiOrThrow();
 
   const categories = await prisma.category.findMany({
     where: { userId: session.user.id },
@@ -16,7 +16,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await requireSession();
+  const session = await requireSessionApiOrThrow();
 
   const { name } = await request.json();
 

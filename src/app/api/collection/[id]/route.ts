@@ -1,12 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireSession } from "@/server/requireSession";
+import { requireSessionApiOrThrow } from "@/server/requireSession";
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSession();
+  const session = await requireSessionApiOrThrow();
 
   const { id } = await params;
 
@@ -47,7 +47,8 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSession();
+  const session = await requireSessionApiOrThrow();
+
   const { id } = await params;
 
   const collection = await prisma.collection.findUnique({

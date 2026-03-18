@@ -5,6 +5,7 @@ import { domAnimation, LazyMotion } from "motion/react";
 import { Toaster } from "sonner";
 import { QueryClient } from "@/components/shared/QueryClient";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const nunito = Nunito({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -22,17 +23,19 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`antialiased ${nunito.className}`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <LazyMotion features={domAnimation}>
-            <QueryClient>{children}</QueryClient>
-          </LazyMotion>
-          <Toaster position="top-right" expand theme="light" />
-        </ThemeProvider>
+        <TooltipProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <LazyMotion features={domAnimation}>
+              <QueryClient>{children}</QueryClient>
+            </LazyMotion>
+            <Toaster position="top-right" expand theme="light" />
+          </ThemeProvider>
+        </TooltipProvider>
       </body>
     </html>
   );

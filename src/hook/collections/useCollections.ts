@@ -6,7 +6,7 @@ import {
   deleteCollection,
   getCollections,
   updateCollection,
-} from "../services/useCollection";
+} from "../../components/dashboard/services/useCollection";
 
 export function useCollections() {
   const queryClient = useQueryClient();

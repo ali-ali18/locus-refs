@@ -19,7 +19,7 @@ import {
   type CreateCollectionSchema,
   createCollectionSchema,
 } from "@/types/schema/collection.schema";
-import { useCollections } from "./hooks/useCollections";
+import { useCollections } from "../../hook/collections/useCollections";
 
 interface Props {
   open: boolean;

@@ -23,7 +23,7 @@ export function AuthLayout({
       <div
         className={cn(
           "flex flex-col gap-8 p-8",
-          reversePanel && "order-2 md:order-1"
+          reversePanel && "order-2 md:order-1",
         )}
       >
         <Link href="/" className="flex items-center gap-2 w-fit">

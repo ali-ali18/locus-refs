@@ -91,7 +91,10 @@ export function ResourceCard({
                 contentClassName="w-44"
               >
                 {onEdit ? (
-                  <DropdownMenuItem onClick={handleEdit} className={"rounded-xl"}>
+                  <DropdownMenuItem
+                    onClick={handleEdit}
+                    className={"rounded-xl"}
+                  >
                     <Icon icon={Edit01Icon} className="size-4" />
                     Editar recurso
                   </DropdownMenuItem>

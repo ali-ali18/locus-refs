@@ -1,14 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server";
 import type { Prisma } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
-import { requireSession } from "@/server/requireSession";
+import { requireSessionApiOrThrow } from "@/server/requireSession";
 import { updateSchema } from "@/types/schema/resources.schema";
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSession();
+  const session = await requireSessionApiOrThrow();
+
   const { id } = await params;
 
   const body = updateSchema.parse(await request.json());
@@ -73,7 +74,8 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSession();
+  const session = await requireSessionApiOrThrow();
+
   const { id } = await params;
 
   const resource = await prisma.resource.findFirst({

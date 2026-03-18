@@ -14,7 +14,7 @@ import { ToggleButton } from "../ToggleButton";
 
 export function DropdownHeader() {
   const { data: session, isPending } = authClient.useSession();
-  
+
   const router = useRouter();
 
   const name = session?.user?.name ?? "Guest";
@@ -22,7 +22,7 @@ export function DropdownHeader() {
 
   const nextName = session?.user?.name?.split(" ")[0];
   const avatarSrc =
-    session?.user?.image === "" ? undefined : session?.user?.image ?? "";
+    session?.user?.image === "" ? undefined : (session?.user?.image ?? "");
 
   const menuItems = [
     {

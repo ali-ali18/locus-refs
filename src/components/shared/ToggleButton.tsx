@@ -7,10 +7,11 @@ import {
 } from "@hugeicons/core-free-icons";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Icon } from "./Icon";
-import { cn } from "@/lib/utils";
 
 const icons = [
   {
@@ -27,7 +28,7 @@ const icons = [
   },
 ];
 
-export function ToggleButton({ className }: { className?: string }) {
+export function ToggleButtonTheme({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -37,7 +38,7 @@ export function ToggleButton({ className }: { className?: string }) {
 
   return (
     <ToggleGroup
-      className={cn("rounded-full", className)}
+      className={cn("", className)}
       variant={"outline"}
       size={"default"}
       orientation="horizontal"
@@ -53,5 +54,29 @@ export function ToggleButton({ className }: { className?: string }) {
         </ToggleGroupItem>
       ))}
     </ToggleGroup>
+  );
+}
+
+export function ButtonTheme() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted || !theme) return <Skeleton className="w-8 h-8" />;
+
+  return (
+    <Button
+      variant={"ghost"}
+      size={"icon-sm"}
+      rounded={"xl"}
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+    >
+      {theme === "light" ? (
+        <Icon icon={Sun03Icon} />
+      ) : (
+        <Icon icon={Moon02Icon} />
+      )}
+    </Button>
   );
 }

@@ -1,36 +1,22 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
-import { PATCH, DELETE } from "./route";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DELETE, PATCH } from "./route";
 
-const { mockFindFirst, mockFindUnique, mockUpdate, mockDelete } = vi.hoisted(() => {
-  return {
-    mockFindFirst: vi.fn(),
-    mockFindUnique: vi.fn(),
-    mockUpdate: vi.fn(),
-    mockDelete: vi.fn(),
-  };
-});
+const { mockFindFirst, mockFindUnique, mockUpdate, mockDelete } = vi.hoisted(
+  () => {
+    return {
+      mockFindFirst: vi.fn(),
+      mockFindUnique: vi.fn(),
+      mockUpdate: vi.fn(),
+      mockDelete: vi.fn(),
+    };
+  },
+);
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("next/headers", () => ({
-  headers: vi.fn(() =>
-    Promise.resolve(
-      new Headers({
-        Cookie: "better-auth.session_token=fake-session-token",
-      })
-    )
-  ),
-}));
-
-vi.mock("@/lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: vi.fn().mockResolvedValue({
-        user: { id: "user-1" },
-      }),
-    },
-  },
+vi.mock("@/server/getSession", () => ({
+  getSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -61,23 +47,26 @@ describe("API Resource [id]", () => {
         collectionId: "col-1",
         title: "Old Title",
       };
-      
+
       mockFindFirst.mockResolvedValue(existingResource);
-      
+
       const updatedResource = { ...existingResource, title: "New Title" };
       mockUpdate.mockResolvedValue(updatedResource);
 
-      const req = new NextRequest(`http://localhost/api/resources/${resourceId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ title: "New Title" }),
-      });
+      const req = new NextRequest(
+        `http://localhost/api/resources/${resourceId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ title: "New Title" }),
+        },
+      );
 
       const response = await PATCH(req, { params: createParams() });
       const data = await response.json();
 
       expect(response.status).toBe(200);
       expect(data).toEqual(updatedResource);
-      
+
       expect(mockFindFirst).toHaveBeenCalledWith({
         where: { id: resourceId, collection: { userId: "user-1" } },
       });
@@ -100,34 +89,48 @@ describe("API Resource [id]", () => {
       const newCollectionId = "col-2";
 
       mockFindFirst.mockResolvedValue(existingResource);
-      mockFindUnique.mockResolvedValue({ id: newCollectionId, userId: "user-1" });
-      mockUpdate.mockResolvedValue({ ...existingResource, collectionId: newCollectionId });
-
-      const req = new NextRequest(`http://localhost/api/resources/${resourceId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ collectionId: newCollectionId }),
+      mockFindUnique.mockResolvedValue({
+        id: newCollectionId,
+        userId: "user-1",
+      });
+      mockUpdate.mockResolvedValue({
+        ...existingResource,
+        collectionId: newCollectionId,
       });
 
+      const req = new NextRequest(
+        `http://localhost/api/resources/${resourceId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ collectionId: newCollectionId }),
+        },
+      );
+
       const response = await PATCH(req, { params: createParams() });
-      
+
       expect(response.status).toBe(200);
 
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: { id: newCollectionId, userId: "user-1" },
       });
 
-      expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ collectionId: newCollectionId })
-      }));
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ collectionId: newCollectionId }),
+        }),
+      );
     });
 
     it("returns 404 when resource is not found or not owned by user", async () => {
       mockFindFirst.mockResolvedValue(null);
 
-      const req = new NextRequest(`http://localhost/api/resources/${resourceId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ title: "New Title" }),
-      });
+      const req = new NextRequest(
+        `http://localhost/api/resources/${resourceId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ title: "New Title" }),
+        },
+      );
 
       const response = await PATCH(req, { params: createParams() });
       const data = await response.json();
@@ -147,10 +150,13 @@ describe("API Resource [id]", () => {
       mockFindFirst.mockResolvedValue(existingResource);
       mockFindUnique.mockResolvedValue(null);
 
-      const req = new NextRequest(`http://localhost/api/resources/${resourceId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ collectionId: newCollectionId }),
-      });
+      const req = new NextRequest(
+        `http://localhost/api/resources/${resourceId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ collectionId: newCollectionId }),
+        },
+      );
 
       const response = await PATCH(req, { params: createParams() });
       const data = await response.json();
@@ -168,10 +174,13 @@ describe("API Resource [id]", () => {
       mockFindFirst.mockResolvedValue(existingResource);
       mockUpdate.mockRejectedValue(new Error("DB Error"));
 
-      const req = new NextRequest(`http://localhost/api/resources/${resourceId}`, {
-        method: "PATCH",
-        body: JSON.stringify({ title: "New Title" }),
-      });
+      const req = new NextRequest(
+        `http://localhost/api/resources/${resourceId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ title: "New Title" }),
+        },
+      );
 
       const response = await PATCH(req, { params: createParams() });
       const data = await response.json();
@@ -183,19 +192,25 @@ describe("API Resource [id]", () => {
 
   describe("DELETE /api/resources/[id]", () => {
     it("returns 200 and deletes resource when found and owned by user", async () => {
-      mockFindFirst.mockResolvedValue({ id: resourceId, collectionId: "col-1" });
+      mockFindFirst.mockResolvedValue({
+        id: resourceId,
+        collectionId: "col-1",
+      });
       mockDelete.mockResolvedValue({ id: resourceId });
 
-      const req = new NextRequest(`http://localhost/api/resources/${resourceId}`, {
-        method: "DELETE",
-      });
+      const req = new NextRequest(
+        `http://localhost/api/resources/${resourceId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       const response = await DELETE(req, { params: createParams() });
       const data = await response.json();
 
       expect(response.status).toBe(200);
       expect(data).toEqual({ message: "Resource deleted successfully" });
-      
+
       expect(mockFindFirst).toHaveBeenCalledWith({
         where: { id: resourceId, collection: { userId: "user-1" } },
       });
@@ -205,9 +220,12 @@ describe("API Resource [id]", () => {
     it("returns 404 when resource is not found or not owned by user", async () => {
       mockFindFirst.mockResolvedValue(null);
 
-      const req = new NextRequest(`http://localhost/api/resources/${resourceId}`, {
-        method: "DELETE",
-      });
+      const req = new NextRequest(
+        `http://localhost/api/resources/${resourceId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       const response = await DELETE(req, { params: createParams() });
       const data = await response.json();
@@ -218,12 +236,18 @@ describe("API Resource [id]", () => {
     });
 
     it("returns 500 when deletion fails", async () => {
-      mockFindFirst.mockResolvedValue({ id: resourceId, collectionId: "col-1" });
+      mockFindFirst.mockResolvedValue({
+        id: resourceId,
+        collectionId: "col-1",
+      });
       mockDelete.mockRejectedValue(new Error("DB Error"));
 
-      const req = new NextRequest(`http://localhost/api/resources/${resourceId}`, {
-        method: "DELETE",
-      });
+      const req = new NextRequest(
+        `http://localhost/api/resources/${resourceId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       const response = await DELETE(req, { params: createParams() });
       const data = await response.json();
