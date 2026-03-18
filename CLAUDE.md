@@ -77,7 +77,7 @@ return Response.json({ error: "User-friendly message", code: "ERROR_CODE" }, { s
 - Components: PascalCase `.tsx`; hooks: `useXxx.ts`; types: `*.type.ts`; schemas: `*.schema.ts`
 - Use `"use client"` only for components that use state, hooks, or browser events
 - Component variants use CVA (`class-variance-authority`) + `cn()` from `@/lib/utils`
-- UI: use shadcn/ui components, not Radix primitives directly
+- UI: use shadcn/ui components — this project uses shadcn/ui built on top of **Base UI** (not Radix UI). Do not use Radix primitives directly.
 - Tiptap editor config lives in `src/lib/notes-editor-config.ts`; custom extensions in `src/lib/extension/`
 - Tests use `vi.mock()` and `vi.hoisted()` from Vitest; test files are `*.test.ts` co-located with API routes
 

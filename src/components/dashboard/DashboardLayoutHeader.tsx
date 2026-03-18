@@ -10,6 +10,7 @@ import { resolveBreadcrumb } from "@/lib/breadcrumb/actions/resolve-breadcrumb";
 import type { BreadcrumbItem } from "@/lib/breadcrumb/route-resolvers";
 import { cn } from "@/lib/utils";
 import { Icon } from "../shared/Icon";
+import { ButtonTheme } from "../shared/ToggleButton";
 import { Button } from "../ui/button";
 
 export function DashboardLayoutHeader() {
@@ -57,6 +58,8 @@ export function DashboardLayoutHeader() {
           <BreadcrumbRenderer items={items} />
         )}
       </div>
+
+      <ButtonTheme />
     </header>
   );
 }
