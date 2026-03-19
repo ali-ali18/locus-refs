@@ -1,7 +1,7 @@
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { common, createLowlight } from "lowlight";
-import { CodeBlockView } from "@/components/ui/baseNote/CodeBlock/CodeBlockView";
+import { CodeBlockView } from "@/components/ui/baseNote/codeBlock/CodeBlockView";
 
 const lowlight = createLowlight(common);
 

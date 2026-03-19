@@ -2,17 +2,15 @@ import Emoji, { gitHubEmojis } from "@tiptap/extension-emoji";
 import Heading from "@tiptap/extension-heading";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import {
-  BackgroundColor,
-  Color,
-  TextStyle,
-} from "@tiptap/extension-text-style";
+import { BackgroundColor, Color } from "@tiptap/extension-text-style";
 import StarterKit from "@tiptap/starter-kit";
 import type {
   SlashMenuConfig,
   SlashMenuItemType,
 } from "@/components/tiptap-ui/slash-dropdown-menu/use-slash-dropdown-menu";
 import { CustomCodeBlock } from "@/lib/extension/CustomCodeBlock";
+import { CustomTextStyle } from "@/lib/extension/CustomTextStyle";
+import { CustomCode } from "./extension/CustomCode";
 
 const CustomHeading = Heading.extend({
   renderHTML({ node, HTMLAttributes }) {
@@ -54,11 +52,12 @@ export function getNotesEditorExtensions(
         HTMLAttributes: { class: "my-6 ml-6 list-decimal [&>li]:mt-2" },
       },
       codeBlock: false,
-      code: {
-        HTMLAttributes: {
-          class:
-            "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold",
-        },
+      code: false,
+    }),
+    CustomCode.configure({
+      HTMLAttributes: {
+        class:
+          "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold",
       },
     }),
     CustomCodeBlock,
@@ -75,12 +74,9 @@ export function getNotesEditorExtensions(
     Link.configure({
       autolink: true,
       openOnClick: false,
-      HTMLAttributes: {
-        class: "text-accent-foreground underline cursor-pointer",
-      },
     }),
 
-    TextStyle,
+    CustomTextStyle,
     Color,
     BackgroundColor,
 

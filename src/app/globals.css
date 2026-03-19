@@ -222,6 +222,22 @@
   font-weight: 400 !important;
 }
 
+.tiptap a {
+  color: var(--accent-foreground);
+  text-decoration-line: underline;
+  cursor: pointer;
+}
+
+/* When the link wraps a colored span, move the underline to the span
+   so underline follows the span's currentColor */
+.tiptap a:has(span[style*="color"]) {
+  text-decoration: none;
+}
+
+.tiptap a span[style*="color"] {
+  text-decoration-line: underline;
+}
+
 .tiptap span[data-emoji] {
   font-size: 1.5em;
   vertical-align: middle;

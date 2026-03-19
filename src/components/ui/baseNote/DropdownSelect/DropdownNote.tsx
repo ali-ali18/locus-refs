@@ -31,7 +31,6 @@ interface Props {
 export function DropdownNote({ editor }: Props) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
-
   const activeMarks = useEditorState({
     editor,
     selector: ({ editor }) => ({
@@ -79,7 +78,10 @@ export function DropdownNote({ editor }: Props) {
           isActive={activeMarks.link}
         />
 
-        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+        <DropdownMenu
+          open={dropdownOpen}
+          onOpenChange={setDropdownOpen}
+        >
           <DropdownMenuTrigger>
             <Button
               variant="ghost"
