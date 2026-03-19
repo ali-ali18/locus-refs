@@ -1,4 +1,4 @@
-import { Saturn01Icon } from "@hugeicons/core-free-icons";
+import { Folder01FreeIcons } from "@hugeicons/core-free-icons";
 import { Container } from "@/components/shared/Container";
 import { Icon } from "@/components/shared/Icon";
 import {
@@ -9,7 +9,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-export default function DashboardPage() {
+export default function CollectionsPage() {
   return (
     <Container
       as="section"
@@ -18,11 +18,11 @@ export default function DashboardPage() {
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon" className="rounded-xl">
-            <Icon icon={Saturn01Icon} strokeWidth={2} />
+            <Icon icon={Folder01FreeIcons} strokeWidth={2} />
           </EmptyMedia>
-          <EmptyTitle>Seja bem vindo ao seu espaço</EmptyTitle>
+          <EmptyTitle>Suas coleções aparecerão aqui</EmptyTitle>
           <EmptyDescription>
-            Sua área de trabalho está vazia, selecione algo para continuar.
+            No momento você ainda não selecionou nenhuma coleção.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
