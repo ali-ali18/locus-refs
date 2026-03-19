@@ -11,6 +11,8 @@ import type {
 import { CustomCodeBlock } from "@/lib/extension/CustomCodeBlock";
 import { CustomTextStyle } from "@/lib/extension/CustomTextStyle";
 import { CustomCode } from "./extension/CustomCode";
+import { CustomTaskItem } from "./extension/CustomTaskItem";
+import { CustomTaskList } from "./extension/CustomTaskList";
 
 const CustomHeading = Heading.extend({
   renderHTML({ node, HTMLAttributes }) {
@@ -76,6 +78,9 @@ export function getNotesEditorExtensions(
       openOnClick: false,
     }),
 
+    CustomTaskList,
+    CustomTaskItem.configure({ nested: true }),
+
     CustomTextStyle,
     Color,
     BackgroundColor,
@@ -102,6 +107,7 @@ const NOTES_SLASH_ENABLED_ITEMS: SlashMenuItemType[] = [
   "heading_3",
   "bullet_list",
   "ordered_list",
+  "task_list",
   "quote",
   "code_block",
 ];
@@ -130,6 +136,7 @@ export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
     heading_3: "Formatação",
     bullet_list: "Listas",
     ordered_list: "Listas",
+    task_list: "Listas",
     quote: "Blocos",
     code_block: "Blocos",
   },
