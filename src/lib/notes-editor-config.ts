@@ -79,7 +79,7 @@ export function getNotesEditorExtensions(
     }),
 
     CustomTaskList,
-    CustomTaskItem.configure({ nested: true }),
+  CustomTaskItem.configure({ nested: true }),
 
     CustomTextStyle,
     Color,

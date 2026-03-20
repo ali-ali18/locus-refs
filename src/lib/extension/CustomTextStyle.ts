@@ -1,13 +1,5 @@
 import { TextStyle } from "@tiptap/extension-text-style";
 
-/**
- * Corrige um comportamento do `removeEmptyTextStyle()` do Tiptap:
- * ao fazer `unsetColor()`/`unsetBackgroundColor()`, o comando pode remover
- * o `textStyle` em nós *de bloco* (ex.: itens de lista/blockquote),
- * afetando cores de todo o conteúdo dentro desses blocos.
- *
- * Aqui removemos apenas em nós inline, mantendo o reset limitado à seleção.
- */
 export const CustomTextStyle = TextStyle.extend({
   addCommands() {
     return {

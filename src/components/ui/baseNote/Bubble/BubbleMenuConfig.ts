@@ -1,6 +1,7 @@
 import {
   Bold,
   BrushIcon,
+  CheckListIcon,
   CodeSimpleIcon,
   Italic,
   LeftToRightListDashIcon,
@@ -168,6 +169,15 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
         icon: LeftToRightListNumberIcon,
         onSelect: (editor) => {
           editor.chain().focus().toggleOrderedList().run();
+        },
+      },
+      {
+        kind: "action",
+        label: "Lista de tarefas",
+        mark: "taskList",
+        icon: CheckListIcon,
+        onSelect: (editor) => {
+          editor.chain().focus().toggleTaskList().run();
         },
       },
     ],

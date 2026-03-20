@@ -1,4 +1,10 @@
-import { MoreHorizontal } from "@hugeicons/core-free-icons";
+import {
+  Heading01Icon,
+  Heading02Icon,
+  Heading03Icon,
+  MoreHorizontal,
+  QuoteDownIcon,
+} from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { Editor } from "@tiptap/react";
 import { useEditorState } from "@tiptap/react";
@@ -38,6 +44,11 @@ export function DropdownNote({ editor }: Props) {
       italic: editor.isActive("italic"),
       underline: editor.isActive("underline"),
       link: editor.isActive("link"),
+      heading1: editor.isActive("heading", { level: 1 }),
+      heading2: editor.isActive("heading", { level: 2 }),
+      heading3: editor.isActive("heading", { level: 3 }),
+      blockquote: editor.isActive("blockquote"),
+      taskList: editor.isActive("taskList"),
     }),
   });
 
@@ -97,7 +108,7 @@ export function DropdownNote({ editor }: Props) {
             />
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent className="rounded-xl my-1 w-50">
+          <DropdownMenuContent className="rounded-xl my-1 min-w-64">
             {BUBBLE_MENU_GROUPS.map((group, index) => (
               <DropdownMenuGroup
                 key={group.label ? `group-${group.label}` : `group-${index}`}
@@ -194,6 +205,56 @@ export function DropdownNote({ editor }: Props) {
                 })}
               </DropdownMenuGroup>
             ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Formatação</DropdownMenuLabel>
+              {[
+                {
+                  label: "Título 1",
+                  icon: Heading01Icon,
+                  active: activeMarks.heading1,
+                  onSelect: () =>
+                    editor.chain().focus().toggleHeading({ level: 1 }).run(),
+                },
+                {
+                  label: "Título 2",
+                  icon: Heading02Icon,
+                  active: activeMarks.heading2,
+                  onSelect: () =>
+                    editor.chain().focus().toggleHeading({ level: 2 }).run(),
+                },
+                {
+                  label: "Título 3",
+                  icon: Heading03Icon,
+                  active: activeMarks.heading3,
+                  onSelect: () =>
+                    editor.chain().focus().toggleHeading({ level: 3 }).run(),
+                },
+              ].map((item) => (
+                <DropdownMenuItem
+                  key={item.label}
+                  className={`rounded-xl${item.active ? " bg-muted" : ""}`}
+                  onClick={item.onSelect}
+                >
+                  <Icon icon={item.icon} />
+                  {item.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Bloco</DropdownMenuLabel>
+              <DropdownMenuItem
+                className={`rounded-xl${activeMarks.blockquote ? " bg-muted" : ""}`}
+                onClick={() =>
+                  editor.chain().focus().toggleBlockquote().run()
+                }
+              >
+                <Icon icon={QuoteDownIcon} />
+                Citação
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
