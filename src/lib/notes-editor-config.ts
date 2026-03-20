@@ -18,9 +18,9 @@ const CustomHeading = Heading.extend({
   renderHTML({ node, HTMLAttributes }) {
     const level = node.attrs.level;
     const classes: Record<number, string> = {
-      1: "text-3xl font-bold text-accent-foreground mt-8 mb-4 leading-tight",
-      2: "text-2xl font-semibold text-accent-foreground mt-6 mb-3 leading-snug",
-      3: "text-xl font-medium text-accent-foreground mt-4 mb-2 leading-snug",
+      1: "text-3xl font-bold text-accent-foreground leading-tight",
+      2: "text-2xl font-semibold text-accent-foreground leading-snug",
+      3: "text-xl font-medium text-accent-foreground leading-snug",
     };
     return [`h${level}`, { ...HTMLAttributes, class: classes[level] }, 0];
   },

@@ -33,7 +33,7 @@ export function CreateResourceDialog({
   collections,
 }: CreateResourceDialogProps): ReactElement {
   const { data: categories = [] } = useCategories();
-  const { createCategory, isCreatingCategory } = useCategory();
+  const { createCategory, isLoading } = useCategory();
   const { createResource, isCreating } = useResourceMutations();
 
   const {
@@ -111,7 +111,7 @@ export function CreateResourceDialog({
         onOpenChange={setIsCreateCategoryDialogOpen}
         newCategoryName={newCategoryName}
         onNameChange={setNewCategoryName}
-        isCreating={isCreatingCategory}
+        isCreating={isLoading}
         onCreate={handleCreateCategory}
       />
     </>

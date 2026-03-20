@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { Category } from "@/types/categories.type";
 import {
   type CreateResourceSchema,
   type CreateResourceStep2Schema,
@@ -11,7 +12,6 @@ import {
   createResourceStep2Schema,
 } from "@/types/schema/resource.schema";
 import { useFetchMetadata } from "../hooks/useFetchMetadata";
-import type { Category } from "../services/useCategory";
 import type { CreateResourcePayload } from "../services/useResource";
 
 interface UseCreateResourceDialogProps {

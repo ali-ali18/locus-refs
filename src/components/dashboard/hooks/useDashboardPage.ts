@@ -52,7 +52,6 @@ export function useDashboardPage() {
     setIsOpenDialogCreateResource(!isOpenDialogCreateResource);
 
   return {
-    // Collection dialog
     isDialogOpen,
     setIsDialogOpen,
     openCreateCollectionDialog,
@@ -65,13 +64,11 @@ export function useDashboardPage() {
     selectedCollection,
     collections,
 
-    // Search
     searchQuery,
     setSearchQuery,
     resources: filteredResources,
     isLoadingResources,
 
-    // Collection selection
     setSelectedCollectionId,
   };
 }

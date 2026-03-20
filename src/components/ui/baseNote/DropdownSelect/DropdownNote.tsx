@@ -65,8 +65,19 @@ export function DropdownNote({ editor }: Props) {
         return from !== to || dropdownOpen || linkPopoverOpen;
       }}
       updateDelay={100}
+      appendTo={() => document.body}
+      options={{
+        placement: "top",
+        offset: 8,
+      }}
     >
-      <div className="flex items-center gap-1 rounded-xl border bg-popover px-1 py-1 shadow-sm">
+      <div
+        className="flex items-center gap-1 rounded-xl border bg-popover px-1 py-1 shadow-sm"
+        role="toolbar"
+        tabIndex={-1}
+        aria-label="Ações do editor"
+        onMouseDown={(e) => e.preventDefault()}
+      >
         {PRIMARY_ACTIONS.filter((action) => action.label !== "Link").map(
           (action) => (
             <Button

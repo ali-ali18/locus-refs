@@ -26,11 +26,11 @@ export function PageHeaderNote({ title, icon, id }: Props) {
   } = useNoteHeader({ id, initialTitle: title, initialIcon: icon });
 
   return (
-    <div className="space-y-0">
+    <div>
       <div className="h-42 w-full rounded-xl bg-linear-to-br from-[#423E37] via-[#262626] to-[#171717] aspect-video" />
 
-      <div className="flex flex-col gap-2">
-        <div className="min-h-[20px] flex items-center gap-2 text-xs">
+      <div className="flex flex-col gap-0.5">
+        <div className="min-h-[20px] flex items-center gap-1 my-1 text-xs">
           <AnimatePresence>
             {showError && errorMessage && (
               <m.div
@@ -67,8 +67,8 @@ export function PageHeaderNote({ title, icon, id }: Props) {
           </AnimatePresence>
         </div>
 
-        <div className="flex flex-wrap items-start gap-3">
-          <div className="flex flex-col items-start gap-2">
+        <div className="flex flex-wrap items-center sm:gap-1.5">
+          <div className="flex flex-col items-start gap-0">
             <IconPicker
               value={currentIcon}
               onChange={handleIconChange}
@@ -86,7 +86,7 @@ export function PageHeaderNote({ title, icon, id }: Props) {
           >
             <textarea
               {...titleField}
-              className="w-full outline-none text-2xl p-2 rounded-xl resize-none leading-snug overflow-hidden font-semibold"
+              className="w-full outline-none text-3xl resize-none leading-snug overflow-hidden font-bold"
               placeholder="Título da nota"
               rows={1}
             />

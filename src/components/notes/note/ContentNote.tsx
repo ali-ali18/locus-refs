@@ -19,7 +19,7 @@ export function ContentNote({ content, onChange, status = "idle" }: Props) {
 
   return (
     <div className="flex flex-col relative">
-      <div className="sticky min-h-6 top-0 z-10 flex justify-end p-2">
+      <div className="sticky min-h-6 top-0 z-10 flex justify-end p-2 pointer-events-none">
         <Badge variant="secondary">
           <AnimatePresence mode="wait">
             <m.span

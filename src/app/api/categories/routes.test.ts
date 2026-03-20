@@ -65,7 +65,6 @@ describe("API Categories", () => {
       };
       mockCreate.mockResolvedValue(newCategory);
 
-      // Create a request with a JSON body
       const req = new NextRequest("http://localhost/api/categories", {
         method: "POST",
         body: JSON.stringify({ name: "New Cat" }),

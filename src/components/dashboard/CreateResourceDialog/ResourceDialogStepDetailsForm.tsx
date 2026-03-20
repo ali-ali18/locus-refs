@@ -1,6 +1,7 @@
 "use client";
 
 import { Loading02Icon } from "@hugeicons/core-free-icons";
+import type { ComponentProps } from "react";
 import type { Control } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { FieldGroupApp } from "@/components/base";
@@ -14,9 +15,9 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import type { Category } from "@/types/categories.type";
 import type { Collection } from "@/types/collection.type";
 import type { CreateResourceStep2Schema } from "@/types/schema/resource.schema";
-import type { Category } from "../services/useCategory";
 
 interface ResourceDialogStepDetailsFormProps {
   control: Control<CreateResourceStep2Schema>;
@@ -31,7 +32,7 @@ interface ResourceDialogStepDetailsFormProps {
   isCreating: boolean;
   onBack: () => void;
   onOpenCreateCategory: () => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: ComponentProps<"form">["onSubmit"];
 }
 
 export function ResourceDialogStepDetailsForm({

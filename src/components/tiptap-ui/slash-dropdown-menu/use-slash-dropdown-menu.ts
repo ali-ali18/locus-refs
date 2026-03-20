@@ -1,37 +1,31 @@
 "use client";
 
-import { useCallback } from "react";
 import type { Editor } from "@tiptap/react";
-
+import { useCallback } from "react";
+import { AiSparklesIcon } from "@/components/tiptap-icons/ai-sparkles-icon";
+import { AtSignIcon } from "@/components/tiptap-icons/at-sign-icon";
+import { BlockquoteIcon } from "@/components/tiptap-icons/blockquote-icon";
 // --- Icons ---
 import { CodeBlockIcon } from "@/components/tiptap-icons/code-block-icon";
 import { HeadingOneIcon } from "@/components/tiptap-icons/heading-one-icon";
-import { HeadingTwoIcon } from "@/components/tiptap-icons/heading-two-icon";
 import { HeadingThreeIcon } from "@/components/tiptap-icons/heading-three-icon";
+import { HeadingTwoIcon } from "@/components/tiptap-icons/heading-two-icon";
 import { ImageIcon } from "@/components/tiptap-icons/image-icon";
 import { ListIcon } from "@/components/tiptap-icons/list-icon";
+import { ListIndentedIcon } from "@/components/tiptap-icons/list-indented-icon";
 import { ListOrderedIcon } from "@/components/tiptap-icons/list-ordered-icon";
-import { BlockquoteIcon } from "@/components/tiptap-icons/blockquote-icon";
 import { ListTodoIcon } from "@/components/tiptap-icons/list-todo-icon";
-import { AiSparklesIcon } from "@/components/tiptap-icons/ai-sparkles-icon";
 import { MinusIcon } from "@/components/tiptap-icons/minus-icon";
-import { TypeIcon } from "@/components/tiptap-icons/type-icon";
-import { AtSignIcon } from "@/components/tiptap-icons/at-sign-icon";
 import { SmilePlusIcon } from "@/components/tiptap-icons/smile-plus-icon";
 import { TableIcon } from "@/components/tiptap-icons/table-icon";
-import { ListIndentedIcon } from "@/components/tiptap-icons/list-indented-icon";
-
-// --- Lib ---
-import { isExtensionAvailable, isNodeInSchema } from "@/lib/tiptap-utils";
-import {
-  findSelectionPosition,
-  hasContentAbove,
-} from "@/lib/tiptap-advanced-utils";
+import { TypeIcon } from "@/components/tiptap-icons/type-icon";
+import { addEmojiTrigger } from "@/components/tiptap-ui/emoji-trigger-button";
+import { addMentionTrigger } from "@/components/tiptap-ui/mention-trigger-button";
 
 // --- Tiptap UI ---
 import type { SuggestionItem } from "@/components/tiptap-ui-utils/suggestion-menu";
-import { addEmojiTrigger } from "@/components/tiptap-ui/emoji-trigger-button";
-import { addMentionTrigger } from "@/components/tiptap-ui/mention-trigger-button";
+// --- Lib ---
+import { isExtensionAvailable, isNodeInSchema } from "@/lib/tiptap-utils";
 
 export interface SlashMenuConfig {
   enabledItems?: SlashMenuItemType[];
@@ -183,69 +177,6 @@ export type SlashMenuItemType = keyof typeof texts;
 
 const getItemImplementations = () => {
   return {
-    // AI
-    continue_writing: {
-      check: (editor: Editor) => {
-        const { hasContent } = hasContentAbove(editor);
-        const extensionsReady = isExtensionAvailable(editor, [
-          "ai",
-          "aiAdvanced",
-        ]);
-        return extensionsReady && hasContent;
-      },
-      action: ({ editor }: { editor: Editor }) => {
-        const editorChain = editor.chain().focus();
-
-        const nodeSelectionPosition = findSelectionPosition({ editor });
-
-        if (nodeSelectionPosition !== null) {
-          editorChain.setNodeSelection(nodeSelectionPosition);
-        }
-
-        editorChain.run();
-
-        editor.chain().focus().aiGenerationShow().run();
-
-        requestAnimationFrame(() => {
-          const { hasContent, content } = hasContentAbove(editor);
-
-          const snippet =
-            content.length > 500 ? `...${content.slice(-500)}` : content;
-
-          const prompt = hasContent
-            ? `Context: ${snippet}\n\nContinue writing from where the text above ends. Write ONLY ONE SENTENCE. DONT REPEAT THE TEXT.`
-            : "Start writing a new paragraph. Write ONLY ONE SENTENCE.";
-
-          editor
-            .chain()
-            .focus()
-            .aiTextPrompt({
-              stream: true,
-              format: "rich-text",
-              text: prompt,
-            })
-            .run();
-        });
-      },
-    },
-    ai_ask_button: {
-      check: (editor: Editor) =>
-        isExtensionAvailable(editor, ["ai", "aiAdvanced"]),
-      action: ({ editor }: { editor: Editor }) => {
-        const editorChain = editor.chain().focus();
-
-        const nodeSelectionPosition = findSelectionPosition({ editor });
-
-        if (nodeSelectionPosition !== null) {
-          editorChain.setNodeSelection(nodeSelectionPosition);
-        }
-
-        editorChain.run();
-
-        editor.chain().focus().aiGenerationShow().run();
-      },
-    },
-
     // Style
     text: {
       check: (editor: Editor) => isNodeInSchema("paragraph", editor),
@@ -322,20 +253,16 @@ const getItemImplementations = () => {
     toc: {
       check: (editor: Editor) => isNodeInSchema("tocNode", editor),
       action: ({ editor }: { editor: Editor }) => {
-        editor.chain().focus().insertTocNode().run();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (editor.chain().focus() as any).insertTocNode().run();
       },
     },
     table: {
       check: (editor: Editor) => isNodeInSchema("table", editor),
       action: ({ editor }: { editor: Editor }) => {
-        editor
-          .chain()
-          .focus()
-          .insertTable({
-            rows: 3,
-            cols: 3,
-            withHeaderRow: false,
-          })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (editor.chain().focus() as any)
+          .insertTable({ rows: 3, cols: 3, withHeaderRow: false })
           .run();
       },
     },
@@ -399,7 +326,8 @@ export function useSlashDropdownMenu(config?: SlashMenuConfig) {
       const itemImplementations = getItemImplementations();
 
       enabledItems.forEach((itemType) => {
-        const itemImpl = itemImplementations[itemType];
+        const itemImpl =
+          itemImplementations[itemType as keyof typeof itemImplementations];
         const itemText = texts[itemType];
 
         if (itemImpl && itemText && itemImpl.check(editor)) {
