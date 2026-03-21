@@ -42,10 +42,7 @@ export function useNavMain() {
     await deleteCollection(id);
   };
 
-  const handleCategoryClick = (
-    collectionId: string,
-    categorySlug: string,
-  ) => {
+  const handleCategoryClick = (collectionId: string, categorySlug: string) => {
     router.push(
       `/dashboard/collections/${collectionId}?category=${categorySlug}`,
     );

@@ -71,7 +71,7 @@ export function NavMain() {
 
     return <div className="p-2 space-y-2">{skeletons}</div>;
   }
-  
+
   return (
     <>
       <SidebarGroup>
@@ -188,7 +188,9 @@ function CollectionCategories({
             <SidebarMenuAction
               showOnHover
               className={
-                hasCategories ? "right-6 aria-expanded:bg-muted" : "aria-expanded:bg-muted"
+                hasCategories
+                  ? "right-6 aria-expanded:bg-muted"
+                  : "aria-expanded:bg-muted"
               }
             />
           }
@@ -196,7 +198,11 @@ function CollectionCategories({
           <Icon icon={MoreHorizontalCircle01Icon} />
           <span className="sr-only">Mais opções</span>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="right" align="start" className="w-48 rounded-xl">
+        <DropdownMenuContent
+          side="right"
+          align="start"
+          className="w-48 rounded-xl"
+        >
           <DropdownMenuItem onClick={onEditClick}>
             <Icon icon={PencilEdit01Icon} />
             <span>Renomear</span>

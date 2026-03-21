@@ -5,20 +5,12 @@ import { format } from "date-fns";
 import { PlusIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
-import {
-  ListGroup,
-  ListHeader,
-  ListItem,
-  ListItems,
-  ListProvider,
-} from "@/components/kibo-ui/list";
 import { RangePicker } from "@/components/base/RangePicker";
 import {
   CalendarBody,
   CalendarDate,
   CalendarDatePagination,
   CalendarHeader,
-  CalendarItem,
   CalendarMonthPicker,
   CalendarProvider,
   CalendarYearPicker,
@@ -42,6 +34,13 @@ import {
   KanbanHeader,
   KanbanProvider,
 } from "@/components/kibo-ui/kanban";
+import {
+  ListGroup,
+  ListHeader,
+  ListItem,
+  ListItems,
+  ListProvider,
+} from "@/components/kibo-ui/list";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,12 +53,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
 import type { RoadmapItem, RoadmapStatus } from "@/lib/extension/RoadmapBlock";
 
-const KANBAN_COLUMNS = [
-  { id: "todo", name: "A fazer" },
-  { id: "in-progress", name: "Em andamento" },
-  { id: "done", name: "Concluído" },
-];
-
 function getInitials(name: string) {
   return name
     .split(" ")
@@ -70,12 +63,16 @@ function getInitials(name: string) {
 }
 
 export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
-  const items: RoadmapItem[] = JSON.parse((node.attrs.items as string | undefined) ?? "[]") as unknown as RoadmapItem[];
-  const statuses: RoadmapStatus[] = JSON.parse((node.attrs.statuses as string | undefined) ?? "[]");
+  const items: RoadmapItem[] = JSON.parse(
+    (node.attrs.items as string | undefined) ?? "[]",
+  ) as unknown as RoadmapItem[];
+  const statuses: RoadmapStatus[] = JSON.parse(
+    (node.attrs.statuses as string | undefined) ?? "[]",
+  );
 
   const { data: session } = authClient.useSession();
   const userName = (session?.user?.name as string | undefined) ?? "Usuário";
-  const userImage = (session?.user?.image as string | undefined) ?? undefined;  
+  const userImage = (session?.user?.image as string | undefined) ?? undefined;
 
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [newItemName, setNewItemName] = useState("");
@@ -98,7 +95,9 @@ export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
       id: crypto.randomUUID(),
       name,
       startAt: (dateRange?.from ?? new Date()).toISOString(),
-      endAt: (dateRange?.to ?? new Date(Date.now() + 30 * 86_400_000)).toISOString(),
+      endAt: (
+        dateRange?.to ?? new Date(Date.now() + 30 * 86_400_000)
+      ).toISOString(),
       statusId: newItemStatusId,
       column: newItemStatusId,
       createdBy: { name: userName, image: userImage },
@@ -107,7 +106,10 @@ export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
     updateAttributes({ items: JSON.stringify([...items, newItem]) });
     setNewItemName("");
     setNewItemStatusId(statuses[0]?.id ?? "todo");
-    setDateRange({ from: new Date(), to: new Date(Date.now() + 30 * 86_400_000) });
+    setDateRange({
+      from: new Date(),
+      to: new Date(Date.now() + 30 * 86_400_000),
+    });
     setPopoverOpen(false);
   };
 
@@ -118,8 +120,11 @@ export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
   };
 
   const handleKanbanDataChange = (newData: RoadmapItem[]) => {
-    updateAttributes({ items: JSON.stringify(newData) });
+    const synced = newData.map((item) => ({ ...item, statusId: item.column }));
+    updateAttributes({ items: JSON.stringify(synced) });
   };
+
+  const kanbanColumns = statuses.map((s) => ({ id: s.id, name: s.name }));
 
   const ganttFeatures = items.map((item) => ({
     id: item.id,
@@ -132,7 +137,6 @@ export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
       color: "#94a3b8",
     },
   }));
-
 
   return (
     <NodeViewWrapper contentEditable={false} className="my-4">
@@ -240,11 +244,52 @@ export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
                   <GanttHeader />
                   <GanttFeatureList>
                     <GanttFeatureListGroup>
-                      <GanttFeatureRow features={ganttFeatures}>
+                      <GanttFeatureRow
+                        features={ganttFeatures}
+                        onHover={(feature) => {
+                          const item = items.find((i) => i.id === feature.id);
+                          return (
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="size-2 shrink-0 rounded-full"
+                                  style={{
+                                    backgroundColor: feature.status.color,
+                                  }}
+                                />
+                                <span className="font-medium">
+                                  {feature.name}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                                <span>{format(feature.startAt, "dd/MM")}</span>
+                                <span>→</span>
+                                <span>{format(feature.endAt, "dd/MM/yy")}</span>
+                              </div>
+                              {item?.createdBy && (
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="size-5 overflow-hidden">
+                                    <AvatarImage
+                                      alt={item.createdBy.name}
+                                      src={item.createdBy.image}
+                                    />
+                                    <AvatarFallback className="text-[9px]">
+                                      {getInitials(item.createdBy.name)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span className="text-muted-foreground text-xs">
+                                    {item.createdBy.name}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }}
+                      >
                         {(feature) => {
                           const item = items.find((i) => i.id === feature.id);
                           return (
-                            <div className="flex h-full items-center gap-1.5 px-2">
+                            <div className="flex h-full w-full items-center justify-between gap-1.5 px-2">
                               <p className="flex-1 truncate text-xs font-medium">
                                 {feature.name}
                               </p>
@@ -281,7 +326,7 @@ export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
               ) : (
                 <KanbanProvider
                   className="flex gap-3"
-                  columns={KANBAN_COLUMNS}
+                  columns={kanbanColumns}
                   data={items}
                   onDataChange={handleKanbanDataChange}
                 >
@@ -378,11 +423,16 @@ export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
               <CalendarHeader />
               <CalendarBody features={ganttFeatures}>
                 {({ feature }) => (
-                  <CalendarItem
+                  <div
                     key={feature.id}
-                    className="text-xs"
-                    feature={feature}
-                  />
+                    className="truncate rounded-xl px-1.5 py-0.5 text-xs font-medium"
+                    style={{
+                      backgroundColor: `${feature.status.color}25`,
+                      color: feature.status.color,
+                    }}
+                  >
+                    {feature.name}
+                  </div>
                 )}
               </CalendarBody>
             </CalendarProvider>
@@ -409,7 +459,11 @@ export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
                     items: JSON.stringify(
                       items.map((item) =>
                         item.id === active.id
-                          ? { ...item, statusId: newStatusId, column: newStatusId }
+                          ? {
+                              ...item,
+                              statusId: newStatusId,
+                              column: newStatusId,
+                            }
                           : item,
                       ),
                     ),

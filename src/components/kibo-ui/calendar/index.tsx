@@ -39,7 +39,7 @@ export type CalendarState = {
 };
 
 const monthAtom = atom<CalendarState["month"]>(
-  new Date().getMonth() as CalendarState["month"]
+  new Date().getMonth() as CalendarState["month"],
 );
 const yearAtom = atom<CalendarState["year"]>(new Date().getFullYear());
 
@@ -87,26 +87,26 @@ type ComboboxProps = {
 
 export const monthsForLocale = (
   localeName: Intl.LocalesArgument,
-  monthFormat: Intl.DateTimeFormatOptions["month"] = "long"
+  monthFormat: Intl.DateTimeFormatOptions["month"] = "long",
 ) => {
   const format = new Intl.DateTimeFormat(localeName, { month: monthFormat })
     .format;
 
   return [...new Array(12).keys()].map((m) =>
-    format(new Date(Date.UTC(2021, m, 2)))
+    format(new Date(Date.UTC(2021, m, 2))),
   );
 };
 
 export const daysForLocale = (
   locale: Intl.LocalesArgument,
-  startDay: number
+  startDay: number,
 ) => {
   const weekdays: string[] = [];
   const baseDate = new Date(2024, 0, startDay);
 
   for (let i = 0; i < 7; i++) {
     weekdays.push(
-      new Intl.DateTimeFormat(locale, { weekday: "short" }).format(baseDate)
+      new Intl.DateTimeFormat(locale, { weekday: "short" }).format(baseDate),
     );
     baseDate.setDate(baseDate.getDate() + 1);
   }
@@ -125,9 +125,20 @@ const Combobox = ({
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger render={<Button aria-expanded={open} className={cn("w-40 justify-between capitalize", className)} variant="outline" />}>{value
-                      ? data.find((item) => item.value === value)?.label
-                      : labels.button}<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" /></PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-expanded={open}
+            className={cn("w-40 justify-between capitalize", className)}
+            variant="outline"
+          />
+        }
+      >
+        {value
+          ? data.find((item) => item.value === value)?.label
+          : labels.button}
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </PopoverTrigger>
       <PopoverContent className="w-40 p-0">
         <Command
           filter={(value, search) => {
@@ -153,7 +164,7 @@ const Combobox = ({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === item.value ? "opacity-100" : "opacity-0"
+                      value === item.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {item.label}
@@ -190,15 +201,15 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
   // Memoize expensive date calculations
   const currentMonthDate = useMemo(
     () => new Date(year, month, 1),
-    [year, month]
+    [year, month],
   );
   const daysInMonth = useMemo(
     () => getDaysInMonth(currentMonthDate),
-    [currentMonthDate]
+    [currentMonthDate],
   );
   const firstDay = useMemo(
     () => (getDay(currentMonthDate) - startDay + 7) % 7,
-    [currentMonthDate, startDay]
+    [currentMonthDate, startDay],
   );
 
   // Memoize previous month calculations
@@ -208,7 +219,7 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
     const prevMonthDays = getDaysInMonth(new Date(prevMonthYear, prevMonth, 1));
     const prevMonthDaysArray = Array.from(
       { length: prevMonthDays },
-      (_, i) => i + 1
+      (_, i) => i + 1,
     );
     return { prevMonthDays, prevMonthDaysArray };
   }, [month, year]);
@@ -220,7 +231,7 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
     const nextMonthDays = getDaysInMonth(new Date(nextMonthYear, nextMonth, 1));
     const nextMonthDaysArray = Array.from(
       { length: nextMonthDays },
-      (_, i) => i + 1
+      (_, i) => i + 1,
     );
     return { nextMonthDaysArray };
   }, [month, year]);
@@ -266,7 +277,7 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
             +{featuresForDay.length - 3} more
           </span>
         )}
-      </div>
+      </div>,
     );
   }
 
@@ -287,7 +298,7 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
         <div
           className={cn(
             "relative aspect-square overflow-hidden border-t border-r",
-            index % 7 === 6 && "border-r-0"
+            index % 7 === 6 && "border-r-0",
           )}
           key={index}
         >
@@ -463,7 +474,7 @@ export const CalendarItem = memo(
       />
       <span className="truncate">{feature.name}</span>
     </div>
-  )
+  ),
 );
 
 CalendarItem.displayName = "CalendarItem";
