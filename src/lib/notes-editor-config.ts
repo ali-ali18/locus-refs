@@ -10,6 +10,7 @@ import type {
 } from "@/components/tiptap-ui/slash-dropdown-menu/use-slash-dropdown-menu";
 import { CustomCodeBlock } from "@/lib/extension/CustomCodeBlock";
 import { CustomTextStyle } from "@/lib/extension/CustomTextStyle";
+import { RoadmapBlock } from "@/lib/extension/RoadmapBlock";
 import { CustomCode } from "./extension/CustomCode";
 import { CustomTaskItem } from "./extension/CustomTaskItem";
 import { CustomTaskList } from "./extension/CustomTaskList";
@@ -79,7 +80,9 @@ export function getNotesEditorExtensions(
     }),
 
     CustomTaskList,
-  CustomTaskItem.configure({ nested: true }),
+    CustomTaskItem.configure({ nested: true }),
+
+    RoadmapBlock,
 
     CustomTextStyle,
     Color,
@@ -125,6 +128,15 @@ export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
       title: "Code Block",
       onSelect: ({ editor }) => {
         editor.chain().focus().setNode("codeBlockCustom").run();
+      },
+    },
+    {
+      title: "Roadmap",
+      subtext: "Kanban, Calendário e Gantt em um bloco",
+      keywords: ["roadmap", "kanban", "gantt", "calendario", "board"],
+      group: "Blocos",
+      onSelect: ({ editor }) => {
+        editor.chain().focus().insertContent({ type: "roadmapBlock" }).run();
       },
     },
   ],

@@ -63,6 +63,7 @@ function DropdownMenuLabel({
   ...props
 }: MenuPrimitive.GroupLabel.Props & {
   inset?: boolean;
+  className?: string;
 }) {
   return (
     <MenuPrimitive.GroupLabel
@@ -85,6 +86,7 @@ function DropdownMenuItem({
 }: MenuPrimitive.Item.Props & {
   inset?: boolean;
   variant?: "default" | "destructive";
+  className?: string;
 }) {
   return (
     <MenuPrimitive.Item
@@ -111,6 +113,8 @@ function DropdownMenuSubTrigger({
   ...props
 }: MenuPrimitive.SubmenuTrigger.Props & {
   inset?: boolean;
+  className?: string;
+  children?: React.ReactNode;
 }) {
   return (
     <MenuPrimitive.SubmenuTrigger
@@ -160,6 +164,8 @@ function DropdownMenuCheckboxItem({
   ...props
 }: MenuPrimitive.CheckboxItem.Props & {
   inset?: boolean;
+  className?: string;
+  children?: React.ReactNode;
 }) {
   return (
     <MenuPrimitive.CheckboxItem
@@ -201,6 +207,8 @@ function DropdownMenuRadioItem({
   ...props
 }: MenuPrimitive.RadioItem.Props & {
   inset?: boolean;
+  className?: string;
+  children?: React.ReactNode;
 }) {
   return (
     <MenuPrimitive.RadioItem
