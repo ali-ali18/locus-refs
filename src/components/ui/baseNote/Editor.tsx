@@ -9,7 +9,7 @@ import {
   NOTES_SLASH_MENU_CONFIG,
 } from "@/lib/notes-editor-config";
 import { EmojiDropdownMenu } from "../../tiptap-ui/emoji-dropdown-menu";
-import { DropdownNote } from "./DropdownSelect/DropdownNote";
+import { DropdownNote } from "./DropdownNote/DropdownNote";
 
 interface EditorProps {
   content?: string | null;

@@ -119,7 +119,7 @@ export function DropdownNote({ editor }: Props) {
             />
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent className="rounded-xl my-1 min-w-64">
+          <DropdownMenuContent className="rounded-xl my-1 min-w-64 max-h-92">
             {BUBBLE_MENU_GROUPS.map((group, index) => (
               <DropdownMenuGroup
                 key={group.label ? `group-${group.label}` : `group-${index}`}
