@@ -99,7 +99,7 @@ export function getNotesEditorExtensions(
 
 export const NOTES_EDITOR_PROPS = {
   attributes: {
-    class: "focus:outline-none min-h-[200px] px-1 py-2 space-y-4",
+    class: "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 overflow-x-hidden",
   },
 };
 

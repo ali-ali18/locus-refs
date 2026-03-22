@@ -139,7 +139,7 @@ const Combobox = ({
           : labels.button}
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </PopoverTrigger>
-      <PopoverContent className="w-40 p-0">
+      <PopoverContent className="w-40 p-0 rounded-xl">
         <Command
           filter={(value, search) => {
             const label = data.find((item) => item.value === value)?.label;
@@ -147,13 +147,13 @@ const Combobox = ({
             return label?.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
           }}
         >
-          <CommandInput placeholder={labels.search} />
+          <CommandInput placeholder={labels.search} className="rounded-xl"/>
           <CommandList>
             <CommandEmpty>{labels.empty}</CommandEmpty>
             <CommandGroup>
               {data.map((item) => (
                 <CommandItem
-                  className="capitalize"
+                  className="capitalize rounded-xl"
                   key={item.value}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
@@ -389,10 +389,12 @@ export const CalendarYearPicker = ({
 
 export type CalendarDatePaginationProps = {
   className?: string;
+  children?: ReactNode;
 };
 
 export const CalendarDatePagination = ({
   className,
+  children,
 }: CalendarDatePaginationProps) => {
   const [month, setMonth] = useCalendarMonth();
   const [year, setYear] = useCalendarYear();
@@ -417,10 +419,11 @@ export const CalendarDatePagination = ({
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <Button onClick={handlePreviousMonth} size="icon" variant="ghost">
+      <Button onClick={handlePreviousMonth} size="icon" variant="ghost" rounded={'xl'}>
         <ChevronLeftIcon size={16} />
       </Button>
-      <Button onClick={handleNextMonth} size="icon" variant="ghost">
+      {children}
+      <Button onClick={handleNextMonth} size="icon" variant="ghost" rounded={'xl'}>
         <ChevronRightIcon size={16} />
       </Button>
     </div>

@@ -483,7 +483,7 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
     ? formatDistance(feature.startAt, tempEndAt)
     : `${formatDistance(feature.startAt, new Date())} so far`;
 
-  const handleClick: MouseEventHandler<HTMLDivElement> = (event) => {
+  const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     if (event.target === event.currentTarget) {
       // Scroll to the feature in the timeline
       gantt.scrollToFeature?.(feature);
@@ -492,7 +492,7 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
     }
   };
 
-  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
+  const handleKeyDown: KeyboardEventHandler<HTMLButtonElement> = (event) => {
     if (event.key === "Enter") {
       // Scroll to the feature in the timeline
       gantt.scrollToFeature?.(feature);
@@ -502,7 +502,8 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
   };
 
   return (
-    <div
+    <button
+      type="button"
       className={cn(
         "relative flex items-center gap-2.5 p-2.5 text-xs hover:bg-secondary",
         className,
@@ -510,8 +511,6 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
       key={feature.id}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      // biome-ignore lint/a11y/useSemanticElements: "This is a clickable item"
-      role="button"
       style={{
         height: "var(--gantt-row-height)",
       }}
@@ -528,7 +527,7 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
         {feature.name}
       </p>
       <p className="pointer-events-none text-muted-foreground">{duration}</p>
-    </div>
+    </button>
   );
 };
 
@@ -1236,8 +1235,27 @@ export const GanttProvider: FC<GanttProviderProps> = ({
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollLeft =
-        scrollRef.current.scrollWidth / 2 - scrollRef.current.clientWidth / 2;
+      const timelineStartDate = new Date(timelineData[0].year, 0, 1);
+      const sidebarEl = scrollRef.current.querySelector(
+        '[data-roadmap-ui="gantt-sidebar"]',
+      );
+      const actualSidebarWidth = sidebarEl ? 300 : 0;
+      const todayOffset = getOffset(new Date(), timelineStartDate, {
+        columnWidth,
+        zoom,
+        range,
+        sidebarWidth: actualSidebarWidth,
+        headerHeight,
+        rowHeight,
+        onAddItem,
+        timelineData,
+        placeholderLength: 2,
+        ref: scrollRef,
+      });
+      scrollRef.current.scrollLeft = Math.max(
+        0,
+        todayOffset - (scrollRef.current.clientWidth - actualSidebarWidth) / 2,
+      );
       setScrollX(scrollRef.current.scrollLeft);
     }
   }, [setScrollX]);

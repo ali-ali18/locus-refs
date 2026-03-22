@@ -3,9 +3,12 @@
 import {
   DndContext,
   type DragEndEvent,
+  PointerSensor,
   rectIntersection,
   useDraggable,
   useDroppable,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import type { ReactNode } from "react";
@@ -141,12 +144,19 @@ export const ListProvider = ({
   children,
   onDragEnd,
   className,
-}: ListProviderProps) => (
-  <DndContext
-    collisionDetection={rectIntersection}
-    modifiers={[restrictToVerticalAxis]}
-    onDragEnd={onDragEnd}
-  >
-    <div className={cn("flex size-full flex-col", className)}>{children}</div>
-  </DndContext>
-);
+}: ListProviderProps) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
+  );
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={rectIntersection}
+      modifiers={[restrictToVerticalAxis]}
+      onDragEnd={onDragEnd}
+    >
+      <div className={cn("flex size-full flex-col", className)}>{children}</div>
+    </DndContext>
+  );
+};

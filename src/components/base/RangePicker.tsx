@@ -55,7 +55,7 @@ export function RangePicker({
             <Button
               variant="outline"
               id={id}
-              className="justify-start px-2.5 font-normal"
+              className="justify-start rounded-xl px-2.5 font-normal"
             >
               <CalendarIcon data-icon="inline-start" />
               {selectedRange?.from ? (
@@ -73,7 +73,7 @@ export function RangePicker({
             </Button>
           }
         />
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 rounded-xl" align="start">
           <Calendar
             mode="range"
             defaultMonth={selectedRange?.from}
