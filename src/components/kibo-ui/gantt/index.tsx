@@ -544,7 +544,7 @@ export const GanttSidebarHeader: FC = () => (
 
 export type GanttSidebarGroupProps = {
   children: ReactNode;
-  name: string;
+  name?: string;
   className?: string;
 };
 
@@ -554,12 +554,14 @@ export const GanttSidebarGroup: FC<GanttSidebarGroupProps> = ({
   className,
 }) => (
   <div className={className}>
-    <p
-      className="w-full truncate p-2.5 text-left font-medium text-muted-foreground text-xs"
-      style={{ height: "var(--gantt-row-height)" }}
-    >
-      {name}
-    </p>
+    {name && (
+      <p
+        className="w-full truncate p-2.5 text-left font-medium text-muted-foreground text-xs"
+        style={{ height: "var(--gantt-row-height)" }}
+      >
+        {name}
+      </p>
+    )}
     <div className="divide-y divide-border/50">{children}</div>
   </div>
 );
@@ -1006,13 +1008,18 @@ export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
 export type GanttFeatureListGroupProps = {
   children: ReactNode;
   className?: string;
+  hasGroupName?: boolean;
 };
 
 export const GanttFeatureListGroup: FC<GanttFeatureListGroupProps> = ({
   children,
   className,
+  hasGroupName = true,
 }) => (
-  <div className={className} style={{ paddingTop: "var(--gantt-row-height)" }}>
+  <div
+    className={className}
+    style={hasGroupName ? { paddingTop: "var(--gantt-row-height)" } : undefined}
+  >
     {children}
   </div>
 );

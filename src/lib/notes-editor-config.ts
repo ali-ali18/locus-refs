@@ -113,6 +113,7 @@ const NOTES_SLASH_ENABLED_ITEMS: SlashMenuItemType[] = [
   "task_list",
   "quote",
   "code_block",
+  'divider'
 ];
 
 export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
@@ -151,5 +152,6 @@ export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
     task_list: "Listas",
     quote: "Blocos",
     code_block: "Blocos",
+    divider: "Separadores",
   },
 };

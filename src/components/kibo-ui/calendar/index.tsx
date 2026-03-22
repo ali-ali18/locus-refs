@@ -1,6 +1,6 @@
 "use client";
 
-import { getDay, getDaysInMonth, isSameDay } from "date-fns";
+import { endOfDay, getDay, getDaysInMonth, isSameDay, isWithinInterval, startOfDay } from "date-fns";
 import { atom, useAtom } from "jotai";
 import {
   Check,
@@ -188,12 +188,20 @@ const OutOfBoundsDay = ({ day }: OutOfBoundsDayProps) => (
   </div>
 );
 
-export type CalendarBodyProps = {
-  features: Feature[];
-  children: (props: { feature: Feature }) => ReactNode;
+type DayFeature = {
+  feature: Feature;
+  isStart: boolean;
+  isEnd: boolean;
+  isSingle: boolean;
 };
 
-export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
+export type CalendarBodyProps = {
+  features: Feature[];
+  children: (props: DayFeature) => ReactNode;
+  onDayClick?: (date: Date, features: Feature[]) => void;
+};
+
+export const CalendarBody = ({ features, children, onDayClick }: CalendarBodyProps) => {
   const [month] = useCalendarMonth();
   const [year] = useCalendarYear();
   const { startDay } = useContext(CalendarContext);
@@ -236,16 +244,37 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
     return { nextMonthDaysArray };
   }, [month, year]);
 
-  // Memoize features filtering by day to avoid recalculating on every render
+  // Sort features by startAt so slot assignments are consistent across cells
+  const sortedFeatures = useMemo(
+    () => [...features].sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()),
+    [features],
+  );
+
+  // Slot-based: each feature occupies a fixed slot index so bars align vertically across cells.
+  // Each day gets an array of (DayFeature | null) — null means that slot is empty for this day.
   const featuresByDay = useMemo(() => {
-    const result: { [day: number]: Feature[] } = {};
+    const result: { [day: number]: (DayFeature | null)[] } = {};
     for (let day = 1; day <= daysInMonth; day++) {
-      result[day] = features.filter((feature) => {
-        return isSameDay(new Date(feature.endAt), new Date(year, month, day));
+      const cellDate = new Date(year, month, day);
+      result[day] = sortedFeatures.map((feature) => {
+        if (
+          !isWithinInterval(cellDate, {
+            start: startOfDay(new Date(feature.startAt)),
+            end: endOfDay(new Date(feature.endAt)),
+          })
+        )
+          return null;
+        const isStart = isSameDay(cellDate, startOfDay(new Date(feature.startAt)));
+        const isEnd = isSameDay(cellDate, endOfDay(new Date(feature.endAt)));
+        return { feature, isStart, isEnd, isSingle: isStart && isEnd };
       });
     }
     return result;
-  }, [features, daysInMonth, year, month]);
+  }, [sortedFeatures, daysInMonth, year, month]);
+
+  const today = new Date();
+  const checkIsToday = (day: number) =>
+    year === today.getFullYear() && month === today.getMonth() && day === today.getDate();
 
   const days: ReactNode[] = [];
 
@@ -260,21 +289,41 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
     }
   }
 
+  const MAX_VISIBLE_SLOTS = 3;
+
   for (let day = 1; day <= daysInMonth; day++) {
-    const featuresForDay = featuresByDay[day] || [];
+    const slots = featuresByDay[day] || [];
+    const allFeaturesForDay = slots.filter(Boolean).map((s) => s!.feature);
+    const visibleSlots = slots.slice(0, MAX_VISIBLE_SLOTS);
+    const hiddenCount = slots.slice(MAX_VISIBLE_SLOTS).filter(Boolean).length;
 
     days.push(
       <div
-        className="relative flex h-full w-full flex-col gap-1 p-1 text-muted-foreground text-xs"
+        className="relative flex h-full w-full flex-col gap-1 pb-1 pt-1 px-0 text-muted-foreground text-xs"
         key={day}
+        onClick={() => onDayClick?.(new Date(year, month, day), allFeaturesForDay)}
       >
-        {day}
-        <div>
-          {featuresForDay.slice(0, 3).map((feature) => children({ feature }))}
+        <span
+          className={cn(
+            "ml-1 flex h-5 w-5 items-center justify-center rounded-full text-xs",
+            checkIsToday(day) && "bg-primary text-primary-foreground font-semibold",
+          )}
+        >
+          {day}
+        </span>
+        <div className="flex flex-col gap-0.5">
+          {visibleSlots.map((slot, slotIndex) =>
+            slot === null ? (
+              // Placeholder keeps the slot height consistent across cells
+              <div key={slotIndex} className="h-[18px]" />
+            ) : (
+              children({ feature: slot.feature, isStart: slot.isStart, isEnd: slot.isEnd, isSingle: slot.isSingle })
+            )
+          )}
         </div>
-        {featuresForDay.length > 3 && (
-          <span className="block text-muted-foreground text-xs">
-            +{featuresForDay.length - 3} more
+        {hiddenCount > 0 && (
+          <span className="block px-1 text-muted-foreground text-xs">
+            +{hiddenCount} more
           </span>
         )}
       </div>,

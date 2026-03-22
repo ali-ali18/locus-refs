@@ -22,12 +22,21 @@ type GanttTabProps = {
   features: GanttFeature[];
 };
 
+const GANTT_HEADER_HEIGHT = 60;
+const GANTT_ROW_HEIGHT = 36;
+const GANTT_MIN_HEIGHT = 224;
+
 export function GanttTab({ items, features }: GanttTabProps) {
+  const ganttHeight = Math.max(
+    GANTT_MIN_HEIGHT,
+    GANTT_HEADER_HEIGHT + features.length * GANTT_ROW_HEIGHT,
+  );
+
   return (
-    <div className="relative h-82 overflow-hidden">
+    <div className="relative overflow-hidden" style={{ height: ganttHeight }}>
       <GanttProvider className="absolute inset-0" range="daily">
         <GanttSidebar className="w-52 md:min-w-56">
-          <GanttSidebarGroup name="Tarefas">
+          <GanttSidebarGroup>
             {features.map((feature) => (
               <GanttSidebarItem
                 key={feature.id}
@@ -40,7 +49,7 @@ export function GanttTab({ items, features }: GanttTabProps) {
         <GanttTimeline>
           <GanttHeader />
           <GanttFeatureList>
-            <GanttFeatureListGroup>
+            <GanttFeatureListGroup hasGroupName={false}>
               <GanttFeatureRow
                 features={features}
                 onHover={(feature) => {
