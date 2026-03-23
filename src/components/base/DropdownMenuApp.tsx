@@ -41,6 +41,7 @@ export function DropdownMenuApp({
     <DropdownMenu>
       <DropdownMenuTrigger
         suppressHydrationWarning
+        type="button"
         className={cn(
           "group outline-none hover:bg-muted rounded-full transition-all duration-300 ",
           className,

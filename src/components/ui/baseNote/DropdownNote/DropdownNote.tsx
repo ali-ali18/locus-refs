@@ -2,6 +2,7 @@ import {
   Heading01Icon,
   Heading02Icon,
   Heading03Icon,
+  KanbanIcon,
   MoreHorizontal,
   QuoteDownIcon,
 } from "@hugeicons/core-free-icons";
@@ -100,10 +101,7 @@ export function DropdownNote({ editor }: Props) {
           isActive={activeMarks.link}
         />
 
-        <DropdownMenu
-          open={dropdownOpen}
-          onOpenChange={setDropdownOpen}
-        >
+        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger>
             <Button
               variant="ghost"
@@ -258,12 +256,23 @@ export function DropdownNote({ editor }: Props) {
               <DropdownMenuLabel>Bloco</DropdownMenuLabel>
               <DropdownMenuItem
                 className={`rounded-xl${activeMarks.blockquote ? " bg-muted" : ""}`}
-                onClick={() =>
-                  editor.chain().focus().toggleBlockquote().run()
-                }
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
               >
                 <Icon icon={QuoteDownIcon} />
                 Citação
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="rounded-xl"
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .insertContent({ type: "roadmapBlock" })
+                    .run()
+                }
+              >
+                <Icon icon={KanbanIcon} />
+                Roadmap
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

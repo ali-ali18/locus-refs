@@ -10,6 +10,7 @@ import type {
 } from "@/components/tiptap-ui/slash-dropdown-menu/use-slash-dropdown-menu";
 import { CustomCodeBlock } from "@/lib/extension/CustomCodeBlock";
 import { CustomTextStyle } from "@/lib/extension/CustomTextStyle";
+import { RoadmapBlock } from "@/lib/extension/RoadmapBlock";
 import { CustomCode } from "./extension/CustomCode";
 import { CustomTaskItem } from "./extension/CustomTaskItem";
 import { CustomTaskList } from "./extension/CustomTaskList";
@@ -79,7 +80,9 @@ export function getNotesEditorExtensions(
     }),
 
     CustomTaskList,
-  CustomTaskItem.configure({ nested: true }),
+    CustomTaskItem.configure({ nested: true }),
+
+    RoadmapBlock,
 
     CustomTextStyle,
     Color,
@@ -96,7 +99,7 @@ export function getNotesEditorExtensions(
 
 export const NOTES_EDITOR_PROPS = {
   attributes: {
-    class: "focus:outline-none min-h-[200px] px-1 py-2 space-y-4",
+    class: "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 overflow-x-hidden",
   },
 };
 
@@ -110,6 +113,7 @@ const NOTES_SLASH_ENABLED_ITEMS: SlashMenuItemType[] = [
   "task_list",
   "quote",
   "code_block",
+  'divider'
 ];
 
 export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
@@ -127,6 +131,15 @@ export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
         editor.chain().focus().setNode("codeBlockCustom").run();
       },
     },
+    {
+      title: "Roadmap",
+      subtext: "Kanban, Calendário e Gantt em um bloco",
+      keywords: ["roadmap", "kanban", "gantt", "calendario", "board"],
+      group: "Blocos",
+      onSelect: ({ editor }) => {
+        editor.chain().focus().insertContent({ type: "roadmapBlock" }).run();
+      },
+    },
   ],
   showGroups: true,
   itemGroups: {
@@ -139,5 +152,6 @@ export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
     task_list: "Listas",
     quote: "Blocos",
     code_block: "Blocos",
+    divider: "Separadores",
   },
 };
