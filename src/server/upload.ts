@@ -1,7 +1,10 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3Client } from "@/lib/storage";
 
@@ -32,7 +35,18 @@ export async function getPresignedUploadUrl({
     { expiresIn: 60 },
   );
 
-  const publicUrl = `${process.env.STORAGE_ENDPOINT}/${process.env.STORAGE_BUCKET}/${key}`;
+  const publicUrl = `/storage/${key}`;
 
   return { uploadUrl, publicUrl };
+}
+
+export async function deleteObjects(keys: string[]) {
+  if (keys.length === 0) return;
+  await Promise.all(
+    keys.map((Key) =>
+      s3Client.send(
+        new DeleteObjectCommand({ Bucket: process.env.STORAGE_BUCKET, Key }),
+      ),
+    ),
+  );
 }

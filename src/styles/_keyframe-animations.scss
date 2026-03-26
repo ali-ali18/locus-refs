@@ -1,4 +1,4 @@
-@keyframes fadeIn {
+@keyframes tt-fadeIn {
   from {
     opacity: 0;
   }
@@ -7,7 +7,7 @@
   }
 }
 
-@keyframes fadeOut {
+@keyframes tt-fadeOut {
   from {
     opacity: 1;
   }
@@ -16,7 +16,7 @@
   }
 }
 
-@keyframes zoomIn {
+@keyframes tt-zoomIn {
   from {
     transform: scale(0.95);
   }
@@ -25,7 +25,7 @@
   }
 }
 
-@keyframes zoomOut {
+@keyframes tt-zoomOut {
   from {
     transform: scale(1);
   }
@@ -34,7 +34,7 @@
   }
 }
 
-@keyframes zoom {
+@keyframes tt-zoom {
   0% {
     opacity: 0;
     transform: scale(0.95);
@@ -45,7 +45,7 @@
   }
 }
 
-@keyframes slideFromTop {
+@keyframes tt-slideFromTop {
   from {
     transform: translateY(-0.5rem);
   }
@@ -54,7 +54,7 @@
   }
 }
 
-@keyframes slideFromRight {
+@keyframes tt-slideFromRight {
   from {
     transform: translateX(0.5rem);
   }
@@ -63,7 +63,7 @@
   }
 }
 
-@keyframes slideFromLeft {
+@keyframes tt-slideFromLeft {
   from {
     transform: translateX(-0.5rem);
   }
@@ -72,7 +72,7 @@
   }
 }
 
-@keyframes slideFromBottom {
+@keyframes tt-slideFromBottom {
   from {
     transform: translateY(0.5rem);
   }
@@ -81,7 +81,7 @@
   }
 }
 
-@keyframes spin {
+@keyframes tt-spin {
   from {
     transform: rotate(0deg);
   }

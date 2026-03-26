@@ -27,38 +27,38 @@
   /* Animation states */
   &[data-state="open"] {
     animation:
-      fadeIn 150ms cubic-bezier(0.16, 1, 0.3, 1),
-      zoomIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
+      tt-fadeIn 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      tt-zoomIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   &[data-state="closed"] {
     animation:
-      fadeOut 150ms cubic-bezier(0.16, 1, 0.3, 1),
-      zoomOut 150ms cubic-bezier(0.16, 1, 0.3, 1);
+      tt-fadeOut 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      tt-zoomOut 150ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   /* Position-based animations */
   &[data-side="top"],
   &[data-side="top-start"],
   &[data-side="top-end"] {
-    animation: slideFromBottom 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    animation: tt-slideFromBottom 150ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   &[data-side="right"],
   &[data-side="right-start"],
   &[data-side="right-end"] {
-    animation: slideFromLeft 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    animation: tt-slideFromLeft 150ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   &[data-side="bottom"],
   &[data-side="bottom-start"],
   &[data-side="bottom-end"] {
-    animation: slideFromTop 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    animation: tt-slideFromTop 150ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   &[data-side="left"],
   &[data-side="left-start"],
   &[data-side="left-end"] {
-    animation: slideFromRight 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    animation: tt-slideFromRight 150ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 }

@@ -29,6 +29,8 @@ import {
   BUBBLE_MENU_GROUPS,
   PRIMARY_ACTIONS,
 } from "../Bubble/BubbleMenuConfig";
+import { ImagePopover } from "../imageBlock/ImagePopover";
+import { useImageUpload } from "../imageBlock/useImageUpload";
 import { LinkPopover } from "../link/LinkPopover";
 
 interface Props {
@@ -38,6 +40,8 @@ interface Props {
 export function DropdownNote({ editor }: Props) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
+  const [imagePopoverOpen, setImagePopoverOpen] = useState(false);
+  const { uploadImage } = useImageUpload();
   const activeMarks = useEditorState({
     editor,
     selector: ({ editor }) => ({
@@ -63,7 +67,7 @@ export function DropdownNote({ editor }: Props) {
       editor={editor}
       shouldShow={({ state }) => {
         const { from, to } = state.selection;
-        return from !== to || dropdownOpen || linkPopoverOpen;
+        return from !== to || dropdownOpen || linkPopoverOpen || imagePopoverOpen;
       }}
       updateDelay={100}
       appendTo={() => document.body}
@@ -100,6 +104,12 @@ export function DropdownNote({ editor }: Props) {
           onOpenChange={setLinkPopoverOpen}
           isActive={activeMarks.link}
         />
+        <ImagePopover
+          editor={editor}
+          open={imagePopoverOpen}
+          onOpenChange={setImagePopoverOpen}
+          uploadImage={uploadImage}
+        />
 
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger>
@@ -132,6 +142,22 @@ export function DropdownNote({ editor }: Props) {
                       <DropdownMenuSeparator
                         key={`separator-${group.label ?? "group"}-${ii}`}
                       />
+                    );
+                  }
+
+                  if (item.kind === "image-popover") {
+                    return (
+                      <DropdownMenuItem
+                        className="rounded-xl"
+                        key={`image-popover-${group.label ?? "group"}-${ii}`}
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          setImagePopoverOpen(true);
+                        }}
+                      >
+                        {item.icon && <Icon icon={item.icon} />}
+                        {item.label}
+                      </DropdownMenuItem>
                     );
                   }
 

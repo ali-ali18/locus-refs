@@ -1,6 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireSession } from "@/server/requireSession";
+import { deleteObjects } from "@/server/upload";
+
+function extractS3ImageKeys(html: string, userId: string): string[] {
+  const regex = /src=["']\/storage\/([^"']+)["']/g;
+  return [...html.matchAll(regex)]
+    .map((m) => decodeURIComponent(m[1]))
+    .filter((key) => key.startsWith(`${userId}/notes/`));
+}
 
 export async function GET(
   _request: NextRequest,
@@ -42,6 +50,20 @@ export async function PATCH(
 
   try {
     const { title, icon, content, collectionId } = await request.json();
+
+    let orphanedKeys: string[] = [];
+    if (content !== undefined) {
+      const existing = await prisma.note.findUnique({
+        where: { id, userId: session.user.id },
+        select: { content: true },
+      });
+      if (existing?.content) {
+        const oldKeys = extractS3ImageKeys(existing.content, session.user.id);
+        const newKeys = new Set(extractS3ImageKeys(content, session.user.id));
+        orphanedKeys = oldKeys.filter((k) => !newKeys.has(k));
+      }
+    }
+
     const [updatedNote] = await prisma.note.updateManyAndReturn({
       where: { id, userId: session.user.id },
       data: {
@@ -54,6 +76,10 @@ export async function PATCH(
 
     if (!updatedNote) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
+    }
+
+    if (orphanedKeys.length > 0) {
+      deleteObjects(orphanedKeys).catch(console.error);
     }
 
     return NextResponse.json(
@@ -76,13 +102,22 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    const { count } = await prisma.note.deleteMany({
+    const note = await prisma.note.findUnique({
       where: { id, userId: session.user.id },
+      select: { content: true },
     });
 
-    if (count === 0) {
+    if (!note) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
+
+    await prisma.note.delete({ where: { id } });
+
+    if (note.content) {
+      const keys = extractS3ImageKeys(note.content, session.user.id);
+      if (keys.length > 0) deleteObjects(keys).catch(console.error);
+    }
+
     return NextResponse.json(
       { message: "Note deleted successfully" },
       { status: 200 },

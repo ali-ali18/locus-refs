@@ -10,6 +10,7 @@ import type {
 } from "@/components/tiptap-ui/slash-dropdown-menu/use-slash-dropdown-menu";
 import { CustomCodeBlock } from "@/lib/extension/CustomCodeBlock";
 import { CustomTextStyle } from "@/lib/extension/CustomTextStyle";
+import { ImageUpload } from "@/lib/extension/ImageUpload";
 import { RoadmapBlock } from "@/lib/extension/RoadmapBlock";
 import { CustomCode } from "./extension/CustomCode";
 import { CustomTaskItem } from "./extension/CustomTaskItem";
@@ -32,12 +33,14 @@ export const NOTES_EDITOR_PLACEHOLDER =
 
 export interface NotesEditorExtensionsOptions {
   placeholder?: string;
+  uploadImage?: (file: File) => Promise<string>;
 }
 
 export function getNotesEditorExtensions(
   options: NotesEditorExtensionsOptions = {},
 ) {
   const placeholder = options.placeholder ?? NOTES_EDITOR_PLACEHOLDER;
+  const uploadImage = options.uploadImage ?? (() => Promise.resolve(""));
 
   return [
     StarterKit.configure({
@@ -56,6 +59,7 @@ export function getNotesEditorExtensions(
       },
       codeBlock: false,
       code: false,
+      link: false,
     }),
     CustomCode.configure({
       HTMLAttributes: {
@@ -64,6 +68,8 @@ export function getNotesEditorExtensions(
       },
     }),
     CustomCodeBlock,
+
+    ImageUpload.configure({ uploadImage }),
 
     CustomHeading.configure({ levels: [1, 2, 3] }),
     Emoji.configure({
@@ -99,7 +105,7 @@ export function getNotesEditorExtensions(
 
 export const NOTES_EDITOR_PROPS = {
   attributes: {
-    class: "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 overflow-x-hidden",
+    class: "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 overflow-x-hidden overflow-y-hidden",
   },
 };
 
@@ -113,45 +119,58 @@ const NOTES_SLASH_ENABLED_ITEMS: SlashMenuItemType[] = [
   "task_list",
   "quote",
   "code_block",
-  'divider'
+  "divider",
 ];
 
-export const NOTES_SLASH_MENU_CONFIG: SlashMenuConfig = {
-  enabledItems: NOTES_SLASH_ENABLED_ITEMS,
-  customItems: [
-    {
-      title: "Inline Code",
-      onSelect: ({ editor }) => {
-        editor.chain().focus().toggleCode().run();
+export function getNotesSlashMenuConfig(
+  onOpenImageDialog: () => void,
+): SlashMenuConfig {
+  return {
+    enabledItems: NOTES_SLASH_ENABLED_ITEMS,
+    customItems: [
+      {
+        title: "Inline Code",
+        onSelect: ({ editor }) => {
+          editor.chain().focus().toggleCode().run();
+        },
       },
-    },
-    {
-      title: "Code Block",
-      onSelect: ({ editor }) => {
-        editor.chain().focus().setNode("codeBlockCustom").run();
+      {
+        title: "Code Block",
+        onSelect: ({ editor }) => {
+          editor.chain().focus().setNode("codeBlockCustom").run();
+        },
       },
-    },
-    {
-      title: "Roadmap",
-      subtext: "Kanban, Calendário e Gantt em um bloco",
-      keywords: ["roadmap", "kanban", "gantt", "calendario", "board"],
-      group: "Blocos",
-      onSelect: ({ editor }) => {
-        editor.chain().focus().insertContent({ type: "roadmapBlock" }).run();
+      {
+        title: "Imagem",
+        subtext: "Upload de arquivo de imagem",
+        keywords: ["imagem", "foto", "image", "photo", "upload", "picture"],
+        group: "Blocos",
+        onSelect: () => {
+          onOpenImageDialog();
+        },
       },
+      {
+        title: "Roadmap",
+        subtext: "Kanban, Calendário e Gantt em um bloco",
+        keywords: ["roadmap", "kanban", "gantt", "calendario", "board"],
+        group: "Blocos",
+        onSelect: ({ editor }) => {
+          editor.chain().focus().insertContent({ type: "roadmapBlock" }).run();
+        },
+      },
+    ],
+    showGroups: true,
+    itemGroups: {
+      text: "Formatação",
+      heading_1: "Formatação",
+      heading_2: "Formatação",
+      heading_3: "Formatação",
+      bullet_list: "Listas",
+      ordered_list: "Listas",
+      task_list: "Listas",
+      quote: "Blocos",
+      code_block: "Blocos",
+      divider: "Separadores",
     },
-  ],
-  showGroups: true,
-  itemGroups: {
-    text: "Formatação",
-    heading_1: "Formatação",
-    heading_2: "Formatação",
-    heading_3: "Formatação",
-    bullet_list: "Listas",
-    ordered_list: "Listas",
-    task_list: "Listas",
-    quote: "Blocos",
-    code_block: "Blocos",
-    divider: "Separadores",
-  },
-};
+  };
+}

@@ -3,6 +3,7 @@ import {
   BrushIcon,
   CheckListIcon,
   CodeSimpleIcon,
+  Image01Icon,
   Italic,
   LeftToRightListDashIcon,
   LeftToRightListNumberIcon,
@@ -41,11 +42,18 @@ export type MenuItemColor = {
   onSelect: (editor: Editor) => void;
 };
 
+export type MenuItemImagePopover = {
+  kind: "image-popover";
+  label: string;
+  icon?: IconSvgElement;
+};
+
 export type MenuItem =
   | MenuItemAction
   | MenuItemSubmenu
   | MenuItemSeparator
-  | MenuItemColor;
+  | MenuItemColor
+  | MenuItemImagePopover;
 
 export type MenuGroup = {
   label?: string;
@@ -192,6 +200,16 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
         onSelect: (editor) => {
           console.log("Link para outra página", editor);
         },
+      },
+    ],
+  },
+  {
+    label: "Mídia",
+    items: [
+      {
+        kind: "image-popover",
+        label: "Imagem",
+        icon: Image01Icon,
       },
     ],
   },
