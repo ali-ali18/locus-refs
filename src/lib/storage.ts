@@ -9,4 +9,6 @@ export const s3Client = new S3Client({
     secretAccessKey: process.env.STORAGE_SECRET_KEY!,
   },
   forcePathStyle: true,
+  requestChecksumCalculation: "WHEN_REQUIRED",
+  responseChecksumValidation: "WHEN_REQUIRED",
 })
