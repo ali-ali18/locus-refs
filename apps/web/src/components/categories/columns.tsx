@@ -2,7 +2,7 @@
 
 import { ArrowUpDownIcon } from "@hugeicons/core-free-icons";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Category } from "@/types/categories.type";
+import type { Category } from "@refstash/shared";
 import { Icon } from "../shared/Icon";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";

@@ -7,7 +7,7 @@ import { useNoteMutations } from "@/hook/notes/useNote";
 import {
   type CreateNoteSchema,
   createNoteSchema,
-} from "@/types/schema/note.schema";
+} from "@refstash/shared";
 
 interface UseFormCreateNoteReturn {
   form: UseFormReturn<CreateNoteSchema>;

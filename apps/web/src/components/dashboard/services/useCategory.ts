@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import type { Category } from "@/types/categories.type";
+import type { Category } from "@refstash/shared";
 
 export async function getCategories() {
   const { data } = await api.get<Category[]>("/api/categories");

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import type { Note } from "@/types/note.type";
+import type { Note } from "@refstash/shared";
 import { noteKeys } from "./noteKeys";
 
 interface CreateNotePayload {

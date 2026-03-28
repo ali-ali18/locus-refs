@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import type { Collection } from "@/types/collection.type";
+import type { Collection } from "@refstash/shared";
 
 export async function getCollections() {
   const { data } = await api.get<Collection[]>("/api/collection");

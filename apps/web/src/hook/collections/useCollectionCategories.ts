@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { Category } from "@/types/categories.type";
+import type { Category } from "@refstash/shared";
 
 export function useCollectionCategories(collectionId: string | null) {
   return useQuery<Category[]>({

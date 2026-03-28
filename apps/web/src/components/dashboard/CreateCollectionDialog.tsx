@@ -18,7 +18,7 @@ import {
 import {
   type CreateCollectionSchema,
   createCollectionSchema,
-} from "@/types/schema/collection.schema";
+} from "@refstash/shared";
 import { useCollections } from "../../hook/collections/useCollections";
 
 interface Props {

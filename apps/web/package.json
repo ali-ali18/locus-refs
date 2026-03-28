@@ -12,6 +12,7 @@
     "test:run": "vitest run"
   },
   "dependencies": {
+    "@refstash/shared": "workspace:*",
     "@aws-sdk/client-s3": "^3.1015.0",
     "@aws-sdk/s3-request-presigner": "^3.1015.0",
     "@base-ui/react": "^1.2.0",

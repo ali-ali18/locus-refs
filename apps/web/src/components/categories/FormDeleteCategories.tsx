@@ -1,6 +1,6 @@
 import { Loading02Icon } from "@hugeicons/core-free-icons";
-import type { Category } from "@/types/categories.type";
-import type { CategoryDeleteSchema } from "@/types/schema/category.schema";
+import type { Category } from "@refstash/shared";
+import type { CategoryDeleteSchema } from "@refstash/shared";
 import { FieldGroupApp } from "../base";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";

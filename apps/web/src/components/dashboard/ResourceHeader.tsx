@@ -5,7 +5,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { InputGroupApp } from "@/components/base";
 import { Icon } from "@/components/shared/Icon";
 import { Separator } from "@/components/ui/separator";
-import type { Category } from "@/types/categories.type";
+import type { Category } from "@refstash/shared";
 import { Button } from "../ui/button";
 
 interface ResourceHeaderProps {

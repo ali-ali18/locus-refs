@@ -19,7 +19,7 @@ const registerSchema = z
     name: z
       .string()
       .min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
-    email: z.string().email({ message: "Email inválido" }),
+    email: z.email({ message: "Email inválido" }),
     password: passwordSchema,
     confirmPassword: z.string(),
   })

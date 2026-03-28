@@ -1,7 +1,7 @@
 "use client";
 
 import { Folder01Icon, Plus } from "@hugeicons/core-free-icons";
-import type { Collection } from "@/types/collection.type";
+import type { Collection } from "@refstash/shared";
 import { EmptyApp } from "../base/EmptyApp";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";

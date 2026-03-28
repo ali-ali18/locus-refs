@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCategories } from "@/hook/categories/useCategories";
-import type { Category } from "@/types/categories.type";
+import type { Category } from "@refstash/shared";
 import { DataTableApp } from "../base/DataTableApp";
 import { DialogApp } from "../base/DialogApp";
 import { columnsCategories } from "./columns";

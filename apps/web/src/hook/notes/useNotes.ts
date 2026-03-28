@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { Note } from "@/types/note.type";
+import type { Note } from "@refstash/shared";
 import { noteKeys } from "./noteKeys";
 
 async function getNotes(): Promise<Note[]> {

@@ -7,7 +7,7 @@ import { resolveIcon } from "@/lib/icons";
 import {
   type UpdateHeaderNoteSchema,
   updateHeaderNoteSchema,
-} from "@/types/schema/note.schema";
+} from "@refstash/shared";
 import type { SaveStatus } from "@/types/saveStatus.type";
 
 interface UseNoteHeaderParams {

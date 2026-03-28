@@ -1,6 +1,6 @@
 "use client";
 
-import type { Note } from "@/types/note.type";
+import type { Note } from "@refstash/shared";
 import { CardNotes } from "./CardNotes";
 
 interface NotesListProps {

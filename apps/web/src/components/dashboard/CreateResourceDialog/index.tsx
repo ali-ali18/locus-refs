@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import type { Collection } from "@/types/collection.type";
+import type { Collection } from "@refstash/shared";
 import { useCategories } from "../../../hook/categories/useCategories";
 import { useCategory } from "../../../hook/categories/useCategory";
 import { useResourceMutations } from "../hooks/useResourceMutations";

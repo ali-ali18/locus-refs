@@ -1,5 +1,5 @@
 import { Loading02Icon, Tag01Icon } from "@hugeicons/core-free-icons";
-import type { CategorySchema } from "@/types/schema/category.schema";
+import type { CategorySchema } from "@refstash/shared";
 import { FieldGroupApp } from "../base";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";

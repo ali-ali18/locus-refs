@@ -3,11 +3,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useCategory } from "@/hook/categories/useCategory";
-import type { Category } from "@/types/categories.type";
+import type { Category } from "@refstash/shared";
 import {
   type CategoryDeleteSchema,
   categoryDeleteSchema,
-} from "@/types/schema/category.schema";
+} from "@refstash/shared";
 
 interface UseDeleteCategoriesProps {
   onSuccess: () => void;
