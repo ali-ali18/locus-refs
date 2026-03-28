@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { organization } from "better-auth/plugins";
 import prisma from "./prisma";
 
 export const auth = betterAuth({
@@ -20,7 +21,13 @@ export const auth = betterAuth({
   //       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
   //     },
   //   },
-
+  plugins: [
+    organization({
+      allowUserToCreateOrganization: true,
+      organizationLimit: 5,
+      membershipLimit: 50,
+    }),
+  ],
   trustedOrigins: [
     process.env.BETTER_AUTH_URL as string,
     "http://localhost:3000",

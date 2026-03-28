@@ -86,3 +86,18 @@ export type Note = Prisma.NoteModel
  * 
  */
 export type NoteLink = Prisma.NoteLinkModel
+/**
+ * Model Organization
+ * 
+ */
+export type Organization = Prisma.OrganizationModel
+/**
+ * Model Member
+ * 
+ */
+export type Member = Prisma.MemberModel
+/**
+ * Model Invitation
+ * 
+ */
+export type Invitation = Prisma.InvitationModel
