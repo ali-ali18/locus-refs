@@ -26,7 +26,7 @@ export function AuthLayout({
           reversePanel && "order-2 md:order-1",
         )}
       >
-        <Link href="/" className="flex items-center gap-2 w-fit">
+        <Link href="/login" className="flex items-center gap-2 w-fit">
           <Icon icon={ClaudeFreeIcons} className="size-8" />
           <span className="text-xl font-bold">Locus</span>
         </Link>

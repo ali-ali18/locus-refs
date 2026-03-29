@@ -57,7 +57,7 @@ export function useLogin() {
 
     if (nextUserName) {
       toast.success(`Bem-vindo de volta, ${nextUserName}`);
-      router.push("/dashboard");
+      router.push("/");
     }
 
     return nextUserName;

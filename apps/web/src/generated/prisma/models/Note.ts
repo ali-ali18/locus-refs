@@ -31,6 +31,8 @@ export type NoteMinAggregateOutputType = {
   content: string | null
   collectionId: string | null
   userId: string | null
+  workspaceId: string | null
+  ydoc: runtime.Bytes | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +44,8 @@ export type NoteMaxAggregateOutputType = {
   content: string | null
   collectionId: string | null
   userId: string | null
+  workspaceId: string | null
+  ydoc: runtime.Bytes | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,6 +57,8 @@ export type NoteCountAggregateOutputType = {
   content: number
   collectionId: number
   userId: number
+  workspaceId: number
+  ydoc: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -66,6 +72,8 @@ export type NoteMinAggregateInputType = {
   content?: true
   collectionId?: true
   userId?: true
+  workspaceId?: true
+  ydoc?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,6 +85,8 @@ export type NoteMaxAggregateInputType = {
   content?: true
   collectionId?: true
   userId?: true
+  workspaceId?: true
+  ydoc?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +98,8 @@ export type NoteCountAggregateInputType = {
   content?: true
   collectionId?: true
   userId?: true
+  workspaceId?: true
+  ydoc?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -172,6 +184,8 @@ export type NoteGroupByOutputType = {
   content: string
   collectionId: string | null
   userId: string
+  workspaceId: string
+  ydoc: runtime.Bytes | null
   createdAt: Date
   updatedAt: Date
   _count: NoteCountAggregateOutputType | null
@@ -204,10 +218,13 @@ export type NoteWhereInput = {
   content?: Prisma.StringFilter<"Note"> | string
   collectionId?: Prisma.StringNullableFilter<"Note"> | string | null
   userId?: Prisma.StringFilter<"Note"> | string
+  workspaceId?: Prisma.StringFilter<"Note"> | string
+  ydoc?: Prisma.BytesNullableFilter<"Note"> | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFilter<"Note"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Note"> | Date | string
   collection?: Prisma.XOR<Prisma.CollectionNullableScalarRelationFilter, Prisma.CollectionWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  workspace?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   linkedTo?: Prisma.NoteLinkListRelationFilter
   linkedFrom?: Prisma.NoteLinkListRelationFilter
 }
@@ -219,10 +236,13 @@ export type NoteOrderByWithRelationInput = {
   content?: Prisma.SortOrder
   collectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
+  ydoc?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   collection?: Prisma.CollectionOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
+  workspace?: Prisma.OrganizationOrderByWithRelationInput
   linkedTo?: Prisma.NoteLinkOrderByRelationAggregateInput
   linkedFrom?: Prisma.NoteLinkOrderByRelationAggregateInput
 }
@@ -237,10 +257,13 @@ export type NoteWhereUniqueInput = Prisma.AtLeast<{
   content?: Prisma.StringFilter<"Note"> | string
   collectionId?: Prisma.StringNullableFilter<"Note"> | string | null
   userId?: Prisma.StringFilter<"Note"> | string
+  workspaceId?: Prisma.StringFilter<"Note"> | string
+  ydoc?: Prisma.BytesNullableFilter<"Note"> | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFilter<"Note"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Note"> | Date | string
   collection?: Prisma.XOR<Prisma.CollectionNullableScalarRelationFilter, Prisma.CollectionWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  workspace?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   linkedTo?: Prisma.NoteLinkListRelationFilter
   linkedFrom?: Prisma.NoteLinkListRelationFilter
 }, "id">
@@ -252,6 +275,8 @@ export type NoteOrderByWithAggregationInput = {
   content?: Prisma.SortOrder
   collectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
+  ydoc?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.NoteCountOrderByAggregateInput
@@ -269,6 +294,8 @@ export type NoteScalarWhereWithAggregatesInput = {
   content?: Prisma.StringWithAggregatesFilter<"Note"> | string
   collectionId?: Prisma.StringNullableWithAggregatesFilter<"Note"> | string | null
   userId?: Prisma.StringWithAggregatesFilter<"Note"> | string
+  workspaceId?: Prisma.StringWithAggregatesFilter<"Note"> | string
+  ydoc?: Prisma.BytesNullableWithAggregatesFilter<"Note"> | runtime.Bytes | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Note"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Note"> | Date | string
 }
@@ -278,10 +305,12 @@ export type NoteCreateInput = {
   title: string
   icon?: string | null
   content: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   collection?: Prisma.CollectionCreateNestedOneWithoutNotesInput
   user: Prisma.UserCreateNestedOneWithoutNotesInput
+  workspace: Prisma.OrganizationCreateNestedOneWithoutNotesInput
   linkedTo?: Prisma.NoteLinkCreateNestedManyWithoutSourceInput
   linkedFrom?: Prisma.NoteLinkCreateNestedManyWithoutTargetInput
 }
@@ -293,6 +322,8 @@ export type NoteUncheckedCreateInput = {
   content: string
   collectionId?: string | null
   userId: string
+  workspaceId: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   linkedTo?: Prisma.NoteLinkUncheckedCreateNestedManyWithoutSourceInput
@@ -304,10 +335,12 @@ export type NoteUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   collection?: Prisma.CollectionUpdateOneWithoutNotesNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutNotesNestedInput
+  workspace?: Prisma.OrganizationUpdateOneRequiredWithoutNotesNestedInput
   linkedTo?: Prisma.NoteLinkUpdateManyWithoutSourceNestedInput
   linkedFrom?: Prisma.NoteLinkUpdateManyWithoutTargetNestedInput
 }
@@ -319,6 +352,8 @@ export type NoteUncheckedUpdateInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   collectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   linkedTo?: Prisma.NoteLinkUncheckedUpdateManyWithoutSourceNestedInput
@@ -332,6 +367,8 @@ export type NoteCreateManyInput = {
   content: string
   collectionId?: string | null
   userId: string
+  workspaceId: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -341,6 +378,7 @@ export type NoteUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -352,6 +390,8 @@ export type NoteUncheckedUpdateManyInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   collectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -373,6 +413,8 @@ export type NoteCountOrderByAggregateInput = {
   content?: Prisma.SortOrder
   collectionId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
+  ydoc?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -384,6 +426,8 @@ export type NoteMaxOrderByAggregateInput = {
   content?: Prisma.SortOrder
   collectionId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
+  ydoc?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -395,6 +439,8 @@ export type NoteMinOrderByAggregateInput = {
   content?: Prisma.SortOrder
   collectionId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
+  ydoc?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -488,6 +534,10 @@ export type NoteUncheckedUpdateManyWithoutCollectionNestedInput = {
   deleteMany?: Prisma.NoteScalarWhereInput | Prisma.NoteScalarWhereInput[]
 }
 
+export type NullableBytesFieldUpdateOperationsInput = {
+  set?: runtime.Bytes | null
+}
+
 export type NoteCreateNestedOneWithoutLinkedToInput = {
   create?: Prisma.XOR<Prisma.NoteCreateWithoutLinkedToInput, Prisma.NoteUncheckedCreateWithoutLinkedToInput>
   connectOrCreate?: Prisma.NoteCreateOrConnectWithoutLinkedToInput
@@ -516,14 +566,58 @@ export type NoteUpdateOneRequiredWithoutLinkedFromNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.NoteUpdateToOneWithWhereWithoutLinkedFromInput, Prisma.NoteUpdateWithoutLinkedFromInput>, Prisma.NoteUncheckedUpdateWithoutLinkedFromInput>
 }
 
+export type NoteCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.NoteCreateWithoutWorkspaceInput, Prisma.NoteUncheckedCreateWithoutWorkspaceInput> | Prisma.NoteCreateWithoutWorkspaceInput[] | Prisma.NoteUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.NoteCreateOrConnectWithoutWorkspaceInput | Prisma.NoteCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.NoteCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+}
+
+export type NoteUncheckedCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.NoteCreateWithoutWorkspaceInput, Prisma.NoteUncheckedCreateWithoutWorkspaceInput> | Prisma.NoteCreateWithoutWorkspaceInput[] | Prisma.NoteUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.NoteCreateOrConnectWithoutWorkspaceInput | Prisma.NoteCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.NoteCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+}
+
+export type NoteUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.NoteCreateWithoutWorkspaceInput, Prisma.NoteUncheckedCreateWithoutWorkspaceInput> | Prisma.NoteCreateWithoutWorkspaceInput[] | Prisma.NoteUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.NoteCreateOrConnectWithoutWorkspaceInput | Prisma.NoteCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.NoteUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.NoteUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.NoteCreateManyWorkspaceInputEnvelope
+  set?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  disconnect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  delete?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  connect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  update?: Prisma.NoteUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.NoteUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.NoteUpdateManyWithWhereWithoutWorkspaceInput | Prisma.NoteUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.NoteScalarWhereInput | Prisma.NoteScalarWhereInput[]
+}
+
+export type NoteUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.NoteCreateWithoutWorkspaceInput, Prisma.NoteUncheckedCreateWithoutWorkspaceInput> | Prisma.NoteCreateWithoutWorkspaceInput[] | Prisma.NoteUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.NoteCreateOrConnectWithoutWorkspaceInput | Prisma.NoteCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.NoteUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.NoteUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.NoteCreateManyWorkspaceInputEnvelope
+  set?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  disconnect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  delete?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  connect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  update?: Prisma.NoteUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.NoteUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.NoteUpdateManyWithWhereWithoutWorkspaceInput | Prisma.NoteUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.NoteScalarWhereInput | Prisma.NoteScalarWhereInput[]
+}
+
 export type NoteCreateWithoutUserInput = {
   id?: string
   title: string
   icon?: string | null
   content: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   collection?: Prisma.CollectionCreateNestedOneWithoutNotesInput
+  workspace: Prisma.OrganizationCreateNestedOneWithoutNotesInput
   linkedTo?: Prisma.NoteLinkCreateNestedManyWithoutSourceInput
   linkedFrom?: Prisma.NoteLinkCreateNestedManyWithoutTargetInput
 }
@@ -534,6 +628,8 @@ export type NoteUncheckedCreateWithoutUserInput = {
   icon?: string | null
   content: string
   collectionId?: string | null
+  workspaceId: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   linkedTo?: Prisma.NoteLinkUncheckedCreateNestedManyWithoutSourceInput
@@ -576,6 +672,8 @@ export type NoteScalarWhereInput = {
   content?: Prisma.StringFilter<"Note"> | string
   collectionId?: Prisma.StringNullableFilter<"Note"> | string | null
   userId?: Prisma.StringFilter<"Note"> | string
+  workspaceId?: Prisma.StringFilter<"Note"> | string
+  ydoc?: Prisma.BytesNullableFilter<"Note"> | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFilter<"Note"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Note"> | Date | string
 }
@@ -585,9 +683,11 @@ export type NoteCreateWithoutCollectionInput = {
   title: string
   icon?: string | null
   content: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutNotesInput
+  workspace: Prisma.OrganizationCreateNestedOneWithoutNotesInput
   linkedTo?: Prisma.NoteLinkCreateNestedManyWithoutSourceInput
   linkedFrom?: Prisma.NoteLinkCreateNestedManyWithoutTargetInput
 }
@@ -598,6 +698,8 @@ export type NoteUncheckedCreateWithoutCollectionInput = {
   icon?: string | null
   content: string
   userId: string
+  workspaceId: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   linkedTo?: Prisma.NoteLinkUncheckedCreateNestedManyWithoutSourceInput
@@ -635,10 +737,12 @@ export type NoteCreateWithoutLinkedToInput = {
   title: string
   icon?: string | null
   content: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   collection?: Prisma.CollectionCreateNestedOneWithoutNotesInput
   user: Prisma.UserCreateNestedOneWithoutNotesInput
+  workspace: Prisma.OrganizationCreateNestedOneWithoutNotesInput
   linkedFrom?: Prisma.NoteLinkCreateNestedManyWithoutTargetInput
 }
 
@@ -649,6 +753,8 @@ export type NoteUncheckedCreateWithoutLinkedToInput = {
   content: string
   collectionId?: string | null
   userId: string
+  workspaceId: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   linkedFrom?: Prisma.NoteLinkUncheckedCreateNestedManyWithoutTargetInput
@@ -664,10 +770,12 @@ export type NoteCreateWithoutLinkedFromInput = {
   title: string
   icon?: string | null
   content: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   collection?: Prisma.CollectionCreateNestedOneWithoutNotesInput
   user: Prisma.UserCreateNestedOneWithoutNotesInput
+  workspace: Prisma.OrganizationCreateNestedOneWithoutNotesInput
   linkedTo?: Prisma.NoteLinkCreateNestedManyWithoutSourceInput
 }
 
@@ -678,6 +786,8 @@ export type NoteUncheckedCreateWithoutLinkedFromInput = {
   content: string
   collectionId?: string | null
   userId: string
+  workspaceId: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   linkedTo?: Prisma.NoteLinkUncheckedCreateNestedManyWithoutSourceInput
@@ -704,10 +814,12 @@ export type NoteUpdateWithoutLinkedToInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   collection?: Prisma.CollectionUpdateOneWithoutNotesNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutNotesNestedInput
+  workspace?: Prisma.OrganizationUpdateOneRequiredWithoutNotesNestedInput
   linkedFrom?: Prisma.NoteLinkUpdateManyWithoutTargetNestedInput
 }
 
@@ -718,6 +830,8 @@ export type NoteUncheckedUpdateWithoutLinkedToInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   collectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   linkedFrom?: Prisma.NoteLinkUncheckedUpdateManyWithoutTargetNestedInput
@@ -739,10 +853,12 @@ export type NoteUpdateWithoutLinkedFromInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   collection?: Prisma.CollectionUpdateOneWithoutNotesNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutNotesNestedInput
+  workspace?: Prisma.OrganizationUpdateOneRequiredWithoutNotesNestedInput
   linkedTo?: Prisma.NoteLinkUpdateManyWithoutSourceNestedInput
 }
 
@@ -753,9 +869,65 @@ export type NoteUncheckedUpdateWithoutLinkedFromInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   collectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   linkedTo?: Prisma.NoteLinkUncheckedUpdateManyWithoutSourceNestedInput
+}
+
+export type NoteCreateWithoutWorkspaceInput = {
+  id?: string
+  title: string
+  icon?: string | null
+  content: string
+  ydoc?: runtime.Bytes | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  collection?: Prisma.CollectionCreateNestedOneWithoutNotesInput
+  user: Prisma.UserCreateNestedOneWithoutNotesInput
+  linkedTo?: Prisma.NoteLinkCreateNestedManyWithoutSourceInput
+  linkedFrom?: Prisma.NoteLinkCreateNestedManyWithoutTargetInput
+}
+
+export type NoteUncheckedCreateWithoutWorkspaceInput = {
+  id?: string
+  title: string
+  icon?: string | null
+  content: string
+  collectionId?: string | null
+  userId: string
+  ydoc?: runtime.Bytes | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  linkedTo?: Prisma.NoteLinkUncheckedCreateNestedManyWithoutSourceInput
+  linkedFrom?: Prisma.NoteLinkUncheckedCreateNestedManyWithoutTargetInput
+}
+
+export type NoteCreateOrConnectWithoutWorkspaceInput = {
+  where: Prisma.NoteWhereUniqueInput
+  create: Prisma.XOR<Prisma.NoteCreateWithoutWorkspaceInput, Prisma.NoteUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type NoteCreateManyWorkspaceInputEnvelope = {
+  data: Prisma.NoteCreateManyWorkspaceInput | Prisma.NoteCreateManyWorkspaceInput[]
+  skipDuplicates?: boolean
+}
+
+export type NoteUpsertWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.NoteWhereUniqueInput
+  update: Prisma.XOR<Prisma.NoteUpdateWithoutWorkspaceInput, Prisma.NoteUncheckedUpdateWithoutWorkspaceInput>
+  create: Prisma.XOR<Prisma.NoteCreateWithoutWorkspaceInput, Prisma.NoteUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type NoteUpdateWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.NoteWhereUniqueInput
+  data: Prisma.XOR<Prisma.NoteUpdateWithoutWorkspaceInput, Prisma.NoteUncheckedUpdateWithoutWorkspaceInput>
+}
+
+export type NoteUpdateManyWithWhereWithoutWorkspaceInput = {
+  where: Prisma.NoteScalarWhereInput
+  data: Prisma.XOR<Prisma.NoteUpdateManyMutationInput, Prisma.NoteUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
 export type NoteCreateManyUserInput = {
@@ -764,6 +936,8 @@ export type NoteCreateManyUserInput = {
   icon?: string | null
   content: string
   collectionId?: string | null
+  workspaceId: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -773,9 +947,11 @@ export type NoteUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   collection?: Prisma.CollectionUpdateOneWithoutNotesNestedInput
+  workspace?: Prisma.OrganizationUpdateOneRequiredWithoutNotesNestedInput
   linkedTo?: Prisma.NoteLinkUpdateManyWithoutSourceNestedInput
   linkedFrom?: Prisma.NoteLinkUpdateManyWithoutTargetNestedInput
 }
@@ -786,6 +962,8 @@ export type NoteUncheckedUpdateWithoutUserInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   collectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   linkedTo?: Prisma.NoteLinkUncheckedUpdateManyWithoutSourceNestedInput
@@ -798,6 +976,8 @@ export type NoteUncheckedUpdateManyWithoutUserInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   collectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -808,6 +988,8 @@ export type NoteCreateManyCollectionInput = {
   icon?: string | null
   content: string
   userId: string
+  workspaceId: string
+  ydoc?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -817,9 +999,11 @@ export type NoteUpdateWithoutCollectionInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutNotesNestedInput
+  workspace?: Prisma.OrganizationUpdateOneRequiredWithoutNotesNestedInput
   linkedTo?: Prisma.NoteLinkUpdateManyWithoutSourceNestedInput
   linkedFrom?: Prisma.NoteLinkUpdateManyWithoutTargetNestedInput
 }
@@ -830,6 +1014,8 @@ export type NoteUncheckedUpdateWithoutCollectionInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   linkedTo?: Prisma.NoteLinkUncheckedUpdateManyWithoutSourceNestedInput
@@ -842,6 +1028,60 @@ export type NoteUncheckedUpdateManyWithoutCollectionInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type NoteCreateManyWorkspaceInput = {
+  id?: string
+  title: string
+  icon?: string | null
+  content: string
+  collectionId?: string | null
+  userId: string
+  ydoc?: runtime.Bytes | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type NoteUpdateWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  collection?: Prisma.CollectionUpdateOneWithoutNotesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutNotesNestedInput
+  linkedTo?: Prisma.NoteLinkUpdateManyWithoutSourceNestedInput
+  linkedFrom?: Prisma.NoteLinkUpdateManyWithoutTargetNestedInput
+}
+
+export type NoteUncheckedUpdateWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  collectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  linkedTo?: Prisma.NoteLinkUncheckedUpdateManyWithoutSourceNestedInput
+  linkedFrom?: Prisma.NoteLinkUncheckedUpdateManyWithoutTargetNestedInput
+}
+
+export type NoteUncheckedUpdateManyWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  collectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  ydoc?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -893,10 +1133,13 @@ export type NoteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   content?: boolean
   collectionId?: boolean
   userId?: boolean
+  workspaceId?: boolean
+  ydoc?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   collection?: boolean | Prisma.Note$collectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   linkedTo?: boolean | Prisma.Note$linkedToArgs<ExtArgs>
   linkedFrom?: boolean | Prisma.Note$linkedFromArgs<ExtArgs>
   _count?: boolean | Prisma.NoteCountOutputTypeDefaultArgs<ExtArgs>
@@ -909,10 +1152,13 @@ export type NoteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   content?: boolean
   collectionId?: boolean
   userId?: boolean
+  workspaceId?: boolean
+  ydoc?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   collection?: boolean | Prisma.Note$collectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["note"]>
 
 export type NoteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -922,10 +1168,13 @@ export type NoteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   content?: boolean
   collectionId?: boolean
   userId?: boolean
+  workspaceId?: boolean
+  ydoc?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   collection?: boolean | Prisma.Note$collectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["note"]>
 
 export type NoteSelectScalar = {
@@ -935,14 +1184,17 @@ export type NoteSelectScalar = {
   content?: boolean
   collectionId?: boolean
   userId?: boolean
+  workspaceId?: boolean
+  ydoc?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type NoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "icon" | "content" | "collectionId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["note"]>
+export type NoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "icon" | "content" | "collectionId" | "userId" | "workspaceId" | "ydoc" | "createdAt" | "updatedAt", ExtArgs["result"]["note"]>
 export type NoteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   collection?: boolean | Prisma.Note$collectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   linkedTo?: boolean | Prisma.Note$linkedToArgs<ExtArgs>
   linkedFrom?: boolean | Prisma.Note$linkedFromArgs<ExtArgs>
   _count?: boolean | Prisma.NoteCountOutputTypeDefaultArgs<ExtArgs>
@@ -950,10 +1202,12 @@ export type NoteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type NoteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   collection?: boolean | Prisma.Note$collectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }
 export type NoteIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   collection?: boolean | Prisma.Note$collectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }
 
 export type $NotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -961,6 +1215,7 @@ export type $NotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     collection: Prisma.$CollectionPayload<ExtArgs> | null
     user: Prisma.$UserPayload<ExtArgs>
+    workspace: Prisma.$OrganizationPayload<ExtArgs>
     linkedTo: Prisma.$NoteLinkPayload<ExtArgs>[]
     linkedFrom: Prisma.$NoteLinkPayload<ExtArgs>[]
   }
@@ -971,6 +1226,8 @@ export type $NotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     content: string
     collectionId: string | null
     userId: string
+    workspaceId: string
+    ydoc: runtime.Bytes | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["note"]>
@@ -1369,6 +1626,7 @@ export interface Prisma__NoteClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   collection<T extends Prisma.Note$collectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Note$collectionArgs<ExtArgs>>): Prisma.Prisma__CollectionClient<runtime.Types.Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  workspace<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   linkedTo<T extends Prisma.Note$linkedToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Note$linkedToArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NoteLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   linkedFrom<T extends Prisma.Note$linkedFromArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Note$linkedFromArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NoteLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1406,6 +1664,8 @@ export interface NoteFieldRefs {
   readonly content: Prisma.FieldRef<"Note", 'String'>
   readonly collectionId: Prisma.FieldRef<"Note", 'String'>
   readonly userId: Prisma.FieldRef<"Note", 'String'>
+  readonly workspaceId: Prisma.FieldRef<"Note", 'String'>
+  readonly ydoc: Prisma.FieldRef<"Note", 'Bytes'>
   readonly createdAt: Prisma.FieldRef<"Note", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Note", 'DateTime'>
 }

@@ -62,6 +62,7 @@ export function NavMain() {
     setCollectionToEdit,
     handleDelete,
     handleCategoryClick,
+    workspaceSlug,
   } = useNavMain();
 
   if (isLoading) {
@@ -93,7 +94,7 @@ export function NavMain() {
                   suppressHydrationWarning
                   isActive={isCollectionActive(collection.id)}
                   render={
-                    <Link href={`/dashboard/collections/${collection.id}`} />
+                    <Link href={`/${workspaceSlug}/collections/${collection.id}`} />
                   }
                   onClick={() => toggleCollection(collection.id)}
                 >

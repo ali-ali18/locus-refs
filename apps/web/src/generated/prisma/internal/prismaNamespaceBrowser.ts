@@ -145,6 +145,7 @@ export const CollectionScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   userId: 'userId',
+  workspaceId: 'workspaceId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -172,7 +173,8 @@ export const CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
-  userId: 'userId'
+  userId: 'userId',
+  workspaceId: 'workspaceId'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
@@ -185,6 +187,8 @@ export const NoteScalarFieldEnum = {
   content: 'content',
   collectionId: 'collectionId',
   userId: 'userId',
+  workspaceId: 'workspaceId',
+  ydoc: 'ydoc',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

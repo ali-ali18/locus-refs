@@ -69,7 +69,7 @@ export function useRegister() {
     setUserName(nextUserName);
     if (nextUserName) {
       toast.success(`Seja bem-vindo, ${nextUserName}`);
-      router.push("/dashboard");
+      router.push("/");
     }
   };
 

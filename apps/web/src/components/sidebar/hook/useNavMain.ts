@@ -2,10 +2,12 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { useWorkspace } from "@/context/workspace";
 import { useCollections } from "@/hook/collections/useCollections";
 
 export function useNavMain() {
   const { collections, isLoading, deleteCollection } = useCollections();
+  const { workspaceSlug } = useWorkspace();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,21 +38,21 @@ export function useNavMain() {
   };
 
   const handleDelete = async (id: string) => {
-    if (pathname === `/dashboard/collections/${id}`) {
-      router.push("/dashboard");
+    if (pathname === `/${workspaceSlug}/collections/${id}`) {
+      router.push(`/${workspaceSlug}`);
     }
     await deleteCollection(id);
   };
 
   const handleCategoryClick = (collectionId: string, categorySlug: string) => {
     router.push(
-      `/dashboard/collections/${collectionId}?category=${categorySlug}`,
+      `/${workspaceSlug}/collections/${collectionId}?category=${categorySlug}`,
     );
   };
 
   const isCollectionActive = (id: string) =>
-    pathname === `/dashboard/collections/${id}` ||
-    (pathname.startsWith(`/dashboard/collections/${id}`) &&
+    pathname === `/${workspaceSlug}/collections/${id}` ||
+    (pathname.startsWith(`/${workspaceSlug}/collections/${id}`) &&
       !!activeCategorySlug);
 
   return {
@@ -69,5 +71,6 @@ export function useNavMain() {
     setCollectionToEdit,
     handleDelete,
     handleCategoryClick,
+    workspaceSlug,
   };
 }

@@ -6,7 +6,7 @@ export async function requireSession() {
   const session = await getSession();
 
   if (!session) {
-    redirect("/");
+    redirect("/login");
   }
 
   return session;

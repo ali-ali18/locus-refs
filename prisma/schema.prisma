@@ -77,17 +77,19 @@ model Verification {
 }
 
 model Collection {
-  id        String     @id @default(uuid())
-  name      String
-  slug      String
-  userId    String
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  resources Resource[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  notes     Note[]
+  id             String       @id @default(uuid())
+  name           String
+  slug           String
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId    String
+  workspace      Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  resources      Resource[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  notes          Note[]
 
-  @@unique([userId, slug])
+  @@unique([workspaceId, slug])
 }
 
 model Resource {
@@ -108,28 +110,33 @@ model Resource {
 }
 
 model Category {
-  id        String     @id @default(uuid())
-  name      String     @unique
-  slug      String     @unique
-  userId    String
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  resources Resource[] @relation("ResourceCategories")
+  id          String       @id @default(uuid())
+  name        String
+  slug        String
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  resources   Resource[]   @relation("ResourceCategories")
 
-  @@unique([name, userId])
-  @@unique([slug, userId])
+  @@unique([name, workspaceId])
+  @@unique([slug, workspaceId])
 }
 
 model Note {
-  id           String      @id @default(uuid())
+  id           String       @id @default(uuid())
   title        String
   icon         String?
-  content      String      @db.Text
+  content      String       @db.Text
   collectionId String?
-  collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  collection   Collection?  @relation(fields: [collectionId], references: [id], onDelete: SetNull)
   userId       String
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId  String
+  workspace    Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  ydoc         Bytes?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   linkedTo   NoteLink[] @relation("source")
   linkedFrom NoteLink[] @relation("target")
@@ -155,6 +162,9 @@ model Organization {
   metadata    String?
   members     Member[]
   invitations Invitation[]
+  collections Collection[]
+  categories  Category[]
+  notes       Note[]
 
   @@unique([slug])
   @@map("organization")

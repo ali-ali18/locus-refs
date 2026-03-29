@@ -1406,6 +1406,7 @@ export const CollectionScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   userId: 'userId',
+  workspaceId: 'workspaceId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1433,7 +1434,8 @@ export const CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
-  userId: 'userId'
+  userId: 'userId',
+  workspaceId: 'workspaceId'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
@@ -1446,6 +1448,8 @@ export const NoteScalarFieldEnum = {
   content: 'content',
   collectionId: 'collectionId',
   userId: 'userId',
+  workspaceId: 'workspaceId',
+  ydoc: 'ydoc',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1562,6 +1566,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Bytes'
+ */
+export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
+    
+
+
+/**
+ * Reference to a field of type 'Bytes[]'
+ */
+export type ListBytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes[]'>
     
 
 

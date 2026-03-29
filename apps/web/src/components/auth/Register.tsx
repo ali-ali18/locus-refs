@@ -11,7 +11,7 @@ export function Register() {
         <>
           Já tem uma conta?{" "}
           <Link
-            href="/"
+            href="/login"
             className="underline underline-offset-4 hover:text-primary ml-1"
           >
             Faça login

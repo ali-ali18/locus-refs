@@ -4,11 +4,11 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const pathname = request.nextUrl.pathname;
-  const publicRoutes = ["/", "/register"];
+  const publicRoutes = ["/login", "/register"];
   const isAuthApi = pathname.startsWith("/api/auth");
 
   if (!publicRoutes.includes(pathname) && !isAuthApi && !sessionCookie) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();

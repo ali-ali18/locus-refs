@@ -2,6 +2,7 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useWorkspace } from "@/context/workspace";
 import { CreateResourceDialog } from "@/components/dashboard/CreateResourceDialog";
 import { useResources } from "@/components/dashboard/hooks/useResources";
 import { ResourceGrid } from "@/components/dashboard/ResourceGrid";
@@ -14,6 +15,8 @@ export default function CollectionPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { workspaceSlug } = useWorkspace();
+
   const collectionId = params.id as string;
   const categorySlug = searchParams.get("category");
 
@@ -30,9 +33,9 @@ export default function CollectionPage() {
 
   useEffect(() => {
     if (!isLoadingCollections && collections.length > 0 && !collection) {
-      router.push("/dashboard");
+      router.push(`/${workspaceSlug}`);
     }
-  }, [collection, isLoadingCollections, collections.length, router]);
+  }, [collection, isLoadingCollections, collections.length, router, workspaceSlug]);
 
   useEffect(() => {
     setSearchQuery("");
@@ -68,11 +71,9 @@ export default function CollectionPage() {
         activeCategorySlug={categorySlug}
         onCategoryChange={(slug) => {
           if (slug) {
-            router.push(
-              `/dashboard/collections/${collectionId}?category=${slug}`,
-            );
+            router.push(`/${workspaceSlug}/collections/${collectionId}?category=${slug}`);
           } else {
-            router.push(`/dashboard/collections/${collectionId}`);
+            router.push(`/${workspaceSlug}/collections/${collectionId}`);
           }
         }}
       />

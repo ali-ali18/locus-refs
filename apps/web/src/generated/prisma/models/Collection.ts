@@ -29,6 +29,7 @@ export type CollectionMinAggregateOutputType = {
   name: string | null
   slug: string | null
   userId: string | null
+  workspaceId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,6 +39,7 @@ export type CollectionMaxAggregateOutputType = {
   name: string | null
   slug: string | null
   userId: string | null
+  workspaceId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,6 +49,7 @@ export type CollectionCountAggregateOutputType = {
   name: number
   slug: number
   userId: number
+  workspaceId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -58,6 +61,7 @@ export type CollectionMinAggregateInputType = {
   name?: true
   slug?: true
   userId?: true
+  workspaceId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -67,6 +71,7 @@ export type CollectionMaxAggregateInputType = {
   name?: true
   slug?: true
   userId?: true
+  workspaceId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,6 +81,7 @@ export type CollectionCountAggregateInputType = {
   name?: true
   slug?: true
   userId?: true
+  workspaceId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -158,6 +164,7 @@ export type CollectionGroupByOutputType = {
   name: string
   slug: string
   userId: string
+  workspaceId: string
   createdAt: Date
   updatedAt: Date
   _count: CollectionCountAggregateOutputType | null
@@ -188,9 +195,11 @@ export type CollectionWhereInput = {
   name?: Prisma.StringFilter<"Collection"> | string
   slug?: Prisma.StringFilter<"Collection"> | string
   userId?: Prisma.StringFilter<"Collection"> | string
+  workspaceId?: Prisma.StringFilter<"Collection"> | string
   createdAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  workspace?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   resources?: Prisma.ResourceListRelationFilter
   notes?: Prisma.NoteListRelationFilter
 }
@@ -200,34 +209,39 @@ export type CollectionOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  workspace?: Prisma.OrganizationOrderByWithRelationInput
   resources?: Prisma.ResourceOrderByRelationAggregateInput
   notes?: Prisma.NoteOrderByRelationAggregateInput
 }
 
 export type CollectionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  userId_slug?: Prisma.CollectionUserIdSlugCompoundUniqueInput
+  workspaceId_slug?: Prisma.CollectionWorkspaceIdSlugCompoundUniqueInput
   AND?: Prisma.CollectionWhereInput | Prisma.CollectionWhereInput[]
   OR?: Prisma.CollectionWhereInput[]
   NOT?: Prisma.CollectionWhereInput | Prisma.CollectionWhereInput[]
   name?: Prisma.StringFilter<"Collection"> | string
   slug?: Prisma.StringFilter<"Collection"> | string
   userId?: Prisma.StringFilter<"Collection"> | string
+  workspaceId?: Prisma.StringFilter<"Collection"> | string
   createdAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  workspace?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   resources?: Prisma.ResourceListRelationFilter
   notes?: Prisma.NoteListRelationFilter
-}, "id" | "userId_slug">
+}, "id" | "workspaceId_slug">
 
 export type CollectionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CollectionCountOrderByAggregateInput
@@ -243,6 +257,7 @@ export type CollectionScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Collection"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Collection"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Collection"> | string
+  workspaceId?: Prisma.StringWithAggregatesFilter<"Collection"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Collection"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Collection"> | Date | string
 }
@@ -254,6 +269,7 @@ export type CollectionCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCollectionsInput
+  workspace: Prisma.OrganizationCreateNestedOneWithoutCollectionsInput
   resources?: Prisma.ResourceCreateNestedManyWithoutCollectionInput
   notes?: Prisma.NoteCreateNestedManyWithoutCollectionInput
 }
@@ -263,6 +279,7 @@ export type CollectionUncheckedCreateInput = {
   name: string
   slug: string
   userId: string
+  workspaceId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutCollectionInput
@@ -276,6 +293,7 @@ export type CollectionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCollectionsNestedInput
+  workspace?: Prisma.OrganizationUpdateOneRequiredWithoutCollectionsNestedInput
   resources?: Prisma.ResourceUpdateManyWithoutCollectionNestedInput
   notes?: Prisma.NoteUpdateManyWithoutCollectionNestedInput
 }
@@ -285,6 +303,7 @@ export type CollectionUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resources?: Prisma.ResourceUncheckedUpdateManyWithoutCollectionNestedInput
@@ -296,6 +315,7 @@ export type CollectionCreateManyInput = {
   name: string
   slug: string
   userId: string
+  workspaceId: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -313,6 +333,7 @@ export type CollectionUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -327,8 +348,8 @@ export type CollectionOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CollectionUserIdSlugCompoundUniqueInput = {
-  userId: string
+export type CollectionWorkspaceIdSlugCompoundUniqueInput = {
+  workspaceId: string
   slug: string
 }
 
@@ -337,6 +358,7 @@ export type CollectionCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -346,6 +368,7 @@ export type CollectionMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -355,6 +378,7 @@ export type CollectionMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -441,12 +465,55 @@ export type CollectionUpdateOneWithoutNotesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CollectionUpdateToOneWithWhereWithoutNotesInput, Prisma.CollectionUpdateWithoutNotesInput>, Prisma.CollectionUncheckedUpdateWithoutNotesInput>
 }
 
+export type CollectionCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.CollectionCreateWithoutWorkspaceInput, Prisma.CollectionUncheckedCreateWithoutWorkspaceInput> | Prisma.CollectionCreateWithoutWorkspaceInput[] | Prisma.CollectionUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.CollectionCreateOrConnectWithoutWorkspaceInput | Prisma.CollectionCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.CollectionCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.CollectionWhereUniqueInput | Prisma.CollectionWhereUniqueInput[]
+}
+
+export type CollectionUncheckedCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.CollectionCreateWithoutWorkspaceInput, Prisma.CollectionUncheckedCreateWithoutWorkspaceInput> | Prisma.CollectionCreateWithoutWorkspaceInput[] | Prisma.CollectionUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.CollectionCreateOrConnectWithoutWorkspaceInput | Prisma.CollectionCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.CollectionCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.CollectionWhereUniqueInput | Prisma.CollectionWhereUniqueInput[]
+}
+
+export type CollectionUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.CollectionCreateWithoutWorkspaceInput, Prisma.CollectionUncheckedCreateWithoutWorkspaceInput> | Prisma.CollectionCreateWithoutWorkspaceInput[] | Prisma.CollectionUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.CollectionCreateOrConnectWithoutWorkspaceInput | Prisma.CollectionCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.CollectionUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.CollectionUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.CollectionCreateManyWorkspaceInputEnvelope
+  set?: Prisma.CollectionWhereUniqueInput | Prisma.CollectionWhereUniqueInput[]
+  disconnect?: Prisma.CollectionWhereUniqueInput | Prisma.CollectionWhereUniqueInput[]
+  delete?: Prisma.CollectionWhereUniqueInput | Prisma.CollectionWhereUniqueInput[]
+  connect?: Prisma.CollectionWhereUniqueInput | Prisma.CollectionWhereUniqueInput[]
+  update?: Prisma.CollectionUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.CollectionUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.CollectionUpdateManyWithWhereWithoutWorkspaceInput | Prisma.CollectionUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.CollectionScalarWhereInput | Prisma.CollectionScalarWhereInput[]
+}
+
+export type CollectionUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.CollectionCreateWithoutWorkspaceInput, Prisma.CollectionUncheckedCreateWithoutWorkspaceInput> | Prisma.CollectionCreateWithoutWorkspaceInput[] | Prisma.CollectionUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.CollectionCreateOrConnectWithoutWorkspaceInput | Prisma.CollectionCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.CollectionUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.CollectionUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.CollectionCreateManyWorkspaceInputEnvelope
+  set?: Prisma.CollectionWhereUniqueInput | Prisma.CollectionWhereUniqueInput[]
+  disconnect?: Prisma.CollectionWhereUniqueInput | Prisma.CollectionWhereUniqueInput[]
+  delete?: Prisma.CollectionWhereUniqueInput | Prisma.CollectionWhereUniqueInput[]
+  connect?: Prisma.CollectionWhereUniqueInput | Prisma.CollectionWhereUniqueInput[]
+  update?: Prisma.CollectionUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.CollectionUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.CollectionUpdateManyWithWhereWithoutWorkspaceInput | Prisma.CollectionUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.CollectionScalarWhereInput | Prisma.CollectionScalarWhereInput[]
+}
+
 export type CollectionCreateWithoutUserInput = {
   id?: string
   name: string
   slug: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  workspace: Prisma.OrganizationCreateNestedOneWithoutCollectionsInput
   resources?: Prisma.ResourceCreateNestedManyWithoutCollectionInput
   notes?: Prisma.NoteCreateNestedManyWithoutCollectionInput
 }
@@ -455,6 +522,7 @@ export type CollectionUncheckedCreateWithoutUserInput = {
   id?: string
   name: string
   slug: string
+  workspaceId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutCollectionInput
@@ -495,6 +563,7 @@ export type CollectionScalarWhereInput = {
   name?: Prisma.StringFilter<"Collection"> | string
   slug?: Prisma.StringFilter<"Collection"> | string
   userId?: Prisma.StringFilter<"Collection"> | string
+  workspaceId?: Prisma.StringFilter<"Collection"> | string
   createdAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Collection"> | Date | string
 }
@@ -506,6 +575,7 @@ export type CollectionCreateWithoutResourcesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCollectionsInput
+  workspace: Prisma.OrganizationCreateNestedOneWithoutCollectionsInput
   notes?: Prisma.NoteCreateNestedManyWithoutCollectionInput
 }
 
@@ -514,6 +584,7 @@ export type CollectionUncheckedCreateWithoutResourcesInput = {
   name: string
   slug: string
   userId: string
+  workspaceId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutCollectionInput
@@ -542,6 +613,7 @@ export type CollectionUpdateWithoutResourcesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCollectionsNestedInput
+  workspace?: Prisma.OrganizationUpdateOneRequiredWithoutCollectionsNestedInput
   notes?: Prisma.NoteUpdateManyWithoutCollectionNestedInput
 }
 
@@ -550,6 +622,7 @@ export type CollectionUncheckedUpdateWithoutResourcesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NoteUncheckedUpdateManyWithoutCollectionNestedInput
@@ -562,6 +635,7 @@ export type CollectionCreateWithoutNotesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCollectionsInput
+  workspace: Prisma.OrganizationCreateNestedOneWithoutCollectionsInput
   resources?: Prisma.ResourceCreateNestedManyWithoutCollectionInput
 }
 
@@ -570,6 +644,7 @@ export type CollectionUncheckedCreateWithoutNotesInput = {
   name: string
   slug: string
   userId: string
+  workspaceId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutCollectionInput
@@ -598,6 +673,7 @@ export type CollectionUpdateWithoutNotesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCollectionsNestedInput
+  workspace?: Prisma.OrganizationUpdateOneRequiredWithoutCollectionsNestedInput
   resources?: Prisma.ResourceUpdateManyWithoutCollectionNestedInput
 }
 
@@ -606,15 +682,65 @@ export type CollectionUncheckedUpdateWithoutNotesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resources?: Prisma.ResourceUncheckedUpdateManyWithoutCollectionNestedInput
+}
+
+export type CollectionCreateWithoutWorkspaceInput = {
+  id?: string
+  name: string
+  slug: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCollectionsInput
+  resources?: Prisma.ResourceCreateNestedManyWithoutCollectionInput
+  notes?: Prisma.NoteCreateNestedManyWithoutCollectionInput
+}
+
+export type CollectionUncheckedCreateWithoutWorkspaceInput = {
+  id?: string
+  name: string
+  slug: string
+  userId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutCollectionInput
+  notes?: Prisma.NoteUncheckedCreateNestedManyWithoutCollectionInput
+}
+
+export type CollectionCreateOrConnectWithoutWorkspaceInput = {
+  where: Prisma.CollectionWhereUniqueInput
+  create: Prisma.XOR<Prisma.CollectionCreateWithoutWorkspaceInput, Prisma.CollectionUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type CollectionCreateManyWorkspaceInputEnvelope = {
+  data: Prisma.CollectionCreateManyWorkspaceInput | Prisma.CollectionCreateManyWorkspaceInput[]
+  skipDuplicates?: boolean
+}
+
+export type CollectionUpsertWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.CollectionWhereUniqueInput
+  update: Prisma.XOR<Prisma.CollectionUpdateWithoutWorkspaceInput, Prisma.CollectionUncheckedUpdateWithoutWorkspaceInput>
+  create: Prisma.XOR<Prisma.CollectionCreateWithoutWorkspaceInput, Prisma.CollectionUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type CollectionUpdateWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.CollectionWhereUniqueInput
+  data: Prisma.XOR<Prisma.CollectionUpdateWithoutWorkspaceInput, Prisma.CollectionUncheckedUpdateWithoutWorkspaceInput>
+}
+
+export type CollectionUpdateManyWithWhereWithoutWorkspaceInput = {
+  where: Prisma.CollectionScalarWhereInput
+  data: Prisma.XOR<Prisma.CollectionUpdateManyMutationInput, Prisma.CollectionUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
 export type CollectionCreateManyUserInput = {
   id?: string
   name: string
   slug: string
+  workspaceId: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -625,6 +751,7 @@ export type CollectionUpdateWithoutUserInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.OrganizationUpdateOneRequiredWithoutCollectionsNestedInput
   resources?: Prisma.ResourceUpdateManyWithoutCollectionNestedInput
   notes?: Prisma.NoteUpdateManyWithoutCollectionNestedInput
 }
@@ -633,6 +760,7 @@ export type CollectionUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resources?: Prisma.ResourceUncheckedUpdateManyWithoutCollectionNestedInput
@@ -643,6 +771,47 @@ export type CollectionUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CollectionCreateManyWorkspaceInput = {
+  id?: string
+  name: string
+  slug: string
+  userId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CollectionUpdateWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCollectionsNestedInput
+  resources?: Prisma.ResourceUpdateManyWithoutCollectionNestedInput
+  notes?: Prisma.NoteUpdateManyWithoutCollectionNestedInput
+}
+
+export type CollectionUncheckedUpdateWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resources?: Prisma.ResourceUncheckedUpdateManyWithoutCollectionNestedInput
+  notes?: Prisma.NoteUncheckedUpdateManyWithoutCollectionNestedInput
+}
+
+export type CollectionUncheckedUpdateManyWithoutWorkspaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -692,9 +861,11 @@ export type CollectionSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   name?: boolean
   slug?: boolean
   userId?: boolean
+  workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   resources?: boolean | Prisma.Collection$resourcesArgs<ExtArgs>
   notes?: boolean | Prisma.Collection$notesArgs<ExtArgs>
   _count?: boolean | Prisma.CollectionCountOutputTypeDefaultArgs<ExtArgs>
@@ -705,9 +876,11 @@ export type CollectionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   name?: boolean
   slug?: boolean
   userId?: boolean
+  workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["collection"]>
 
 export type CollectionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -715,9 +888,11 @@ export type CollectionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   name?: boolean
   slug?: boolean
   userId?: boolean
+  workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["collection"]>
 
 export type CollectionSelectScalar = {
@@ -725,28 +900,33 @@ export type CollectionSelectScalar = {
   name?: boolean
   slug?: boolean
   userId?: boolean
+  workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CollectionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
+export type CollectionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "userId" | "workspaceId" | "createdAt" | "updatedAt", ExtArgs["result"]["collection"]>
 export type CollectionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   resources?: boolean | Prisma.Collection$resourcesArgs<ExtArgs>
   notes?: boolean | Prisma.Collection$notesArgs<ExtArgs>
   _count?: boolean | Prisma.CollectionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CollectionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }
 export type CollectionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }
 
 export type $CollectionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Collection"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    workspace: Prisma.$OrganizationPayload<ExtArgs>
     resources: Prisma.$ResourcePayload<ExtArgs>[]
     notes: Prisma.$NotePayload<ExtArgs>[]
   }
@@ -755,6 +935,7 @@ export type $CollectionPayload<ExtArgs extends runtime.Types.Extensions.Internal
     name: string
     slug: string
     userId: string
+    workspaceId: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["collection"]>
@@ -1152,6 +1333,7 @@ readonly fields: CollectionFieldRefs;
 export interface Prisma__CollectionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  workspace<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   resources<T extends Prisma.Collection$resourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Collection$resourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notes<T extends Prisma.Collection$notesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Collection$notesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1187,6 +1369,7 @@ export interface CollectionFieldRefs {
   readonly name: Prisma.FieldRef<"Collection", 'String'>
   readonly slug: Prisma.FieldRef<"Collection", 'String'>
   readonly userId: Prisma.FieldRef<"Collection", 'String'>
+  readonly workspaceId: Prisma.FieldRef<"Collection", 'String'>
   readonly createdAt: Prisma.FieldRef<"Collection", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Collection", 'DateTime'>
 }

@@ -9,7 +9,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-export default function DashboardPage() {
+export default function WorkspacePage() {
   return (
     <Container
       as="section"
