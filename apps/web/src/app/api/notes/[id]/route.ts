@@ -3,11 +3,11 @@ import prisma from "@/lib/prisma";
 import { requireWorkspaceAccess } from "@/server/requireSession";
 import { deleteObjects } from "@/server/upload";
 
-function extractS3ImageKeys(html: string, userId: string): string[] {
+function extractS3ImageKeys(html: string, workspaceId: string): string[] {
   const regex = /src=["']\/storage\/([^"']+)["']/g;
   return [...html.matchAll(regex)]
     .map((m) => decodeURIComponent(m[1]))
-    .filter((key) => key.startsWith(`${userId}/notes/`));
+    .filter((key) => key.startsWith(`${workspaceId}/notes/`));
 }
 
 export async function GET(
@@ -16,7 +16,7 @@ export async function GET(
 ) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { session, workspaceId } = auth;
+  const { workspaceId } = auth;
   const { id } = await params;
 
   try {
@@ -49,7 +49,7 @@ export async function PATCH(
 ) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { session, workspaceId } = auth;
+  const { workspaceId } = auth;
   const { id } = await params;
 
   try {
@@ -62,8 +62,8 @@ export async function PATCH(
         select: { content: true },
       });
       if (existing?.content) {
-        const oldKeys = extractS3ImageKeys(existing.content, session.user.id);
-        const newKeys = new Set(extractS3ImageKeys(content, session.user.id));
+        const oldKeys = extractS3ImageKeys(existing.content, workspaceId);
+        const newKeys = new Set(extractS3ImageKeys(content, workspaceId));
         orphanedKeys = oldKeys.filter((k) => !newKeys.has(k));
       }
     }
@@ -104,7 +104,7 @@ export async function DELETE(
 ) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { session, workspaceId } = auth;
+  const { workspaceId } = auth;
   const { id } = await params;
 
   try {
@@ -120,7 +120,7 @@ export async function DELETE(
     await prisma.note.delete({ where: { id } });
 
     if (note.content) {
-      const keys = extractS3ImageKeys(note.content, session.user.id);
+      const keys = extractS3ImageKeys(note.content, workspaceId);
       if (keys.length > 0) deleteObjects(keys).catch(console.error);
     }
 

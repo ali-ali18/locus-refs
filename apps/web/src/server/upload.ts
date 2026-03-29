@@ -1,10 +1,7 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
-import {
-  DeleteObjectCommand,
-  PutObjectCommand,
-} from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3Client } from "@/lib/storage";
 
@@ -13,17 +10,17 @@ type UploadFolder = "avatars" | "notes";
 interface UploadParams {
   name: string;
   contentType: string;
-  userId: string;
+  workspaceId: string;
   folder: UploadFolder;
 }
 
 export async function getPresignedUploadUrl({
   name,
   contentType,
-  userId,
+  workspaceId,
   folder,
 }: UploadParams) {
-  const key = `${userId}/${folder}/${randomUUID()}-${name}`;
+  const key = `${workspaceId}/${folder}/${randomUUID()}-${name}`;
 
   const uploadUrl = await getSignedUrl(
     s3Client,

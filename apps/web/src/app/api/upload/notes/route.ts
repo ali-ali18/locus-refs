@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { type NextRequest, NextResponse } from "next/server";
 import { s3Client } from "@/lib/storage";
-import { requireSession } from "@/server/requireSession";
+import { requireWorkspaceAccess } from "@/server/requireSession";
 
 const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
 
@@ -34,7 +34,9 @@ function detectMimeType(buffer: Buffer): string | null {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await requireSession();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
@@ -72,7 +74,7 @@ export async function POST(request: NextRequest) {
   }
 
   const safeName = file.name.replace(/\s+/g, "-").replace(/[^\w.-]/g, "");
-  const key = `${session.user.id}/notes/${randomUUID()}-${safeName}`;
+  const key = `${workspaceId}/notes/${randomUUID()}-${safeName}`;
 
   try {
     await s3Client.send(
