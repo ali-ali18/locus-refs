@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
+import { setWorkspaceId } from "@/lib/api";
 
 interface WorkspaceContextValue {
   workspaceId: string;
@@ -16,6 +17,10 @@ export function WorkspaceProvider({
   workspaceName,
   children,
 }: WorkspaceContextValue & { children: React.ReactNode }) {
+  useEffect(() => {
+    setWorkspaceId(workspaceId);
+  }, [workspaceId]);
+
   return (
     <WorkspaceContext.Provider
       value={{ workspaceId, workspaceSlug, workspaceName }}

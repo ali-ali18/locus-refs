@@ -31,8 +31,11 @@ const { mockFindMany, mockCreate, mockNotes } = vi.hoisted(() => {
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("@/server/getSession", () => ({
-  getSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
+vi.mock("@/server/requireSession", () => ({
+  requireWorkspaceAccess: vi.fn().mockResolvedValue({
+    session: { user: { id: "user-1" } },
+    workspaceId: "ws-1",
+  }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -51,7 +54,10 @@ describe("API Notes", () => {
 
   describe("GET /api/notes", () => {
     it("returns 200 and the user notes list", async () => {
-      const response = await GET();
+      const req = new NextRequest("http://localhost/api/notes", {
+        headers: { "x-workspace-id": "ws-1" },
+      });
+      const response = await GET(req);
       const data = await response.json();
       const expectedNotes = mockNotes.map((note) => ({
         ...note,
@@ -62,7 +68,7 @@ describe("API Notes", () => {
       expect(response.status).toBe(200);
       expect(data).toEqual(expectedNotes);
       expect(mockFindMany).toHaveBeenCalledWith({
-        where: { userId: "user-1" },
+        where: { workspaceId: "ws-1" },
         orderBy: { createdAt: "desc" },
         select: {
           id: true,
@@ -78,7 +84,10 @@ describe("API Notes", () => {
     it("returns 500 when listing notes fails", async () => {
       mockFindMany.mockRejectedValueOnce(new Error("DB Error"));
 
-      const response = await GET();
+      const req = new NextRequest("http://localhost/api/notes", {
+        headers: { "x-workspace-id": "ws-1" },
+      });
+      const response = await GET(req);
       const data = await response.json();
 
       expect(response.status).toBe(500);
@@ -122,6 +131,7 @@ describe("API Notes", () => {
           icon: "archive",
           content: "",
           userId: "user-1",
+          workspaceId: "ws-1",
           collectionId: "col-2",
         },
       });
@@ -170,6 +180,7 @@ describe("API Notes", () => {
           icon: null,
           content: "",
           userId: "user-1",
+          workspaceId: "ws-1",
           collectionId: null,
         },
       });

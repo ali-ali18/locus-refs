@@ -1,13 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireSessionApiOrThrow } from "@/server/requireSession";
+import { requireWorkspaceAccess } from "@/server/requireSession";
 
-export async function GET() {
-  const session = await requireSessionApiOrThrow();
+export async function GET(request: NextRequest) {
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
 
   try {
     const notes = await prisma.note.findMany({
-      where: { userId: session.user.id },
+      where: { workspaceId },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -25,7 +27,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await requireSessionApiOrThrow();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { session, workspaceId } = auth;
 
   try {
     const { title, icon, collectionId } = await request.json();
@@ -42,6 +46,7 @@ export async function POST(request: NextRequest) {
         icon: icon ?? null,
         content: "",
         userId: session.user.id,
+        workspaceId,
         collectionId: collectionId ?? null,
       },
     });

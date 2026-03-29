@@ -8,7 +8,7 @@ export {
   type CreateCollectionSchema,
   createCollectionSchema,
 } from "./schemas/collection.schema";
-// Schemas
+
 export {
   type CreateNoteSchema,
   createNoteSchema,

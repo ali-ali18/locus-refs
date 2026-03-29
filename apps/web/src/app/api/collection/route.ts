@@ -1,20 +1,21 @@
 import { type NextRequest, NextResponse } from "next/server";
 import slugify from "slugify";
 import prisma from "@/lib/prisma";
-import { requireSessionApiOrThrow } from "@/server/requireSession";
+import { requireWorkspaceAccess } from "@/server/requireSession";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
+
   try {
-    const session = await requireSessionApiOrThrow();
-
     const collections = await prisma.collection.findMany({
-      where: { userId: session.user.id },
+      where: { workspaceId },
       orderBy: { name: "asc" },
     });
 
     return NextResponse.json(collections);
   } catch (_error) {
-    console.log(_error);
     return NextResponse.json(
       { error: "Failed to get collections" },
       { status: 500 },
@@ -23,7 +24,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await requireSessionApiOrThrow();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { session, workspaceId } = auth;
 
   const { name } = await request.json();
 
@@ -39,6 +42,7 @@ export async function POST(request: NextRequest) {
         name,
         slug,
         userId: session.user.id,
+        workspaceId,
       },
     });
     return NextResponse.json(

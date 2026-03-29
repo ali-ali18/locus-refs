@@ -1,18 +1,20 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireSession } from "@/server/requireSession";
+import { requireWorkspaceAccess } from "@/server/requireSession";
 
 export async function GET(request: NextRequest) {
-  const session = await requireSession();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
   const collectionId = request.nextUrl.searchParams.get("collectionId");
 
   const where =
     collectionId != null && collectionId !== ""
       ? {
           collectionId,
-          collection: { userId: session.user.id },
+          collection: { workspaceId },
         }
-      : { collection: { userId: session.user.id } };
+      : { collection: { workspaceId } };
 
   const resources = await prisma.resource.findMany({
     where,
@@ -25,7 +27,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await requireSession();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
 
   const {
     title,
@@ -45,7 +49,7 @@ export async function POST(request: NextRequest) {
   }
 
   const collection = await prisma.collection.findUnique({
-    where: { id: collectionId, userId: session.user.id },
+    where: { id: collectionId, workspaceId },
   });
 
   if (!collection) {

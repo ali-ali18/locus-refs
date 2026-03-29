@@ -12,7 +12,10 @@ const { mockFindUnique, mockFindMany } = vi.hoisted(() => {
 vi.mock("server-only", () => ({}));
 
 vi.mock("@/server/requireSession", () => ({
-  requireSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
+  requireWorkspaceAccess: vi.fn().mockResolvedValue({
+    session: { user: { id: "user-1" } },
+    workspaceId: "ws-1",
+  }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -79,7 +82,7 @@ describe("API Collection [id]/categories", () => {
         },
       ]);
       expect(mockFindUnique).toHaveBeenCalledWith({
-        where: { id: collectionId, userId: "user-1" },
+        where: { id: collectionId, workspaceId: "ws-1" },
       });
       expect(mockFindMany).toHaveBeenCalledWith({
         where: {

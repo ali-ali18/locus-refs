@@ -1,18 +1,20 @@
 import { type NextRequest, NextResponse } from "next/server";
 import slugify from "slugify";
 import prisma from "@/lib/prisma";
-import { requireSessionApiOrThrow } from "@/server/requireSession";
+import { requireWorkspaceAccess } from "@/server/requireSession";
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSessionApiOrThrow();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
 
   const { id } = await params;
 
   const category = await prisma.category.findUnique({
-    where: { id, userId: session.user.id },
+    where: { id, workspaceId },
   });
 
   if (!category) {
@@ -37,12 +39,14 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSessionApiOrThrow();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
 
   const { id } = await params;
 
   const category = await prisma.category.findUnique({
-    where: { id, userId: session.user.id },
+    where: { id, workspaceId },
   });
 
   if (!category) {

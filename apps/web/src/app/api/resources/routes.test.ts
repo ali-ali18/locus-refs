@@ -32,8 +32,11 @@ const { mockFindUnique, mockCreate, mockFindMany, mockResources } = vi.hoisted(
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("@/server/getSession", () => ({
-  getSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
+vi.mock("@/server/requireSession", () => ({
+  requireWorkspaceAccess: vi.fn().mockResolvedValue({
+    session: { user: { id: "user-1" } },
+    workspaceId: "ws-1",
+  }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -63,7 +66,7 @@ describe("API Resources", () => {
       expect(response.status).toBe(200);
       expect(data).toEqual(mockResources);
       expect(mockFindMany).toHaveBeenCalledWith({
-        where: { collection: { userId: "user-1" } },
+        where: { collection: { workspaceId: "ws-1" } },
         include: {
           categories: { select: { id: true, name: true, slug: true } },
         },
@@ -110,7 +113,7 @@ describe("API Resources", () => {
       );
 
       expect(mockFindUnique).toHaveBeenCalledWith({
-        where: { id: "col-1", userId: "user-1" },
+        where: { id: "col-1", workspaceId: "ws-1" },
       });
 
       expect(mockCreate).toHaveBeenCalledWith({

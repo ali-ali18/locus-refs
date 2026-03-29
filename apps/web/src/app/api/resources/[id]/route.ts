@@ -1,21 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server";
 import type { Prisma } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
-import { requireSessionApiOrThrow } from "@/server/requireSession";
+import { requireWorkspaceAccess } from "@/server/requireSession";
 import { updateSchema } from "@/types/schema/resources.schema";
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSessionApiOrThrow();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
 
   const { id } = await params;
 
   const body = updateSchema.parse(await request.json());
 
   const resource = await prisma.resource.findFirst({
-    where: { id, collection: { userId: session.user.id } },
+    where: { id, collection: { workspaceId } },
   });
 
   if (!resource) {
@@ -27,7 +29,7 @@ export async function PATCH(
     body.collectionId !== resource.collectionId
   ) {
     const newCollection = await prisma.collection.findUnique({
-      where: { id: body.collectionId, userId: session.user.id },
+      where: { id: body.collectionId, workspaceId },
     });
 
     if (!newCollection) {
@@ -71,15 +73,17 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSessionApiOrThrow();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
 
   const { id } = await params;
 
   const resource = await prisma.resource.findFirst({
-    where: { id, collection: { userId: session.user.id } },
+    where: { id, collection: { workspaceId } },
   });
 
   if (!resource) {

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireSession } from "@/server/requireSession";
+import { requireWorkspaceAccess } from "@/server/requireSession";
 import { deleteObjects } from "@/server/upload";
 
 function extractS3ImageKeys(html: string, userId: string): string[] {
@@ -11,15 +11,17 @@ function extractS3ImageKeys(html: string, userId: string): string[] {
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSession();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { session, workspaceId } = auth;
   const { id } = await params;
 
   try {
     const note = await prisma.note.findUnique({
-      where: { id, userId: session.user.id },
+      where: { id, workspaceId },
       include: {
         collection: { select: { id: true, name: true } },
         linkedTo: {
@@ -45,7 +47,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSession();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { session, workspaceId } = auth;
   const { id } = await params;
 
   try {
@@ -54,7 +58,7 @@ export async function PATCH(
     let orphanedKeys: string[] = [];
     if (content !== undefined) {
       const existing = await prisma.note.findUnique({
-        where: { id, userId: session.user.id },
+        where: { id, workspaceId },
         select: { content: true },
       });
       if (existing?.content) {
@@ -65,7 +69,7 @@ export async function PATCH(
     }
 
     const [updatedNote] = await prisma.note.updateManyAndReturn({
-      where: { id, userId: session.user.id },
+      where: { id, workspaceId },
       data: {
         ...(title !== undefined && { title }),
         ...(icon !== undefined && { icon }),
@@ -95,15 +99,17 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSession();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { session, workspaceId } = auth;
   const { id } = await params;
 
   try {
     const note = await prisma.note.findUnique({
-      where: { id, userId: session.user.id },
+      where: { id, workspaceId },
       select: { content: true },
     });
 

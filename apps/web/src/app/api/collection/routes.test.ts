@@ -16,8 +16,11 @@ const { mockFindMany, mockCreate, mockCollections } = vi.hoisted(() => {
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("@/server/getSession", () => ({
-  getSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
+vi.mock("@/server/requireSession", () => ({
+  requireWorkspaceAccess: vi.fn().mockResolvedValue({
+    session: { user: { id: "user-1" } },
+    workspaceId: "ws-1",
+  }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -36,13 +39,16 @@ describe("API Collections", () => {
 
   describe("GET /api/collection", () => {
     it("returns 200 and user collections list when session is valid", async () => {
-      const response = await GET();
+      const req = new NextRequest("http://localhost/api/collection", {
+        headers: { "x-workspace-id": "ws-1" },
+      });
+      const response = await GET(req);
       const data = await response.json();
 
       expect(response.status).toBe(200);
       expect(data).toEqual(mockCollections);
       expect(mockFindMany).toHaveBeenCalledWith({
-        where: { userId: "user-1" },
+        where: { workspaceId: "ws-1" },
         orderBy: { name: "asc" },
       });
     });
@@ -50,7 +56,10 @@ describe("API Collections", () => {
     it("returns 500 when database query fails", async () => {
       mockFindMany.mockRejectedValueOnce(new Error("DB Error"));
 
-      const response = await GET();
+      const req = new NextRequest("http://localhost/api/collection", {
+        headers: { "x-workspace-id": "ws-1" },
+      });
+      const response = await GET(req);
       const data = await response.json();
 
       expect(response.status).toBe(500);
@@ -87,6 +96,7 @@ describe("API Collections", () => {
           name: "New Collection",
           slug: "new-collection",
           userId: "user-1",
+          workspaceId: "ws-1",
         },
       });
     });

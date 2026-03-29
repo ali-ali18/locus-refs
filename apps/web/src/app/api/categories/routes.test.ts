@@ -16,8 +16,11 @@ const { mockFindMany, mockCreate, mockCategories } = vi.hoisted(() => {
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("@/server/getSession", () => ({
-  getSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
+vi.mock("@/server/requireSession", () => ({
+  requireWorkspaceAccess: vi.fn().mockResolvedValue({
+    session: { user: { id: "user-1" } },
+    workspaceId: "ws-1",
+  }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -36,13 +39,16 @@ describe("API Categories", () => {
 
   describe("GET /api/categories", () => {
     it("returns 200 and user categories list when there is a session", async () => {
-      const response = await GET();
+      const req = new NextRequest("http://localhost/api/categories", {
+        headers: { "x-workspace-id": "ws-1" },
+      });
+      const response = await GET(req);
       const data = await response.json();
 
       expect(response.status).toBe(200);
       expect(data).toEqual(mockCategories);
       expect(mockFindMany).toHaveBeenCalledWith({
-        where: { userId: "user-1" },
+        where: { workspaceId: "ws-1" },
         include: {
           _count: {
             select: {
@@ -84,6 +90,7 @@ describe("API Categories", () => {
           name: "New Cat",
           slug: "new-cat",
           userId: "user-1",
+          workspaceId: "ws-1",
         },
       });
     });

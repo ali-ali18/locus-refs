@@ -1,16 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireSession } from "@/server/requireSession";
+import { requireWorkspaceAccess } from "@/server/requireSession";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await requireSession();
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
   const { id } = await params;
 
   const collection = await prisma.collection.findUnique({
-    where: { id, userId: session.user.id },
+    where: { id, workspaceId },
   });
 
   if (!collection) {

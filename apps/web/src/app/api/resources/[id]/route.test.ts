@@ -15,8 +15,11 @@ const { mockFindFirst, mockFindUnique, mockUpdate, mockDelete } = vi.hoisted(
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("@/server/getSession", () => ({
-  getSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
+vi.mock("@/server/requireSession", () => ({
+  requireWorkspaceAccess: vi.fn().mockResolvedValue({
+    session: { user: { id: "user-1" } },
+    workspaceId: "ws-1",
+  }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -68,7 +71,7 @@ describe("API Resource [id]", () => {
       expect(data).toEqual(updatedResource);
 
       expect(mockFindFirst).toHaveBeenCalledWith({
-        where: { id: resourceId, collection: { userId: "user-1" } },
+        where: { id: resourceId, collection: { workspaceId: "ws-1" } },
       });
 
       expect(mockUpdate).toHaveBeenCalledWith({
@@ -111,7 +114,7 @@ describe("API Resource [id]", () => {
       expect(response.status).toBe(200);
 
       expect(mockFindUnique).toHaveBeenCalledWith({
-        where: { id: newCollectionId, userId: "user-1" },
+        where: { id: newCollectionId, workspaceId: "ws-1" },
       });
 
       expect(mockUpdate).toHaveBeenCalledWith(
@@ -212,7 +215,7 @@ describe("API Resource [id]", () => {
       expect(data).toEqual({ message: "Resource deleted successfully" });
 
       expect(mockFindFirst).toHaveBeenCalledWith({
-        where: { id: resourceId, collection: { userId: "user-1" } },
+        where: { id: resourceId, collection: { workspaceId: "ws-1" } },
       });
       expect(mockDelete).toHaveBeenCalledWith({ where: { id: resourceId } });
     });

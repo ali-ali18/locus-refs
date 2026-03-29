@@ -11,8 +11,11 @@ const { mockFindUnique, mockDelete } = vi.hoisted(() => {
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("@/server/getSession", () => ({
-  getSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
+vi.mock("@/server/requireSession", () => ({
+  requireWorkspaceAccess: vi.fn().mockResolvedValue({
+    session: { user: { id: "user-1" } },
+    workspaceId: "ws-1",
+  }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -48,7 +51,7 @@ describe("DELETE /api/categories/[id]", () => {
     expect(response.status).toBe(200);
     expect(data).toEqual({ message: "Category deleted successfully" });
     expect(mockFindUnique).toHaveBeenCalledWith({
-      where: { id: categoryId, userId: "user-1" },
+      where: { id: categoryId, workspaceId: "ws-1" },
     });
     expect(mockDelete).toHaveBeenCalledWith({ where: { id: categoryId } });
   });
@@ -71,7 +74,7 @@ describe("DELETE /api/categories/[id]", () => {
     expect(response.status).toBe(404);
     expect(data).toEqual({ error: "Category not found" });
     expect(mockFindUnique).toHaveBeenCalledWith({
-      where: { id: categoryId, userId: "user-1" },
+      where: { id: categoryId, workspaceId: "ws-1" },
     });
     expect(mockDelete).not.toHaveBeenCalled();
   });

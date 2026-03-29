@@ -12,8 +12,11 @@ const { mockFindUnique, mockUpdate, mockDelete } = vi.hoisted(() => {
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("@/server/getSession", () => ({
-  getSession: vi.fn().mockResolvedValue({ user: { id: "user-1" } }),
+vi.mock("@/server/requireSession", () => ({
+  requireWorkspaceAccess: vi.fn().mockResolvedValue({
+    session: { user: { id: "user-1" } },
+    workspaceId: "ws-1",
+  }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -63,7 +66,7 @@ describe("API Collection [id]", () => {
         collection: updatedCollection,
       });
       expect(mockFindUnique).toHaveBeenCalledWith({
-        where: { id: collectionId, userId: "user-1" },
+        where: { id: collectionId, workspaceId: "ws-1" },
       });
       expect(mockUpdate).toHaveBeenCalledWith({
         where: { id: collectionId },
@@ -134,7 +137,7 @@ describe("API Collection [id]", () => {
       expect(response.status).toBe(200);
       expect(data).toEqual({ message: "Collection deleted successfully" });
       expect(mockFindUnique).toHaveBeenCalledWith({
-        where: { id: collectionId, userId: "user-1" },
+        where: { id: collectionId, workspaceId: "ws-1" },
       });
       expect(mockDelete).toHaveBeenCalledWith({ where: { id: collectionId } });
     });
