@@ -6,8 +6,10 @@ import { EmptyApp } from "@/components/base/EmptyApp";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useWorkspace } from "@/context/workspace";
 import { useNote } from "@/hook/notes/useNotes";
 import { ContentNote } from "./ContentNote";
+import { useCollabProvider } from "./hook/useCollabProvider";
 import { useNoteContentStatus } from "./hook/useNoteContentStatus";
 import { PageHeaderNote } from "./PageHeaderNote";
 
@@ -17,7 +19,9 @@ interface Props {
 
 export function WrapperNote({ id }: Props) {
   const { data: note, isLoading } = useNote(id);
+  const { workspaceId } = useWorkspace();
   const { status, handleContentChange } = useNoteContentStatus({ id });
+  const { provider } = useCollabProvider({ noteId: id, workspaceId });
 
   if (isLoading) {
     return (
@@ -59,6 +63,7 @@ export function WrapperNote({ id }: Props) {
         content={note.content}
         onChange={handleContentChange}
         status={status}
+        provider={provider}
       />
     </>
   );

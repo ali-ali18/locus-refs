@@ -1,7 +1,8 @@
 "use client";
 
+import type { HocuspocusProvider } from "@hocuspocus/provider";
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SlashDropdownMenu } from "@/components/tiptap-ui/slash-dropdown-menu";
 import {
   getNotesEditorExtensions,
@@ -17,9 +18,10 @@ import { useImageUpload } from "./imageBlock/useImageUpload";
 interface EditorProps {
   content?: string | null;
   onChange?: (content: string) => void;
+  provider?: HocuspocusProvider;
 }
 
-export function Editor({ content, onChange }: EditorProps) {
+export function Editor({ content, onChange, provider }: EditorProps) {
   const { uploadImage } = useImageUpload();
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
@@ -32,8 +34,9 @@ export function Editor({ content, onChange }: EditorProps) {
     extensions: getNotesEditorExtensions({
       placeholder: NOTES_EDITOR_PLACEHOLDER,
       uploadImage,
+      ydoc: provider?.document,
     }),
-    content: content,
+    content: provider ? undefined : content,
     immediatelyRender: false,
     editorProps: NOTES_EDITOR_PROPS,
     onUpdate({ editor }) {
@@ -41,6 +44,17 @@ export function Editor({ content, onChange }: EditorProps) {
       onChange(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (!provider || !editor || !content) return;
+    const handler = ({ state }: { state: boolean }) => {
+      if (state && editor.isEmpty) {
+        editor.commands.setContent(content);
+      }
+    };
+    provider.on("synced", handler);
+    return () => { provider.off("synced", handler); };
+  }, [provider, editor, content]);
 
   return (
     <EditorContext.Provider value={{ editor }}>

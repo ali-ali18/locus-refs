@@ -1,5 +1,6 @@
 "use client";
 
+import type { HocuspocusProvider } from "@hocuspocus/provider";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { Icon } from "@/components/shared/Icon";
@@ -12,9 +13,10 @@ interface Props {
   content?: string | null;
   onChange?: (content: string) => void;
   status?: SaveStatus;
+  provider?: HocuspocusProvider;
 }
 
-export function ContentNote({ content, onChange, status = "idle" }: Props) {
+export function ContentNote({ content, onChange, status = "idle", provider }: Props) {
   const current = statusConfig[status];
 
   return (
@@ -37,7 +39,7 @@ export function ContentNote({ content, onChange, status = "idle" }: Props) {
         </Badge>
       </div>
 
-      <Editor content={content} onChange={onChange} />
+      <Editor content={content} onChange={onChange} provider={provider} />
     </div>
   );
 }

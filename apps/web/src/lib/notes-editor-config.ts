@@ -1,9 +1,11 @@
+import { Collaboration } from "@tiptap/extension-collaboration";
 import Emoji, { gitHubEmojis } from "@tiptap/extension-emoji";
 import Heading from "@tiptap/extension-heading";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { BackgroundColor, Color } from "@tiptap/extension-text-style";
 import StarterKit from "@tiptap/starter-kit";
+import type * as Y from "yjs";
 import type {
   SlashMenuConfig,
   SlashMenuItemType,
@@ -34,6 +36,7 @@ export const NOTES_EDITOR_PLACEHOLDER =
 export interface NotesEditorExtensionsOptions {
   placeholder?: string;
   uploadImage?: (file: File) => Promise<string>;
+  ydoc?: Y.Doc;
 }
 
 export function getNotesEditorExtensions(
@@ -41,10 +44,12 @@ export function getNotesEditorExtensions(
 ) {
   const placeholder = options.placeholder ?? NOTES_EDITOR_PLACEHOLDER;
   const uploadImage = options.uploadImage ?? (() => Promise.resolve(""));
+  const { ydoc } = options;
 
   return [
     StarterKit.configure({
       heading: false,
+      ...(ydoc && { history: false }),
       paragraph: {
         HTMLAttributes: { class: "leading-7" },
       },
@@ -100,12 +105,15 @@ export function getNotesEditorExtensions(
       includeChildren: true,
       emptyEditorClass: "is-editor-empty",
     }),
+
+    ...(ydoc ? [Collaboration.configure({ document: ydoc })] : []),
   ];
 }
 
 export const NOTES_EDITOR_PROPS = {
   attributes: {
-    class: "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 overflow-x-hidden overflow-y-hidden",
+    class:
+      "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 overflow-x-hidden overflow-y-hidden",
   },
 };
 
