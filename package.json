@@ -11,6 +11,7 @@
     "test": "pnpm --filter @refstash/web test",
     "test:run": "pnpm --filter @refstash/web test:run",
     "commit": "cz",
+    "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push"
