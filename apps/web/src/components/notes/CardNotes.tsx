@@ -14,12 +14,20 @@ interface Props {
   updatedAt: string;
   createdAt: string;
   id: string;
+  workspaceSlug: string;
 }
 
-export function CardNotes({ icon, title, updatedAt, createdAt, id }: Props) {
+export function CardNotes({
+  icon,
+  title,
+  updatedAt,
+  createdAt,
+  id,
+  workspaceSlug,
+}: Props) {
   return (
     <Link
-      href={`/dashboard/notes/${id}`}
+      href={`/${workspaceSlug}/notes/${id}`}
       className="border rounded-2xl pb-4 space-y-3"
     >
       <div>

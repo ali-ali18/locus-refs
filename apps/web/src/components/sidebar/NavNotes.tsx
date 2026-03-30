@@ -17,6 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useWorkspace } from "@/context/workspace";
 import { useNotes } from "@/hook/notes/useNotes";
 import { resolveIcon } from "@/lib/icons";
 import { Skeleton } from "../ui/skeleton";
@@ -24,6 +25,7 @@ import { Skeleton } from "../ui/skeleton";
 export function NavNotes() {
   const { data: notes = [], isLoading } = useNotes();
   const { setOpenMobile, openMobile } = useSidebar();
+  const { workspaceSlug } = useWorkspace();
 
   const pathname = usePathname();
 
@@ -59,8 +61,8 @@ export function NavNotes() {
                 suppressHydrationWarning
                 className="rounded-xl"
                 onClick={() => setOpenMobile(!openMobile)}
-                render={<Link href={`/dashboard/notes/${note.id}`} />}
-                isActive={pathname === `/dashboard/notes/${note.id}`}
+                render={<Link href={`/${workspaceSlug}/notes/${note.id}`} />}
+                isActive={pathname === `/${workspaceSlug}/notes/${note.id}`}
                 tooltip={note.title}
               >
                 {note.icon && <Icon icon={resolveIcon(note.icon)} />}

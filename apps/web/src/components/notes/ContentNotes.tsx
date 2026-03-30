@@ -1,6 +1,7 @@
 "use client";
 
 import { Note02FreeIcons } from "@hugeicons/core-free-icons";
+import { useWorkspace } from "@/context/workspace";
 import { useNotes } from "@/hook/notes/useNotes";
 import { EmptyApp } from "../base/EmptyApp";
 import { Skeleton } from "../ui/skeleton";
@@ -8,6 +9,7 @@ import { NotesList } from "./NotesList";
 
 export function ContentNotes() {
   const { data, isLoading } = useNotes();
+  const { workspaceSlug } = useWorkspace();
 
   if (data && data.length === 0 && !isLoading) {
     return (
@@ -30,5 +32,5 @@ export function ContentNotes() {
     );
   }
 
-  return <NotesList notes={data ?? []} />;
+  return <NotesList notes={data ?? []} workspaceSlug={workspaceSlug} />;
 }
