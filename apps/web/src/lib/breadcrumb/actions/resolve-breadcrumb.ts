@@ -44,30 +44,34 @@ export async function resolveBreadcrumb(
   const segments = pathname.split("/").filter(Boolean);
   const items: BreadcrumbItem[] = [];
 
-  if (segments.length === 0 || segments[0] !== "dashboard") {
+  if (segments.length === 0) {
     return items;
   }
 
-  items.push({ label: "Dashboard", href: "/dashboard" });
+  // Support both legacy /dashboard/... and new /[workspaceSlug]/...
+  const isDashboard = segments[0] === "dashboard";
+  const workspaceSlug = isDashboard ? null : segments[0];
+  const featureSegments = isDashboard ? segments.slice(1) : segments.slice(1);
+  const basePath = isDashboard ? "/dashboard" : `/${workspaceSlug}`;
 
-  let currentPath = "/dashboard";
+  items.push({ label: "Home", href: basePath });
 
-  for (let i = 1; i < segments.length; i++) {
-    const segment = segments[i];
-    const previousSegment = segments[i - 1];
+  let currentPath = basePath;
+
+  for (let i = 0; i < featureSegments.length; i++) {
+    const segment = featureSegments[i];
+    const previousSegment = i > 0 ? featureSegments[i - 1] : null;
     currentPath += `/${segment}`;
 
-    const isLast = i === segments.length - 1;
-    const hasId = /^[a-zA-Z0-9-]+$/.test(segment);
-    const parentIsCollectionLike = [
-      "collections",
-      "notes",
-      "resources",
-    ].includes(previousSegment);
+    const isLast = i === featureSegments.length - 1;
+    const isUuid = /^[0-9a-f-]{36}$|^[a-zA-Z0-9-]{20,}$/.test(segment);
+    const parentIsCollectionLike =
+      previousSegment !== null &&
+      ["collections", "notes", "resources"].includes(previousSegment);
 
     let label: string | null = null;
 
-    if (hasId && parentIsCollectionLike) {
+    if (isUuid && parentIsCollectionLike && previousSegment) {
       const resolver = routeResolvers[previousSegment];
       if (resolver) {
         label = await resolver(segment);

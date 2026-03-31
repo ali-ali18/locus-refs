@@ -5,6 +5,7 @@ import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import { useEffect, useMemo, useState } from "react";
 import { SlashDropdownMenu } from "@/components/tiptap-ui/slash-dropdown-menu";
 import {
+  type CollabUser,
   getNotesEditorExtensions,
   getNotesSlashMenuConfig,
   NOTES_EDITOR_PLACEHOLDER,
@@ -19,9 +20,10 @@ interface EditorProps {
   content?: string | null;
   onChange?: (content: string) => void;
   provider?: HocuspocusProvider;
+  user?: CollabUser;
 }
 
-export function Editor({ content, onChange, provider }: EditorProps) {
+export function Editor({ content, onChange, provider, user }: EditorProps) {
   const { uploadImage } = useImageUpload();
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
@@ -35,6 +37,8 @@ export function Editor({ content, onChange, provider }: EditorProps) {
       placeholder: NOTES_EDITOR_PLACEHOLDER,
       uploadImage,
       ydoc: provider?.document,
+      provider,
+      user,
     }),
     content: provider ? undefined : content,
     immediatelyRender: false,

@@ -253,6 +253,76 @@
   max-width: none;
 }
 
+/* Collaboration caret */
+.tiptap .collaboration-carets__caret {
+  border-left: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  margin-left: -1px;
+  margin-right: -1px;
+  pointer-events: none;
+  position: relative;
+  word-break: normal;
+}
+
+.tiptap .collaboration-carets__caret::before,
+.tiptap .collaboration-carets__caret::after {
+  content: "\2060";
+}
+
+.tiptap .collaboration-carets__caret::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  bottom: 100%;
+  transform: translateY(1px);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid currentColor;
+}
+
+.tiptap .collaboration-carets__caret::after {
+  content: "\2060";
+}
+
+.tiptap .collaboration-carets__label {
+  position: absolute;
+  top: -1.8em;
+  left: -1px;
+  line-height: normal;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 11;
+  animation: collab-caret-fade-in 0.2s ease-out;
+}
+
+@keyframes collab-caret-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tiptap .collaboration-carets__caret.typing::before {
+  animation: collab-caret-pulse 1s ease-in-out infinite;
+}
+
+@keyframes collab-caret-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

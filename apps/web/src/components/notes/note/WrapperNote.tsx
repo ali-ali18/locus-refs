@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWorkspace } from "@/context/workspace";
 import { useNote } from "@/hook/notes/useNotes";
+import { useSession } from "@/lib/auth-client";
+import { getCollabColor } from "@/lib/collabColor";
 import { ContentNote } from "./ContentNote";
 import { useCollabProvider } from "./hook/useCollabProvider";
 import { useNoteContentStatus } from "./hook/useNoteContentStatus";
@@ -22,6 +24,15 @@ export function WrapperNote({ id }: Props) {
   const { workspaceId } = useWorkspace();
   const { status, handleContentChange } = useNoteContentStatus({ id });
   const { provider } = useCollabProvider({ noteId: id, workspaceId });
+  const { data: session } = useSession();
+
+  const collabUser = session?.user
+    ? {
+        name: session.user.name,
+        color: getCollabColor(session.user.id),
+        image: session.user.image,
+      }
+    : undefined;
 
   if (isLoading) {
     return (
@@ -64,6 +75,7 @@ export function WrapperNote({ id }: Props) {
         onChange={handleContentChange}
         status={status}
         provider={provider}
+        user={collabUser}
       />
     </>
   );

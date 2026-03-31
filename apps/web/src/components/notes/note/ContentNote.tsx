@@ -6,6 +6,7 @@ import * as m from "motion/react-m";
 import { Icon } from "@/components/shared/Icon";
 import { Badge } from "@/components/ui/badge";
 import statusConfig from "@/lib/data/statusConfig";
+import type { CollabUser } from "@/lib/notes-editor-config";
 import type { SaveStatus } from "@/types/saveStatus.type";
 import { Editor } from "../../ui/baseNote/Editor";
 
@@ -14,9 +15,16 @@ interface Props {
   onChange?: (content: string) => void;
   status?: SaveStatus;
   provider?: HocuspocusProvider;
+  user?: CollabUser;
 }
 
-export function ContentNote({ content, onChange, status = "idle", provider }: Props) {
+export function ContentNote({
+  content,
+  onChange,
+  status = "idle",
+  provider,
+  user,
+}: Props) {
   const current = statusConfig[status];
 
   return (
@@ -39,7 +47,13 @@ export function ContentNote({ content, onChange, status = "idle", provider }: Pr
         </Badge>
       </div>
 
-      <Editor content={content} onChange={onChange} provider={provider} />
+      <Editor
+        key={provider ? "collab" : "solo"}
+        content={content}
+        onChange={onChange}
+        provider={provider}
+        user={user}
+      />
     </div>
   );
 }
