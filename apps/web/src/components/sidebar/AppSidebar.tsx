@@ -3,7 +3,7 @@
 import { NavMain } from "@/components/sidebar/NavMain";
 import { NavNotes } from "@/components/sidebar/NavNotes";
 import { NavUser } from "@/components/sidebar/NavUser";
-import { TeamSwitcher } from "@/components/sidebar/team-switcher";
+import { TeamSwitcher } from "@/components/sidebar/TeamSwitcher";
 import {
   Sidebar,
   SidebarContent,

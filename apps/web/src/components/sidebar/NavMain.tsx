@@ -94,7 +94,9 @@ export function NavMain() {
                   suppressHydrationWarning
                   isActive={isCollectionActive(collection.id)}
                   render={
-                    <Link href={`/${workspaceSlug}/collections/${collection.id}`} />
+                    <Link
+                      href={`/${workspaceSlug}/collections/${collection.id}`}
+                    />
                   }
                   onClick={() => toggleCollection(collection.id)}
                 >

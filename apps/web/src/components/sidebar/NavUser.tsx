@@ -66,7 +66,7 @@ export function NavUser() {
           >
             <Avatar className="size-8 rounded-lg">
               <AvatarImage src={avatarSrc} alt={name} />
-              <AvatarFallback className="rounded-lg">
+              <AvatarFallback>
                 <HugeiconsIcon
                   icon={UserIcon}
                   strokeWidth={2}
@@ -97,7 +97,7 @@ export function NavUser() {
                 <div className="flex items-center gap-2 px-1 py-1.5">
                   <Avatar className="size-8 rounded-lg">
                     <AvatarImage src={avatarSrc} alt={name} />
-                    <AvatarFallback className="rounded-lg">
+                    <AvatarFallback>
                       <HugeiconsIcon
                         icon={UserIcon}
                         strokeWidth={2}
