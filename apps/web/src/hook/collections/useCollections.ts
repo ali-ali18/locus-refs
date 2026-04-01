@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useWorkspace } from "@/context/workspace";
 import {
   createCollection,
   deleteCollection,
@@ -10,13 +11,14 @@ import {
 
 export function useCollections() {
   const queryClient = useQueryClient();
+  const { workspaceId } = useWorkspace();
 
   const {
     data: collections = [],
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["collections"],
+    queryKey: ["collections", workspaceId],
     queryFn: getCollections,
     staleTime: 1000 * 60 * 5,
   });
@@ -24,7 +26,7 @@ export function useCollections() {
   const createMutation = useMutation({
     mutationFn: createCollection,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collections"] });
+      queryClient.invalidateQueries({ queryKey: ["collections", workspaceId] });
     },
   });
 
@@ -32,14 +34,14 @@ export function useCollections() {
     mutationFn: ({ id, name }: { id: string; name: string }) =>
       updateCollection(id, name),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collections"] });
+      queryClient.invalidateQueries({ queryKey: ["collections", workspaceId] });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteCollection,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collections"] });
+      queryClient.invalidateQueries({ queryKey: ["collections", workspaceId] });
     },
   });
 

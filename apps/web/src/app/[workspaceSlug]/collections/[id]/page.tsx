@@ -35,7 +35,13 @@ export default function CollectionPage() {
     if (!isLoadingCollections && collections.length > 0 && !collection) {
       router.push(`/${workspaceSlug}`);
     }
-  }, [collection, isLoadingCollections, collections.length, router, workspaceSlug]);
+  }, [
+    collection,
+    isLoadingCollections,
+    collections.length,
+    router,
+    workspaceSlug,
+  ]);
 
   useEffect(() => {
     setSearchQuery("");
@@ -71,7 +77,9 @@ export default function CollectionPage() {
         activeCategorySlug={categorySlug}
         onCategoryChange={(slug) => {
           if (slug) {
-            router.push(`/${workspaceSlug}/collections/${collectionId}?category=${slug}`);
+            router.push(
+              `/${workspaceSlug}/collections/${collectionId}?category=${slug}`,
+            );
           } else {
             router.push(`/${workspaceSlug}/collections/${collectionId}`);
           }

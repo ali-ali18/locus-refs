@@ -6,10 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useCategory } from "@/hook/categories/useCategory";
 import type { Category } from "@refstash/shared";
-import {
-  type CategorySchema,
-  categorySchema,
-} from "@refstash/shared";
+import { type CategorySchema, categorySchema } from "@refstash/shared";
 
 interface UseCategoryFormOptions {
   onSuccess?: () => void;
