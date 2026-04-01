@@ -13,7 +13,11 @@ export function WorkspaceNavigationMenu() {
 
   const items = [
     { icon: HomeFreeIcons, label: "Dashboard", href: `/${workspaceSlug}` },
-    { icon: Folder01Icon, label: "Categorias", href: `/${workspaceSlug}/categories` },
+    {
+      icon: Folder01Icon,
+      label: "Categorias",
+      href: `/${workspaceSlug}/categories`,
+    },
     { icon: Note01Icon, label: "Notas", href: `/${workspaceSlug}/notes` },
   ];
 
