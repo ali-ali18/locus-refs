@@ -1,4 +1,4 @@
 export const noteKeys = {
-  all: ["notes"] as const,
-  detail: (id: string) => ["notes", id] as const,
+  all: (workspaceId: string) => ["notes", workspaceId] as const,
+  detail: (workspaceId: string, id: string) => ["notes", workspaceId, id] as const,
 };

@@ -4,10 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { type UseFormReturn, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useNoteMutations } from "@/hook/notes/useNote";
-import {
-  type CreateNoteSchema,
-  createNoteSchema,
-} from "@refstash/shared";
+import { type CreateNoteSchema, createNoteSchema } from "@refstash/shared";
 
 interface UseFormCreateNoteReturn {
   form: UseFormReturn<CreateNoteSchema>;

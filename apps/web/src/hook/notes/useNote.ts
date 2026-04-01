@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useWorkspace } from "@/context/workspace";
 import { api } from "@/lib/api";
 import type { Note } from "@refstash/shared";
 import { noteKeys } from "./noteKeys";
@@ -20,6 +21,7 @@ interface UpdateNotePayload {
 
 export function useNoteMutations() {
   const queryClient = useQueryClient();
+  const { workspaceId } = useWorkspace();
 
   const createMutation = useMutation({
     mutationFn: async (payload: CreateNotePayload) => {
@@ -27,7 +29,7 @@ export function useNoteMutations() {
       return data.note;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: noteKeys.all });
+      queryClient.invalidateQueries({ queryKey: noteKeys.all(workspaceId) });
     },
     onError: () => {
       toast.error("Erro ao criar nota. Tente novamente.");
@@ -43,8 +45,8 @@ export function useNoteMutations() {
       return data.note;
     },
     onSuccess: (note) => {
-      queryClient.invalidateQueries({ queryKey: noteKeys.all });
-      queryClient.invalidateQueries({ queryKey: noteKeys.detail(note.id) });
+      queryClient.invalidateQueries({ queryKey: noteKeys.all(workspaceId) });
+      queryClient.invalidateQueries({ queryKey: noteKeys.detail(workspaceId, note.id) });
     },
     onError: () => {
       toast.error("Erro ao atualizar nota. Tente novamente.");
@@ -57,8 +59,8 @@ export function useNoteMutations() {
       return id;
     },
     onSuccess: (_deletedId) => {
-      queryClient.invalidateQueries({ queryKey: noteKeys.all });
-      queryClient.invalidateQueries({ queryKey: noteKeys.detail(_deletedId) });
+      queryClient.invalidateQueries({ queryKey: noteKeys.all(workspaceId) });
+      queryClient.invalidateQueries({ queryKey: noteKeys.detail(workspaceId, _deletedId) });
     },
     onError: () => {
       toast.error("Erro ao excluir nota. Tente novamente.");

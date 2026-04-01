@@ -7,7 +7,10 @@ interface UseImageResizeOptions {
   onResizeEnd: (width: number) => void;
 }
 
-export function useImageResize({ initialWidth, onResizeEnd }: UseImageResizeOptions) {
+export function useImageResize({
+  initialWidth,
+  onResizeEnd,
+}: UseImageResizeOptions) {
   const [width, setWidth] = useState<number>(initialWidth ?? 100);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -23,7 +26,10 @@ export function useImageResize({ initialWidth, onResizeEnd }: UseImageResizeOpti
       const delta = ev.clientX - startX;
       const direction = side === "right" ? 1 : -1;
       currentWidth = Math.round(
-        Math.min(100, Math.max(10, startWidth + (delta / editorWidth) * 100 * direction)),
+        Math.min(
+          100,
+          Math.max(10, startWidth + (delta / editorWidth) * 100 * direction),
+        ),
       );
       setWidth(currentWidth);
     }

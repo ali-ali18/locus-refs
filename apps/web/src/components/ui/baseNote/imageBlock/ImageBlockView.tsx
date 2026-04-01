@@ -7,7 +7,12 @@ import { ImageZoom } from "@/components/kibo-ui/image-zoom";
 import { useImageResize } from "./useImageResize";
 
 export function ImageBlockView({ node, updateAttributes }: NodeViewProps) {
-  const { src, alt, title, width: initialWidth } = node.attrs as {
+  const {
+    src,
+    alt,
+    title,
+    width: initialWidth,
+  } = node.attrs as {
     src: string;
     alt?: string;
     title?: string;
@@ -34,9 +39,7 @@ export function ImageBlockView({ node, updateAttributes }: NodeViewProps) {
           <div className="h-8 w-1 rounded-full bg-foreground/40" />
         </button>
 
-        <ImageZoom
-          zoomMargin={45}
-        >
+        <ImageZoom zoomMargin={45}>
           <img
             src={src}
             alt={alt ?? ""}

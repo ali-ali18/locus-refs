@@ -45,7 +45,7 @@ export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
           </div>
 
           <TabsContent className="m-0" value="gantt">
-              <GanttTab features={ganttFeatures} items={items} />
+            <GanttTab features={ganttFeatures} items={items} />
           </TabsContent>
 
           <TabsContent className="m-0" value="kanban">

@@ -21,7 +21,12 @@ interface Props {
   uploadImage: (file: File) => Promise<string>;
 }
 
-export function ImagePopover({ editor, open, onOpenChange, uploadImage }: Props) {
+export function ImagePopover({
+  editor,
+  open,
+  onOpenChange,
+  uploadImage,
+}: Props) {
   const handleInsert = (src: string) => {
     editor.chain().focus().setImage({ src }).run();
     onOpenChange(false);
@@ -30,13 +35,21 @@ export function ImagePopover({ editor, open, onOpenChange, uploadImage }: Props)
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger
-        className={buttonVariants({ variant: "ghost", size: "icon", rounded: "xl" })}
+        className={buttonVariants({
+          variant: "ghost",
+          size: "icon",
+          rounded: "xl",
+        })}
         type="button"
       >
         <Icon icon={Image01Icon} />
       </PopoverTrigger>
 
-      <PopoverContent className="w-82 rounded-xl p-3" side="bottom" sideOffset={8}>
+      <PopoverContent
+        className="w-82 rounded-xl p-3"
+        side="bottom"
+        sideOffset={8}
+      >
         <PopoverHeader>
           <PopoverTitle className="text-base">Inserir imagem</PopoverTitle>
           <PopoverDescription>

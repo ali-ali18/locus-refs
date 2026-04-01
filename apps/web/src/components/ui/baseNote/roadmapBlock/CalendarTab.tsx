@@ -51,7 +51,11 @@ export function CalendarTab({ features }: CalendarTabProps) {
         <CalendarDate>
           <CalendarDatePagination className="flex items-center justify-center w-full">
             <CalendarMonthPicker className="rounded-xl border-none w-36 shadow-xs px-2" />
-            <CalendarYearPicker end={2050} start={2020} className="rounded-xl border-none shadow-xs px-2" />
+            <CalendarYearPicker
+              end={2050}
+              start={2020}
+              className="rounded-xl border-none shadow-xs px-2"
+            />
           </CalendarDatePagination>
         </CalendarDate>
         <CalendarHeader />
@@ -60,9 +64,13 @@ export function CalendarTab({ features }: CalendarTabProps) {
             const barClasses = cn(
               "h-[18px] flex items-center text-xs font-medium overflow-hidden whitespace-nowrap",
               isSingle && "rounded-xl px-1.5 mx-1",
-              isStart && !isSingle && "rounded-l-xl rounded-r-none pl-1.5 pr-0 ml-1",
+              isStart &&
+                !isSingle &&
+                "rounded-l-xl rounded-r-none pl-1.5 pr-0 ml-1",
               !isStart && !isEnd && !isSingle && "rounded-none px-0",
-              isEnd && !isSingle && "rounded-r-xl rounded-l-none pr-1.5 pl-0 mr-1",
+              isEnd &&
+                !isSingle &&
+                "rounded-r-xl rounded-l-none pr-1.5 pl-0 mr-1",
             );
             return (
               <div
@@ -88,7 +96,9 @@ export function CalendarTab({ features }: CalendarTabProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {dialogState.date
-                ? format(dialogState.date, "d 'de' MMMM 'de' yyyy", { locale: ptBR })
+                ? format(dialogState.date, "d 'de' MMMM 'de' yyyy", {
+                    locale: ptBR,
+                  })
                 : ""}
             </AlertDialogTitle>
           </AlertDialogHeader>

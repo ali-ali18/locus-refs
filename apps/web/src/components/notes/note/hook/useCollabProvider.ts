@@ -7,7 +7,10 @@ interface UseCollabProviderParams {
   workspaceId: string;
 }
 
-export function useCollabProvider({ noteId, workspaceId }: UseCollabProviderParams) {
+export function useCollabProvider({
+  noteId,
+  workspaceId,
+}: UseCollabProviderParams) {
   const { data: token } = useCollabToken({ noteId, workspaceId });
   const [provider, setProvider] = useState<HocuspocusProvider | undefined>();
 

@@ -17,7 +17,12 @@ interface Props {
   uploadImage: (file: File) => Promise<string>;
 }
 
-export function ImageDialog({ editor, open, onOpenChange, uploadImage }: Props) {
+export function ImageDialog({
+  editor,
+  open,
+  onOpenChange,
+  uploadImage,
+}: Props) {
   const handleInsert = (src: string) => {
     editor.chain().focus().setImage({ src }).run();
     onOpenChange(false);

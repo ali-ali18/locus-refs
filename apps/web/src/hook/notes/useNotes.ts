@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useWorkspace } from "@/context/workspace";
 import { api } from "@/lib/api";
 import type { Note } from "@refstash/shared";
 import { noteKeys } from "./noteKeys";
@@ -16,16 +17,18 @@ async function getNote(id: string): Promise<Note> {
 }
 
 export function useNotes() {
+  const { workspaceId } = useWorkspace();
   return useQuery({
-    queryKey: noteKeys.all,
+    queryKey: noteKeys.all(workspaceId),
     queryFn: getNotes,
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useNote(id: string) {
+  const { workspaceId } = useWorkspace();
   return useQuery<Note>({
-    queryKey: noteKeys.detail(id),
+    queryKey: noteKeys.detail(workspaceId, id),
     queryFn: () => getNote(id),
     enabled: !!id,
     staleTime: 1000 * 60 * 5,

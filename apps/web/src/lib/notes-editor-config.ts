@@ -52,13 +52,11 @@ export interface NotesEditorExtensionsOptions {
 function renderCaretLabel(user: CollabUser): HTMLElement {
   // Cursor line — position:relative so the label can float above via position:absolute
   const cursor = document.createElement("span");
-  cursor.style.cssText =
-    `border-left:2px solid ${user.color};margin-left:-1px;pointer-events:none;position:relative;word-break:normal;`;
+  cursor.style.cssText = `border-left:2px solid ${user.color};margin-left:-1px;pointer-events:none;position:relative;word-break:normal;`;
 
   // Floating bubble label — bottom:100% places it above the cursor without affecting text flow
   const label = document.createElement("span");
-  label.style.cssText =
-    `position:absolute;bottom:100%;left:-1px;display:inline-flex;align-items:center;gap:4px;border-radius:12px 12px 12px 0;padding:2px 8px 2px 4px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,0.2);z-index:50;animation:collab-caret-fade-in 0.2s ease-out;background-color:${user.color};`;
+  label.style.cssText = `position:absolute;bottom:100%;left:-1px;display:inline-flex;align-items:center;gap:4px;border-radius:12px 12px 12px 0;padding:2px 8px 2px 4px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,0.2);z-index:50;animation:collab-caret-fade-in 0.2s ease-out;background-color:${user.color};`;
 
   const avatar = document.createElement("span");
   avatar.style.cssText =
@@ -70,16 +68,21 @@ function renderCaretLabel(user: CollabUser): HTMLElement {
     img.style.cssText =
       "width:100%;height:100%;object-fit:cover;border-radius:50%;";
     img.onerror = () => {
-      img.replaceWith(document.createTextNode(user.name.charAt(0).toUpperCase()));
+      img.replaceWith(
+        document.createTextNode(user.name.charAt(0).toUpperCase()),
+      );
     };
     avatar.appendChild(img);
   } else {
-    avatar.appendChild(document.createTextNode(user.name.charAt(0).toUpperCase()));
+    avatar.appendChild(
+      document.createTextNode(user.name.charAt(0).toUpperCase()),
+    );
   }
 
   const name = document.createElement("span");
   name.textContent = user.name;
-  name.style.cssText = "max-width:100px;overflow:hidden;text-overflow:ellipsis;";
+  name.style.cssText =
+    "max-width:100px;overflow:hidden;text-overflow:ellipsis;";
 
   label.appendChild(avatar);
   label.appendChild(name);

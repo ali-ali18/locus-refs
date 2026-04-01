@@ -57,15 +57,15 @@ export function Editor({ content, onChange, provider, user }: EditorProps) {
       }
     };
     provider.on("synced", handler);
-    return () => { provider.off("synced", handler); };
+    return () => {
+      provider.off("synced", handler);
+    };
   }, [provider, editor, content]);
 
   return (
     <EditorContext.Provider value={{ editor }}>
       <EditorContent editor={editor} />
-      {editor && (
-        <SlashDropdownMenu config={slashMenuConfig} editor={editor} />
-      )}
+      {editor && <SlashDropdownMenu config={slashMenuConfig} editor={editor} />}
       {editor && <EmojiDropdownMenu char=":" />}
       {editor && <DropdownNote editor={editor} />}
       {editor && (
