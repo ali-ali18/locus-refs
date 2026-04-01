@@ -1,5 +1,6 @@
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { type NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 import { s3Client } from "@/lib/storage";
 import { requireSessionApiOrThrow } from "@/server/requireSession";
 
@@ -15,9 +16,17 @@ export async function GET(
   }
 
   const { path } = await params;
+  const prefix = path[0];
 
-  if (path[0] !== session.user.id) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (prefix !== session.user.id) {
+    const member = await prisma.member.findFirst({
+      where: { organizationId: prefix, userId: session.user.id },
+      select: { id: true },
+    });
+
+    if (!member) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   const key = path.join("/");

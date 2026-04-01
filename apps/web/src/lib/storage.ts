@@ -11,4 +11,4 @@ export const s3Client = new S3Client({
   forcePathStyle: true,
   requestChecksumCalculation: "WHEN_REQUIRED",
   responseChecksumValidation: "WHEN_REQUIRED",
-})
+});
