@@ -1,6 +1,13 @@
 "use client";
 
-import { endOfDay, getDay, getDaysInMonth, isSameDay, isWithinInterval, startOfDay } from "date-fns";
+import {
+  endOfDay,
+  getDay,
+  getDaysInMonth,
+  isSameDay,
+  isWithinInterval,
+  startOfDay,
+} from "date-fns";
 import { atom, useAtom } from "jotai";
 import {
   Check,
@@ -147,7 +154,7 @@ const Combobox = ({
             return label?.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
           }}
         >
-          <CommandInput placeholder={labels.search} className="rounded-xl"/>
+          <CommandInput placeholder={labels.search} className="rounded-xl" />
           <CommandList>
             <CommandEmpty>{labels.empty}</CommandEmpty>
             <CommandGroup>
@@ -201,7 +208,11 @@ export type CalendarBodyProps = {
   onDayClick?: (date: Date, features: Feature[]) => void;
 };
 
-export const CalendarBody = ({ features, children, onDayClick }: CalendarBodyProps) => {
+export const CalendarBody = ({
+  features,
+  children,
+  onDayClick,
+}: CalendarBodyProps) => {
   const [month] = useCalendarMonth();
   const [year] = useCalendarYear();
   const { startDay } = useContext(CalendarContext);
@@ -246,7 +257,10 @@ export const CalendarBody = ({ features, children, onDayClick }: CalendarBodyPro
 
   // Sort features by startAt so slot assignments are consistent across cells
   const sortedFeatures = useMemo(
-    () => [...features].sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()),
+    () =>
+      [...features].sort(
+        (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
+      ),
     [features],
   );
 
@@ -264,7 +278,10 @@ export const CalendarBody = ({ features, children, onDayClick }: CalendarBodyPro
           })
         )
           return null;
-        const isStart = isSameDay(cellDate, startOfDay(new Date(feature.startAt)));
+        const isStart = isSameDay(
+          cellDate,
+          startOfDay(new Date(feature.startAt)),
+        );
         const isEnd = isSameDay(cellDate, endOfDay(new Date(feature.endAt)));
         return { feature, isStart, isEnd, isSingle: isStart && isEnd };
       });
@@ -274,7 +291,9 @@ export const CalendarBody = ({ features, children, onDayClick }: CalendarBodyPro
 
   const today = new Date();
   const checkIsToday = (day: number) =>
-    year === today.getFullYear() && month === today.getMonth() && day === today.getDate();
+    year === today.getFullYear() &&
+    month === today.getMonth() &&
+    day === today.getDate();
 
   const days: ReactNode[] = [];
 
@@ -301,12 +320,15 @@ export const CalendarBody = ({ features, children, onDayClick }: CalendarBodyPro
       <div
         className="relative flex h-full w-full flex-col gap-1 pb-1 pt-1 px-0 text-muted-foreground text-xs"
         key={day}
-        onClick={() => onDayClick?.(new Date(year, month, day), allFeaturesForDay)}
+        onClick={() =>
+          onDayClick?.(new Date(year, month, day), allFeaturesForDay)
+        }
       >
         <span
           className={cn(
             "ml-1 flex h-5 w-5 items-center justify-center rounded-full text-xs",
-            checkIsToday(day) && "bg-primary text-primary-foreground font-semibold",
+            checkIsToday(day) &&
+              "bg-primary text-primary-foreground font-semibold",
           )}
         >
           {day}
@@ -317,8 +339,13 @@ export const CalendarBody = ({ features, children, onDayClick }: CalendarBodyPro
               // Placeholder keeps the slot height consistent across cells
               <div key={slotIndex} className="h-[18px]" />
             ) : (
-              children({ feature: slot.feature, isStart: slot.isStart, isEnd: slot.isEnd, isSingle: slot.isSingle })
-            )
+              children({
+                feature: slot.feature,
+                isStart: slot.isStart,
+                isEnd: slot.isEnd,
+                isSingle: slot.isSingle,
+              })
+            ),
           )}
         </div>
         {hiddenCount > 0 && (
@@ -468,11 +495,21 @@ export const CalendarDatePagination = ({
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <Button onClick={handlePreviousMonth} size="icon" variant="ghost" rounded={'xl'}>
+      <Button
+        onClick={handlePreviousMonth}
+        size="icon"
+        variant="ghost"
+        rounded={"xl"}
+      >
         <ChevronLeftIcon size={16} />
       </Button>
       {children}
-      <Button onClick={handleNextMonth} size="icon" variant="ghost" rounded={'xl'}>
+      <Button
+        onClick={handleNextMonth}
+        size="icon"
+        variant="ghost"
+        rounded={"xl"}
+      >
         <ChevronRightIcon size={16} />
       </Button>
     </div>
