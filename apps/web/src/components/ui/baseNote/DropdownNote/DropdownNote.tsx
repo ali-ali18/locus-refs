@@ -67,7 +67,9 @@ export function DropdownNote({ editor }: Props) {
       editor={editor}
       shouldShow={({ state }) => {
         const { from, to } = state.selection;
-        return from !== to || dropdownOpen || linkPopoverOpen || imagePopoverOpen;
+        return (
+          from !== to || dropdownOpen || linkPopoverOpen || imagePopoverOpen
+        );
       }}
       updateDelay={100}
       appendTo={() => document.body}
