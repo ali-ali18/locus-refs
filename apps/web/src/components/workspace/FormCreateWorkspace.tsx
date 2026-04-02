@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
-import { useWorkspaceLogoUpload } from "./hooks/useWorkspaceLogoUpload";
+import { useWorkspaceLogoUpload } from "../../hook/workspace/useWorkspaceLogoUpload";
 
 interface Props {
   onSuccess?: () => void;

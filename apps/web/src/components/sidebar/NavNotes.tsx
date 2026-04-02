@@ -72,7 +72,7 @@ export function NavNotes() {
           ))}
           {notes.length > 3 && (
             <SidebarMenuButton
-              tooltip={isAllNotes ? "Ver mais" : "Ver menos"}
+              tooltip={isAllNotes ? "Ver menos" : "Ver mais"}
               suppressHydrationWarning
               onClick={() => setIsAllNotes(!isAllNotes)}
             >

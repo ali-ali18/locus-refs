@@ -73,14 +73,14 @@ export function IconPicker({ value, onChange, trigger }: IconPickerProps) {
   return (
     <div className="space-y-2">
       {trigger ? (
-        <div
-          role="button"
+        <button
+          type="button"
           tabIndex={0}
           onClick={() => setOpen(true)}
           className="inline-flex"
         >
           {trigger}
-        </div>
+        </button>
       ) : (
         defaultTrigger
       )}
