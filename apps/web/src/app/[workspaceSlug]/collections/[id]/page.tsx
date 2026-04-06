@@ -2,12 +2,12 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useWorkspace } from "@/context/workspace";
 import { CreateResourceDialog } from "@/components/dashboard/CreateResourceDialog";
 import { useResources } from "@/components/dashboard/hooks/useResources";
 import { ResourceGrid } from "@/components/dashboard/ResourceGrid";
 import { ResourceHeader } from "@/components/dashboard/ResourceHeader";
 import { Container } from "@/components/shared/Container";
+import { useWorkspace } from "@/context/workspace";
 import { useCollectionCategories } from "@/hook/collections/useCollectionCategories";
 import { useCollections } from "@/hook/collections/useCollections";
 
