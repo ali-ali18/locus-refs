@@ -14,7 +14,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { ICONS_NAMES, resolveIcon } from "@/lib/icons";
+import { ICONS_NAMES, isIconUrl, resolveIcon } from "@/lib/icons";
 import { Icon } from "../shared/Icon";
 
 interface IconPickerProps {
@@ -60,7 +60,7 @@ export function IconPicker({ value, onChange, trigger }: IconPickerProps) {
       onClick={() => setOpen(true)}
     >
       <span className="truncate text-sm flex items-center gap-2">
-        {value && (
+        {value && !isIconUrl(value) && (
           <span className="border rounded-xl p-1 bg-muted">
             <Icon icon={resolveIcon(value)} className="size-4.5" />
           </span>

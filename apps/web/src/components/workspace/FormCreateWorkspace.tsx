@@ -11,13 +11,6 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
-  Dropzone,
-  DropzoneContent,
-  DropzoneEmptyState,
-} from "@/components/kibo-ui/dropzone";
-import { IconPicker } from "@/components/notes/IconPicker";
-import { WorkspaceLogo } from "@/components/sidebar/WorkspaceLogo";
-import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogFooter,
@@ -25,9 +18,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
 import { useWorkspaceLogoUpload } from "../../hook/workspace/useWorkspaceLogoUpload";
+import { LogoPicker } from "./LogoPicker";
 
 interface Props {
   onSuccess?: () => void;
@@ -118,74 +111,17 @@ export function FormCreateWorkspace({ onSuccess }: Props) {
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label>Logo</Label>
-        <Controller
-          control={control}
-          name="logo"
-          render={({ field }) => (
-            <div className="flex flex-col gap-3">
-              {(field.value || logoFile[0]) && (
-                <div className="flex items-center justify-center size-14 rounded-xl bg-muted self-start">
-                  {logoFile[0] ? (
-                    <img
-                      src={URL.createObjectURL(logoFile[0])}
-                      alt="preview"
-                      className="size-full object-cover rounded-xl"
-                    />
-                  ) : (
-                    <WorkspaceLogo logo={field.value} className="size-6" />
-                  )}
-                </div>
-              )}
-              <Tabs
-                className={"cursor-pointer"}
-                defaultValue="icon"
-                onValueChange={() => {
-                  field.onChange(undefined);
-                  setLogoFile([]);
-                }}
-              >
-                <TabsList className="w-full">
-                  <TabsTrigger value="icon" className="flex-1">
-                    Ícone
-                  </TabsTrigger>
-                  <TabsTrigger value="image" className="flex-1">
-                    Imagem
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="icon" className="mt-2">
-                  <IconPicker
-                    value={field.value ?? null}
-                    onChange={(name) => field.onChange(name ?? undefined)}
-                  />
-                </TabsContent>
-
-                <TabsContent value="image" className="mt-2">
-                  <Dropzone
-                    accept={{ "image/*": [] }}
-                    maxSize={5 * 1024 * 1024}
-                    src={logoFile.length ? logoFile : undefined}
-                    onDrop={(files) => {
-                      const file = files[0];
-                      if (!file) return;
-                      setLogoFile([file]);
-                      const reader = new FileReader();
-                      reader.onload = (e) =>
-                        field.onChange(e.target?.result as string);
-                      reader.readAsDataURL(file);
-                    }}
-                  >
-                    <DropzoneEmptyState />
-                    <DropzoneContent />
-                  </Dropzone>
-                </TabsContent>
-              </Tabs>
-            </div>
-          )}
-        />
-      </div>
+      <Controller
+        control={control}
+        name="logo"
+        render={({ field }) => (
+          <LogoPicker
+            value={field.value ?? null}
+            onChange={field.onChange}
+            onFileChange={(files) => setLogoFile(files ?? [])}
+          />
+        )}
+      />
 
       <div className="flex gap-2 mt-2">
         {onSuccess && (
