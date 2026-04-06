@@ -8,6 +8,7 @@ const ROUTE_LABELS: Record<string, string> = {
   notes: "Notas",
   categories: "Categorias",
   resources: "Recursos",
+  config: "Configuração"
 };
 
 function getSegmentLabel(segment: string): string {
@@ -48,7 +49,6 @@ export async function resolveBreadcrumb(
     return items;
   }
 
-  // Support both legacy /dashboard/... and new /[workspaceSlug]/...
   const isDashboard = segments[0] === "dashboard";
   const workspaceSlug = isDashboard ? null : segments[0];
   const featureSegments = isDashboard ? segments.slice(1) : segments.slice(1);

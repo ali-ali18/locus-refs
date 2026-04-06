@@ -34,6 +34,7 @@ export default async function WorkspaceLayout({ children, params }: Props) {
       workspaceId={workspace.id}
       workspaceSlug={workspace.slug}
       workspaceName={workspace.name}
+      workspaceLogo={workspace.logo}
     >
       <SidebarProvider>
         <AppSidebar />

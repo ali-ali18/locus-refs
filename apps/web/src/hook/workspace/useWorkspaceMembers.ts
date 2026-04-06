@@ -16,9 +16,11 @@ export function useWorkspaceMembers() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const members = query.data?.data?.members?.filter(
-    (m) => m.userId !== session?.user.id,
-  );
+  const allMembers = query.data?.data?.members;
 
-  return { ...query, members };
+  const currentMember = allMembers?.find((m) => m.userId === session?.user.id);
+
+  const members = allMembers?.filter((m) => m.userId !== session?.user.id);
+
+  return { ...query, members, currentMember };
 }
