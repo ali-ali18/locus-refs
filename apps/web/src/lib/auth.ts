@@ -24,7 +24,7 @@ export const auth = betterAuth({
   plugins: [
     organization({
       allowUserToCreateOrganization: true,
-      organizationLimit: 5,
+      organizationLimit: 10,
       membershipLimit: 50,
     }),
   ],

@@ -91,7 +91,7 @@ export function TeamSwitcher() {
               <DropdownMenuItem
                 className="gap-2 p-2"
                 onClick={() => setOpen(!open)}
-                disabled={organizations?.length === 5}
+                disabled={organizations?.length === 10}
               >
                 <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                   <Icon icon={Plus} className="size-4" />
