@@ -8,24 +8,30 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
-  let session: Awaited<ReturnType<typeof requireSessionApiOrThrow>>;
-  try {
-    session = await requireSessionApiOrThrow();
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const { path } = await params;
-  const prefix = path[0];
 
-  if (prefix !== session.user.id) {
-    const member = await prisma.member.findFirst({
-      where: { organizationId: prefix, userId: session.user.id },
-      select: { id: true },
-    });
+  // Workspace logos are public — no auth required
+  const isPublic = path[1] === "workspaceLogo";
 
-    if (!member) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!isPublic) {
+    let session: Awaited<ReturnType<typeof requireSessionApiOrThrow>>;
+    try {
+      session = await requireSessionApiOrThrow();
+    } catch {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const prefix = path[0];
+
+    if (prefix !== session.user.id) {
+      const member = await prisma.member.findFirst({
+        where: { organizationId: prefix, userId: session.user.id },
+        select: { id: true },
+      });
+
+      if (!member) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
   }
 

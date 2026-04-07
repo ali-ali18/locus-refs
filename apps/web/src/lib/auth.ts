@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { organization } from "better-auth/plugins";
+import { sendEmail } from "./email/email";
+import { InvitationEmail } from "./email/templates/InvitationEmail";
 import prisma from "./prisma";
 
 export const auth = betterAuth({
@@ -26,6 +28,21 @@ export const auth = betterAuth({
       allowUserToCreateOrganization: true,
       organizationLimit: 10,
       membershipLimit: 50,
+      sendInvitationEmail: async (data) => {
+        const acceptUrl = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${data.id}`;
+        await sendEmail({
+          to: data.email,
+          subject: `${data.inviter.user.name} convidou você para "${data.organization.name}"`,
+          react: InvitationEmail({
+            inviterName: data.inviter.user.name,
+            inviterImage: data.inviter.user.image ?? null,
+            organizationName: data.organization.name,
+            organizationLogo: data.organization.logo ?? null,
+            role: data.role,
+            acceptUrl,
+          }),
+        });
+      },
     }),
   ],
   trustedOrigins: [

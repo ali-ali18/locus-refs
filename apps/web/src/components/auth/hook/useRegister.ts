@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { popInviteRedirectCookie } from "@/lib/invite-cookie";
 import { authClient } from "@/lib/auth-client";
 import {
   type RegisterSchema,
@@ -69,7 +70,8 @@ export function useRegister() {
     setUserName(nextUserName);
     if (nextUserName) {
       toast.success(`Seja bem-vindo, ${nextUserName}`);
-      router.push("/");
+      const redirect = popInviteRedirectCookie();
+      router.push(redirect ?? "/");
     }
   };
 

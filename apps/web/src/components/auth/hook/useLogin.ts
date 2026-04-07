@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { popInviteRedirectCookie } from "@/lib/invite-cookie";
 import { authClient } from "@/lib/auth-client";
 import { type FormSchema, formSchema } from "@/types/schema/auth.schema";
 
@@ -57,7 +58,8 @@ export function useLogin() {
 
     if (nextUserName) {
       toast.success(`Bem-vindo de volta, ${nextUserName}`);
-      router.push("/");
+      const redirect = popInviteRedirectCookie();
+      router.push(redirect ?? "/");
     }
 
     return nextUserName;

@@ -5,9 +5,10 @@ export async function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const pathname = request.nextUrl.pathname;
   const publicRoutes = ["/login", "/register"];
+  const isInvitePage = pathname.startsWith("/invite/");
   const isAuthApi = pathname.startsWith("/api/auth");
 
-  if (!publicRoutes.includes(pathname) && !isAuthApi && !sessionCookie) {
+  if (!publicRoutes.includes(pathname) && !isAuthApi && !isInvitePage && !sessionCookie) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
