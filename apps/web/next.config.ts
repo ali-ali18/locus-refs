@@ -1,7 +1,10 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  output: "standalone",
+  outputFileTracingRoot: path.join(__dirname, "../../"),
   allowedDevOrigins: [
     "http://192.168.0.106:3000",
     "http://localhost:3000",
