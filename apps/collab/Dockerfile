@@ -15,6 +15,7 @@ RUN pnpm install --frozen-lockfile
 
 # Layer 2: source — invalida a cada push
 COPY apps/collab/src apps/collab/src
+COPY apps/collab/tsconfig.json apps/collab/
 COPY packages/shared packages/shared
 # tsc compila src/ → dist/ (inclui src/generated/prisma/*.ts → dist/generated/prisma/)
 RUN pnpm --filter @refstash/collab build
