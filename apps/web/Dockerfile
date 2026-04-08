@@ -11,7 +11,8 @@ COPY prisma.config.ts ./
 COPY apps/web/package.json apps/web/
 COPY packages/shared/package.json packages/shared/
 # postinstall roda "prisma generate"
-RUN pnpm install --frozen-lockfile
+# node-linker=hoisted: pnpm instala como npm (sem symlinks) — necessário para COPY entre stages funcionar
+RUN echo "node-linker=hoisted" >> .npmrc && pnpm install --frozen-lockfile
 
 # Layer 2: source — invalida a cada push
 COPY apps/web/src apps/web/src
@@ -39,12 +40,8 @@ ENV NODE_ENV=production
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder /app/apps/web/public ./apps/web/public
-
-# Prisma CLI + client para rodar migrate deploy no start
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# WASM do Prisma não é traçado pelo standalone — copia do package pra onde o .bin/prisma espera
+COPY --from=builder /app/node_modules/prisma/build/prisma_schema_build_bg.wasm ./node_modules/.bin/
 
 EXPOSE 3000
-CMD ["sh", "-c", "node node_modules/.bin/prisma migrate deploy --schema=/app/prisma/schema.prisma && node apps/web/server.js"]
+CMD ["node", "apps/web/server.js"]
