@@ -4,8 +4,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useWorkspace } from "@/context/workspace";
-import { authClient } from "@/lib/auth-client";
 import { api } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
 import { useWorkspaceLogoUpload } from "./useWorkspaceLogoUpload";
 
 interface UpdateWorkspaceParams {
@@ -21,7 +21,12 @@ export function useWorkspaceSettings() {
   const router = useRouter();
 
   const updateMutation = useMutation({
-    mutationFn: async ({ name, slug, logo, logoFile }: UpdateWorkspaceParams) => {
+    mutationFn: async ({
+      name,
+      slug,
+      logo,
+      logoFile,
+    }: UpdateWorkspaceParams) => {
       let resolvedLogo = logo;
 
       if (logoFile) {
@@ -33,7 +38,8 @@ export function useWorkspaceSettings() {
         data: { name, slug, logo: resolvedLogo },
       });
 
-      if (error) throw new Error(error.message ?? "Erro ao atualizar workspace");
+      if (error)
+        throw new Error(error.message ?? "Erro ao atualizar workspace");
       return data;
     },
     onSuccess: (data) => {

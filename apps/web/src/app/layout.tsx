@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import { domAnimation, LazyMotion } from "motion/react";
-import { Toaster } from "sonner";
 import { QueryClient } from "@/components/shared/QueryClient";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const nunito = Nunito({ subsets: ["latin"], variable: "--font-sans" });
@@ -33,7 +33,12 @@ export default function RootLayout({
             <LazyMotion features={domAnimation}>
               <QueryClient>{children}</QueryClient>
             </LazyMotion>
-            <Toaster position="top-right" expand theme="light" />
+            <Toaster
+              position="top-right"
+              expand
+              theme="light"
+              toastOptions={{ style: { borderRadius: "var(--radius-xl)" } }}
+            />
           </ThemeProvider>
         </TooltipProvider>
       </body>
