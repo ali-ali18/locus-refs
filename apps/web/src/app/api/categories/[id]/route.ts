@@ -1,0 +1,79 @@
+import { type NextRequest, NextResponse } from "next/server";
+import slugify from "slugify";
+import prisma from "@/lib/prisma";
+import { requireWorkspaceAccess } from "@/server/requireSession";
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
+
+  const { id } = await params;
+
+  const category = await prisma.category.findUnique({
+    where: { id, workspaceId },
+  });
+
+  if (!category) {
+    return NextResponse.json({ error: "Category not found" }, { status: 404 });
+  }
+
+  try {
+    await prisma.category.delete({ where: { id } });
+    return NextResponse.json(
+      { message: "Category deleted successfully" },
+      { status: 200 },
+    );
+  } catch (_error) {
+    return NextResponse.json(
+      { error: "Failed to delete category" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
+
+  const { id } = await params;
+
+  const category = await prisma.category.findUnique({
+    where: { id, workspaceId },
+  });
+
+  if (!category) {
+    return NextResponse.json({ error: "Category not found" }, { status: 404 });
+  }
+
+  const { name } = await request.json();
+
+  if (!name) {
+    return NextResponse.json({ error: "Name is required" }, { status: 400 });
+  }
+
+  const slug = slugify(name, { lower: true, strict: true });
+
+  try {
+    const updatedCategory = await prisma.category.update({
+      where: { id },
+      data: { name, slug },
+    });
+    return NextResponse.json(
+      { message: "Category updated successfully", category: updatedCategory },
+      { status: 200 },
+    );
+  } catch (_error) {
+    return NextResponse.json(
+      { error: "Failed to update category" },
+      { status: 500 },
+    );
+  }
+}
