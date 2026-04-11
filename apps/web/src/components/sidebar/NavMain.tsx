@@ -193,7 +193,7 @@ function CollectionCategories({
           render={
             <SidebarMenuAction
               showOnHover
-              className={`aria-expanded:bg-sidebar-primary-foreground/30 ${isActive ? "text-sidebar-primary-foreground hover:text-sidebar-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-foreground"}${hasCategories ? " right-6" : ""}`}
+              className={`aria-expanded:bg-sidebar-primary-foreground/30 ${isActive ? "text-sidebar-primary-foreground hover:text-sidebar-primary-foreground group-hover/menu-item:text-primary-foreground!" : "text-sidebar-foreground hover:text-sidebar-foreground "}${hasCategories ? " right-6" : ""}`}
             />
           }
         >
@@ -227,7 +227,7 @@ function CollectionCategories({
           className="group/collapsible"
         >
           <CollapsibleTrigger
-            render={<SidebarMenuAction className={isActive ? "text-sidebar-primary-foreground hover:text-sidebar-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-foreground"} />}
+            render={<SidebarMenuAction className={isActive ? "text-sidebar-primary-foreground hover:text-sidebar-primary-foreground " : "text-sidebar-foreground hover:text-sidebar-foreground "} />}
           >
             <Icon
               icon={ChevronDown}
