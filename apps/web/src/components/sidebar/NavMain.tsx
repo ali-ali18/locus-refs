@@ -106,6 +106,7 @@ export function NavMain() {
 
                 <CollectionCategories
                   collectionId={collection.id}
+                  isActive={isCollectionActive(collection.id)}
                   activeCategorySlug={activeCategorySlug}
                   open={openCollections.has(collection.id)}
                   onOpenChange={() => toggleCollection(collection.id)}
@@ -160,6 +161,7 @@ export function NavMain() {
 
 interface CollectionCategoriesProps {
   collectionId: string;
+  isActive: boolean;
   activeCategorySlug: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -170,6 +172,7 @@ interface CollectionCategoriesProps {
 
 function CollectionCategories({
   collectionId,
+  isActive,
   activeCategorySlug,
   open,
   onOpenChange,
@@ -190,15 +193,11 @@ function CollectionCategories({
           render={
             <SidebarMenuAction
               showOnHover
-              className={
-                hasCategories
-                  ? "right-6 aria-expanded:bg-muted"
-                  : "aria-expanded:bg-muted"
-              }
+              className={`aria-expanded:bg-sidebar-primary-foreground/30 ${isActive ? "text-sidebar-primary-foreground hover:text-sidebar-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-foreground"}${hasCategories ? " right-6" : ""}`}
             />
           }
         >
-          <Icon icon={MoreHorizontalCircle01Icon} />
+          <Icon icon={MoreHorizontalCircle01Icon}/>
           <span className="sr-only">Mais opções</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -228,10 +227,11 @@ function CollectionCategories({
           className="group/collapsible"
         >
           <CollapsibleTrigger
-            render={<SidebarMenuAction className="aria-expanded:bg-muted" />}
+            render={<SidebarMenuAction className={isActive ? "text-sidebar-primary-foreground hover:text-sidebar-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-foreground"} />}
           >
             <Icon
               icon={ChevronDown}
+              strokeWidth={2}
               className="transition-transform duration-300 group-data-open/collapsible:rotate-180"
             />
           </CollapsibleTrigger>
@@ -249,7 +249,7 @@ function CollectionCategories({
                         onCategoryClick(collectionId, category.slug)
                       }
                     >
-                      <Icon icon={Folder02Icon} />
+                      <Icon icon={Folder02Icon}/>
                       <span>{category.name}</span>
                       <span className="ml-auto text-xs text-muted-foreground">
                         {category._count.resources}

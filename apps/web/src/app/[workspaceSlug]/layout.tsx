@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { WorkspaceProvider } from "@/context/workspace";
+import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { WorkspaceNavigationMenu } from "@/components/workspace/WorkspaceNavigationMenu";
 import { DashboardLayoutHeader } from "@/components/dashboard/DashboardLayoutHeader";
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
@@ -30,6 +31,12 @@ export default async function WorkspaceLayout({ children, params }: Props) {
   if (!member) redirect("/login");
 
   return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
     <WorkspaceProvider
       workspaceId={workspace.id}
       workspaceSlug={workspace.slug}
@@ -45,5 +52,6 @@ export default async function WorkspaceLayout({ children, params }: Props) {
         <WorkspaceNavigationMenu />
       </SidebarProvider>
     </WorkspaceProvider>
+    </ThemeProvider>
   );
 }

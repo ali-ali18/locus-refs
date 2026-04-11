@@ -3,7 +3,6 @@ import { Nunito } from "next/font/google";
 import "./globals.css";
 import { domAnimation, LazyMotion } from "motion/react";
 import { QueryClient } from "@/components/shared/QueryClient";
-import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -24,22 +23,15 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`antialiased ${nunito.className}`}>
         <TooltipProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <LazyMotion features={domAnimation}>
-              <QueryClient>{children}</QueryClient>
-            </LazyMotion>
-            <Toaster
-              position="top-right"
-              expand
-              theme="light"
-              toastOptions={{ style: { borderRadius: "var(--radius-xl)" } }}
-            />
-          </ThemeProvider>
+          <LazyMotion features={domAnimation}>
+            <QueryClient>{children}</QueryClient>
+          </LazyMotion>
+          <Toaster
+            position="top-right"
+            expand
+            theme="light"
+            toastOptions={{ style: { borderRadius: "var(--radius-xl)" } }}
+          />
         </TooltipProvider>
       </body>
     </html>
