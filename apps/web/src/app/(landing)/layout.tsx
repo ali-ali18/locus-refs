@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Header } from "@/components/landing/Header";
-import { ContainerLanding } from "@/components/landing/structure/Structure";
+import { ContainerHeader } from "@/components/landing/Header";
+import { Layout } from "@/components/landing/structure/Structure";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 
 export default function LandingLayout({ children }: { children: ReactNode }) {
@@ -10,10 +10,10 @@ export default function LandingLayout({ children }: { children: ReactNode }) {
       forcedTheme="light"
       disableTransitionOnChange
     >
-      <ContainerLanding>
-        <Header />
+      <Layout>
+        <ContainerHeader />
         {children}
-      </ContainerLanding>
+      </Layout>
     </ThemeProvider>
   );
 }
