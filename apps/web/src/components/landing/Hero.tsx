@@ -41,14 +41,14 @@ export function HeroContent() {
         <div className="flex flex-col sm:flex-row gap-4 w-full items-center justify-center">
           <Button
             size="lg"
-            className="h-11 px-5 gap-2 text-sm font-medium w-full sm:w-auto"
+            className="text-sm font-medium w-full sm:w-auto"
           >
             <Icon icon={GithubIcon} className="size-4" /> Repositório
           </Button>
           <Button
             size="lg"
             variant="secondary"
-            className="h-11 px-5 gap-2 text-sm font-medium w-full sm:w-auto"
+            className="text-sm font-medium w-full sm:w-auto"
           >
             <Icon icon={Doc01FreeIcons} className="size-4" /> Documentação
           </Button>

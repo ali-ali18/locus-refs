@@ -21,7 +21,7 @@ export function BorderDivider({
       <span
         className={cn(
           `w-4 sm:w-6 md:w-12 shrink-0 default-border-color`,
-          isStriped && "bg-stripes",
+          isStriped && "lg:bg-stripes",
           borderSide,
           borderNone,
           className,

@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
     "http://localhost:3000",
     ...(process.env.CLOUDFLARE_URL ? [process.env.CLOUDFLARE_URL] : []),
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/photo-*",
+      }
+    ]
+  }
 };
 
 export default nextConfig;

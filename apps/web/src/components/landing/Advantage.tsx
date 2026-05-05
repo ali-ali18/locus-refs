@@ -18,7 +18,7 @@ export function AdvantageContainer() {
 
 function AdvantageContent() {
   return (
-    <LandingContent contentClassName="lg:pl-0 lg:pr-0">
+    <LandingContent>
       <div className="grid grid-cols-1 md:grid-cols-3 ">
         <AdvantageCard
           icon={UserGroupIcon}
@@ -55,7 +55,7 @@ export function AdvantageCard({
   className,
 }: AdvantageCardProps) {
   return (
-    <div className={cn("p-3  w-full", className)}>
+    <div className={cn("p-3.5  w-full", className)}>
       <span className="inline-flex gap-2 items-center font-semibold">
         <Icon icon={icon} className="size-5 text-primary" />
         {title}
