@@ -7,7 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Icon } from "../shared/Icon";
 import {
@@ -77,9 +77,26 @@ export function DemoContent() {
   const [activeItemId, setActiveItemId] = useState<DemoItem["id"]>(
     demoItems[0]?.id ?? "capture",
   );
+  const [displayedItem, setDisplayedItem] = useState<DemoItem>(demoItems[0]);
+  const [isImageVisible, setIsImageVisible] = useState(true);
 
   const activeItem =
     demoItems.find((item) => item.id === activeItemId) ?? demoItems[0];
+
+  useEffect(() => {
+    if (activeItem.id === displayedItem.id) {
+      return;
+    }
+
+    setIsImageVisible(false);
+
+    const timeoutId = window.setTimeout(() => {
+      setDisplayedItem(activeItem);
+      setIsImageVisible(true);
+    }, 140);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [activeItem, displayedItem.id]);
 
   return (
     <LandingContent as="section">
@@ -145,11 +162,13 @@ export function DemoContent() {
 
         <div className="-mr-3 -ml-3 p-4 lg:ml-3 lg:p-3.5">
           <Image
-            src={activeItem.image}
+            src={displayedItem.image}
             width={1200}
             height={800}
-            alt={activeItem.imageAlt}
-            className="aspect-video h-full w-full rounded object-cover"
+            alt={displayedItem.imageAlt}
+            className={`aspect-video h-full w-full rounded object-cover transition-opacity duration-300 ${
+              isImageVisible ? "opacity-100" : "opacity-0"
+            }`}
           />
         </div>
       </div>
