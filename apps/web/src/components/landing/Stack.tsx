@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Database02Icon, Github } from "@hugeicons/core-free-icons";
 import type { ReactNode } from "react";
@@ -190,13 +190,13 @@ function StackContent() {
   return (
     <LandingContent as="section" className="min-w-0">
       <div className="-ml-3 sm:-ml-3.5 -mr-3 border-b px-5 py-8 ">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-3">
               <h3 className="max-w-lg text-xl font-semibold tracking-tight text-balance">
                 Base moderna para manter o produto rapido de evoluir.
               </h3>
-              <Button size="lg" className="w-full sm:w-fit">
+              <Button size="lg" className="hidden sm:w-fit sm:flex">
                 Ver repositorio
                 <Icon icon={Github} data-icon="inline-end" />
               </Button>
@@ -209,10 +209,14 @@ function StackContent() {
             colaborativas. O objetivo aqui nao e empilhar modismo, e sim manter
             uma base clara para operar, testar e continuar expandindo.
           </p>
+          <Button size="lg" className="w-full sm:hidden">
+            Ver repositorio
+            <Icon icon={Github} data-icon="inline-end" />
+          </Button>
         </div>
       </div>
 
-      <div className="-ml-3 sm:-ml-3.5 -mr-3  bg-stripes px-5 py-6 ">
+      <div className="-ml-3 -mr-3  bg-stripes px-5 py-6 ">
         <Carousel opts={{ align: "start" }} className="mx-auto w-full">
           <CarouselMaskWrapper>
             <CarouselContent className="-ml-3 md:-ml-4 min-w-0">
