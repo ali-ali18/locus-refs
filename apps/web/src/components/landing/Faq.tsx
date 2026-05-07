@@ -52,17 +52,18 @@ export function FaqContainer() {
 export function FaqContent() {
   return (
     <LandingContent as={"section"}>
+      <div className="h-12 border-b -mr-3 -ml-3 lg:-ml-3.5"/>
       <div className="flex items-start flex-col lg:flex-row -ml-3 -mr-3">
-        <div className="flex-1 h-full py-6 pl-4 border-b w-full ">
+        <div className="flex-1 h-full py-6 pl-4 border-b lg:border-none w-full ">
           <h3 className="text-xl font-semibold tracking-tight">
             Dúvidas Frequentes
           </h3>
-          <p className="text-sm leading-6 text-muted-foreground mt-2">
+          <p className="text-sm leading-6 text-muted-foreground mt-2 lg:max-w-sm">
             Tudo o que você precisa saber sobre como organizar as referências e
             notas do seu time.
           </p>
         </div>
-        <div className="flex-1 -mr-3 w-full">
+        <div className="flex-1 w-full">
           <Accordion
             className="w-full lg:border-l"
             defaultValue={["how-it-works"]}
@@ -86,6 +87,7 @@ export function FaqContent() {
           </Accordion>
         </div>
       </div>
+      <div className="h-12 border-t -mr-3 -ml-3 lg:-ml-3.5"/>
     </LandingContent>
   );
 }

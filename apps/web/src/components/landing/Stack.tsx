@@ -216,7 +216,7 @@ function StackContent() {
         </div>
       </div>
 
-      <div className="-ml-3 -mr-3  bg-stripes px-5 py-6 ">
+      <div className="-ml-3 -mr-3 bg-stripes px-5 py-6 ">
         <Carousel opts={{ align: "start" }} className="mx-auto w-full">
           <CarouselMaskWrapper>
             <CarouselContent className="-ml-3 md:-ml-4 min-w-0">

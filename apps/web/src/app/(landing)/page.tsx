@@ -1,4 +1,5 @@
 import { AdvantageContainer } from "@/components/landing/Advantage";
+import { CtaContainer } from "@/components/landing/Cta";
 import { DemoContainer } from "@/components/landing/Demo";
 import { FaqContainer } from "@/components/landing/Faq";
 import { HeroContainer } from "@/components/landing/Hero";
@@ -15,6 +16,7 @@ export default function LandingPage() {
       <SeparetorLading isStriped />
       <StackContainer />
       <FaqContainer />
+      <CtaContainer />
     </>
   );
 }
