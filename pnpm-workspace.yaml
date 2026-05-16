@@ -8,3 +8,6 @@ allowBuilds:
   "@prisma/engines": true
   esbuild: true
   prisma: true
+  "@parcel/watcher": true
+  msw: true
+  sharp: true
