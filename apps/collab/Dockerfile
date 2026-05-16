@@ -10,15 +10,17 @@ COPY prisma ./prisma
 COPY prisma.config.ts ./
 COPY apps/collab/package.json apps/collab/
 COPY packages/shared/package.json packages/shared/
-# node-linker=hoisted: pnpm instala como npm (sem symlinks) — necessário para COPY entre stages funcionar
-RUN echo "node-linker=hoisted" >> .npmrc && pnpm install --frozen-lockfile
+
+RUN pnpm install --frozen-lockfile
 
 # Layer 2: source — invalida a cada push
 COPY apps/collab/src apps/collab/src
 COPY apps/collab/tsconfig.json apps/collab/
 COPY packages/shared packages/shared
+
 # tsc compila src/ → dist/ (exclui src/generated — Prisma v7 gera .js que importam .ts internamente)
 RUN pnpm --filter @refstash/collab build
+
 # Copia os arquivos pré-compilados do Prisma (incluindo .ts que o client.js importa em runtime)
 RUN cp -r apps/collab/src/generated apps/collab/dist/
 
