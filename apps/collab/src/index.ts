@@ -19,6 +19,7 @@ const server = new Server({
   port: parseInt(process.env.PORT ?? "1234", 10),
   debounce: 2000,
   maxDebounce: 10000,
+  timeout: 30000,
   quiet: false,
 
   async onAuthenticate(data) {
