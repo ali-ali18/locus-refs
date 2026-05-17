@@ -7,10 +7,9 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "@/components/ui/command";
-import type { SlashCommandItem } from "./slashCommands";
 import { Separator } from "../../separator";
+import type { SlashCommandItem } from "./slashCommands";
 
 interface Props {
   items: SlashCommandItem[];
@@ -45,7 +44,7 @@ export function SlashCommandList({ items, selectedIndex, onSelect }: Props) {
         {groupEntries.map(([groupLabel, groupItems], groupIdx) => (
           <div key={groupLabel}>
             {groupIdx > 0 && <Separator />}
-            <CommandGroup heading={groupLabel} >
+            <CommandGroup heading={groupLabel}>
               {groupItems.map((item) => (
                 <CommandItem
                   key={item.id}
