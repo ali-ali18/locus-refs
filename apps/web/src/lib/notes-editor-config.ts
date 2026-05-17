@@ -8,10 +8,6 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { BackgroundColor, Color } from "@tiptap/extension-text-style";
 import StarterKit from "@tiptap/starter-kit";
 import type * as Y from "yjs";
-import type {
-  SlashMenuConfig,
-  SlashMenuItemType,
-} from "@/components/tiptap-ui/slash-dropdown-menu/use-slash-dropdown-menu";
 import { CustomCodeBlock } from "@/lib/extension/CustomCodeBlock";
 import { CustomTextStyle } from "@/lib/extension/CustomTextStyle";
 import { ImageUpload } from "@/lib/extension/ImageUpload";
@@ -176,69 +172,3 @@ export const NOTES_EDITOR_PROPS = {
       "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 overflow-x-hidden overflow-y-hidden",
   },
 };
-
-const NOTES_SLASH_ENABLED_ITEMS: SlashMenuItemType[] = [
-  "text",
-  "heading_1",
-  "heading_2",
-  "heading_3",
-  "bullet_list",
-  "ordered_list",
-  "task_list",
-  "quote",
-  "code_block",
-  "divider",
-];
-
-export function getNotesSlashMenuConfig(
-  onOpenImageDialog: () => void,
-): SlashMenuConfig {
-  return {
-    enabledItems: NOTES_SLASH_ENABLED_ITEMS,
-    customItems: [
-      {
-        title: "Inline Code",
-        onSelect: ({ editor }) => {
-          editor.chain().focus().toggleCode().run();
-        },
-      },
-      {
-        title: "Code Block",
-        onSelect: ({ editor }) => {
-          editor.chain().focus().setNode("codeBlockCustom").run();
-        },
-      },
-      {
-        title: "Imagem",
-        subtext: "Upload de arquivo de imagem",
-        keywords: ["imagem", "foto", "image", "photo", "upload", "picture"],
-        group: "Blocos",
-        onSelect: () => {
-          onOpenImageDialog();
-        },
-      },
-      {
-        title: "Roadmap",
-        subtext: "Kanban, Calendário e Gantt em um bloco",
-        keywords: ["roadmap", "kanban", "gantt", "calendario", "board"],
-        group: "Blocos",
-        onSelect: ({ editor }) => {
-          editor.chain().focus().insertContent({ type: "roadmapBlock" }).run();
-        },
-      },
-    ],
-    showGroups: true,
-    itemGroups: {
-      text: "Formatação",
-      heading_1: "Formatação",
-      heading_2: "Formatação",
-      heading_3: "Formatação",
-      bullet_list: "Listas",
-      ordered_list: "Listas",
-      task_list: "Listas",
-      quote: "Blocos",
-      code_block: "Blocos",
-      divider: "Separadores",
-    },
-  };
-}
