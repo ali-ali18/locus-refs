@@ -1,38 +1,56 @@
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: Lint removido por se tratar de um elemento sem relevancia */
 "use client";
 
-import { MinusSignIcon, Plus } from "@hugeicons/core-free-icons";
+import {
+  MinusSignIcon,
+  MoreHorizontalCircle01Icon,
+  PencilEdit01Icon,
+  Plus,
+  Trash2,
+} from "@hugeicons/core-free-icons";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { EditNoteDialog } from "@/components/notes/EditNoteDialog";
+import { Icon } from "@/components/shared/Icon";
 import { DialogApp } from "@/components/base/DialogApp";
 import { FormCreateNote } from "@/components/notes/FormCreateNote";
-import { Icon } from "@/components/shared/Icon";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarGroup,
   SidebarGroupAction,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useWorkspace } from "@/context/workspace";
-import { useNotes } from "@/hook/notes/useNotes";
 import { resolveIcon } from "@/lib/icons";
 import { Skeleton } from "../ui/skeleton";
+import { useNavNotes } from "./hook/useNavNotes";
 
 export function NavNotes() {
-  const { data: notes = [], isLoading } = useNotes();
+  const {
+    notes,
+    notesSlice,
+    isLoading,
+    isAllNotes,
+    setIsAllNotes,
+    isCreateOpen,
+    setIsCreateOpen,
+    noteToRename,
+    setNoteToRename,
+    handleDelete,
+    workspaceSlug,
+    pathname,
+  } = useNavNotes();
   const { setOpenMobile, openMobile } = useSidebar();
-  const { workspaceSlug } = useWorkspace();
-
-  const pathname = usePathname();
-
-  const [isAllNotes, setIsAllNotes] = useState(false);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-  const notesSlice = isAllNotes ? notes : notes.slice(0, 3);
 
   if (isLoading) {
     const skeletons = Array.from({ length: 3 }).map((_, i) => (
@@ -68,6 +86,45 @@ export function NavNotes() {
                 {note.icon && <Icon icon={resolveIcon(note.icon)} />}
                 <span>{note.title}</span>
               </SidebarMenuButton>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  suppressHydrationWarning
+                  render={
+                    <SidebarMenuAction
+                      showOnHover
+                      className="aria-expanded:bg-sidebar-primary-foreground/30 text-sidebar-foreground hover:text-sidebar-foreground"
+                    />
+                  }
+                >
+                  <Icon icon={MoreHorizontalCircle01Icon} />
+                  <span className="sr-only">Mais opções</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  side="right"
+                  align="start"
+                  className="w-48 rounded-xl"
+                >
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        setNoteToRename({ id: note.id, title: note.title, icon: note.icon ?? undefined })
+                      }
+                    >
+                      <Icon icon={PencilEdit01Icon} />
+                      <span>Editar</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => handleDelete(note.id)}
+                    >
+                      <Icon icon={Trash2} />
+                      <span>Deletar</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </SidebarMenuItem>
           ))}
           {notes.length > 3 && (
@@ -98,6 +155,14 @@ export function NavNotes() {
       >
         <FormCreateNote />
       </DialogApp>
+
+      <EditNoteDialog
+        open={noteToRename !== null}
+        onOpenChange={(open) => !open && setNoteToRename(null)}
+        noteId={noteToRename?.id ?? ""}
+        currentTitle={noteToRename?.title ?? ""}
+        currentIcon={noteToRename?.icon}
+      />
     </>
   );
 }
