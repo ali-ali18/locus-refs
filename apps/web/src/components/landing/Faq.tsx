@@ -54,7 +54,7 @@ export function FaqContent() {
     <LandingContent as={"section"}>
       <div className="h-12 border-b -mr-3 -ml-3 lg:-ml-3.5"/>
       <div className="flex items-start flex-col lg:flex-row -ml-3 -mr-3">
-        <div className="flex-1 h-full py-6 pl-4 border-b lg:border-none w-full ">
+        <div className="flex-1 h-full py-6 pl-4 border-b lg:border-none w-full">
           <h3 className="text-xl font-semibold tracking-tight">
             Dúvidas Frequentes
           </h3>

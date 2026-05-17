@@ -14,14 +14,14 @@ export function CtaContainer() {
 
 export function CtaContent() {
   return (
-    <LandingContent contentClassName="border-b">
+    <LandingContent >
       <div className="-mr-3 -ml-3 min-h-[calc(40vh)] relative flex flex-col items-center justify-center py-6">
         <div className="flex flex-col gap-6 text-center max-w-2xl mx-auto px-4 mt-8 mb-4">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-3xl">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
               Centralize o conhecimento do time
             </h2>
-            <p className=" text-muted-foreground leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
               Pare de perder referências em chats. Crie seu workspace e tenha
               todo o conhecimento estruturado a um clique de distância.
             </p>
@@ -40,7 +40,7 @@ export function CtaContent() {
           </div>
         </div>
         <div className="w-[95%] mx-3 mt-4 relative mask-[linear-gradient(to_bottom,black_20%,transparent_100%)]">
-          <Safari url="kodea.com.br" />
+          <Safari url="kodea.com.br" imageSrc="/banner-cta.png" />
         </div>
       </div>
     </LandingContent>

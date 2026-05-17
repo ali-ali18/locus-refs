@@ -54,7 +54,7 @@ export function HeroContent() {
           </Button>
         </div>
 
-        <span className="text-sm text-muted-foreground font-medium">
+        <span className="text-sm text-muted-foreground font-medium text-center ">
           Rode localmente ou na sua própria infraestrutura.
         </span>
       </div>

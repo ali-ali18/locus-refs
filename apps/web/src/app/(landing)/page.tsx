@@ -17,6 +17,8 @@ export default function LandingPage() {
       <StackContainer />
       <FaqContainer />
       <CtaContainer />
+      <SeparetorLading isStriped />
+
     </>
   );
 }

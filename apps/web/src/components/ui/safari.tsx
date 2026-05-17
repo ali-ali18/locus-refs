@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/a11y/noSvgWithoutTitle: Banner ilustrativo do Safari */
 import type { HTMLAttributes } from "react";
 
 const SAFARI_WIDTH = 1203;
@@ -19,6 +20,7 @@ export interface SafariProps extends HTMLAttributes<HTMLDivElement> {
   url?: string;
   imageSrc?: string;
   videoSrc?: string;
+  imageClassName?: string;
   mode?: SafariMode;
 }
 
@@ -27,6 +29,7 @@ export function Safari({
   videoSrc,
   url,
   mode = "default",
+  imageClassName,
   className,
   style,
   ...props
@@ -80,7 +83,7 @@ export function Safari({
           <img
             src={imageSrc}
             alt=""
-            className="block size-full object-cover object-top"
+            className={`block size-full object-cover object-top${imageClassName ? ` ${imageClassName}` : ""}`}
           />
         </div>
       )}
@@ -92,7 +95,6 @@ export function Safari({
         className="absolute inset-0 z-10 size-full"
         style={{ transform: "translateZ(0)" }}
       >
-        <title>Safari</title>
         <defs>
           <mask id="safariPunch" maskUnits="userSpaceOnUse">
             <rect

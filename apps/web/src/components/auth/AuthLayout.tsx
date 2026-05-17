@@ -1,7 +1,6 @@
-import { ClaudeFreeIcons } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Icon } from "../shared/Icon";
+import { Logo } from "../shared/Logo";
 
 type AuthLayoutProps = {
   title: string;
@@ -26,8 +25,8 @@ export function AuthLayout({
           reversePanel && "order-2 md:order-1",
         )}
       >
-        <Link href="/login" className="flex items-center gap-2 w-fit">
-          <Icon icon={ClaudeFreeIcons} className="size-8" />
+        <Link href="/" className="flex items-center gap-2 w-fit">
+          <Logo />
           <span className="text-xl font-bold">Locus</span>
         </Link>
 
