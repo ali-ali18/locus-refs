@@ -8,15 +8,18 @@ interface LandingWrapperProps {
   containerClassName?: string;
   children: ReactNode;
   isStriped?: boolean;
+  id?: string;
 }
 
 export function LandingWrapper({
   containerClassName,
   children,
   isStriped = false,
+  id,
 }: LandingWrapperProps) {
   return (
     <div
+      id={id}
       className={cn(
         "bg-background flex min-w-0 border-border relative size-full",
         containerClassName,

@@ -43,7 +43,7 @@ const faqItems: FaqItem[] = [
 
 export function FaqContainer() {
   return (
-    <LandingWrapper isStriped containerClassName="border-b">
+    <LandingWrapper containerClassName="border-b" id="faq">
       <FaqContent />
     </LandingWrapper>
   );
