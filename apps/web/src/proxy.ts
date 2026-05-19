@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const pathname = request.nextUrl.pathname;
-  const publicRoutes = ["/login", "/register"];
+  const publicRoutes = ["/", "/login", "/register"];
   const isInvitePage = pathname.startsWith("/invite/");
   const isAuthApi = pathname.startsWith("/api/auth");
 

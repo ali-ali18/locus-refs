@@ -59,7 +59,13 @@ export function useLogin() {
     if (nextUserName) {
       toast.success(`Bem-vindo de volta, ${nextUserName}`);
       const redirect = popInviteRedirectCookie();
-      router.push(redirect ?? "/");
+      if (redirect) {
+        router.push(redirect);
+      } else {
+        const { data: orgs } = await authClient.organization.list();
+        const firstSlug = orgs?.[0]?.slug;
+        router.push(firstSlug ? `/${firstSlug}` : "/");
+      }
     }
 
     return nextUserName;
