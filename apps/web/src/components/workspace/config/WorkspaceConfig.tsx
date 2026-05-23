@@ -81,6 +81,7 @@ export function WorkspaceConfig() {
       slug: data.slug ?? workspaceSlug,
       logo: data.logo,
       logoFile,
+      previousLogo: workspaceLogo,
     });
   }
 

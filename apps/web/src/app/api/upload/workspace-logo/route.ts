@@ -3,6 +3,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { type NextRequest, NextResponse } from "next/server";
 import { s3Client } from "@/lib/storage";
 import { requireWorkspaceAccess } from "@/server/requireSession";
+import { deleteObjects } from "@/server/upload";
 
 const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
 
@@ -96,5 +97,31 @@ export async function POST(request: NextRequest) {
       data: { publicUrl: `/storage/${key}` },
     },
     { status: 201 },
+  );
+}
+
+export async function DELETE(request: NextRequest) {
+  const auth = await requireWorkspaceAccess(request);
+  if ("error" in auth) return auth.error;
+  const { workspaceId } = auth;
+
+  const { oldUrl } = (await request.json().catch(() => ({}))) as {
+    oldUrl?: string;
+  };
+
+  if (!oldUrl?.startsWith("/storage/")) {
+    return NextResponse.json({ error: "URL inválida" }, { status: 400 });
+  }
+
+  const key = oldUrl.replace(/^\/storage\//, "");
+  if (!key.startsWith(`${workspaceId}/workspaceLogo/`)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  await deleteObjects([key]);
+
+  return NextResponse.json(
+    { message: "Logo antiga removida" },
+    { status: 200 },
   );
 }
