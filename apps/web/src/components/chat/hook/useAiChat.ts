@@ -1,8 +1,9 @@
 "use client";
 
-import { DefaultChatTransport } from "ai";
 import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { useMemo, useRef } from "react";
+import { useNoteEditor } from "@/context/noteEditor";
 import { useWorkspace } from "@/context/workspace";
 
 interface UseAiChatParams {
@@ -11,6 +12,7 @@ interface UseAiChatParams {
 
 export function useAiChat({ noteId }: UseAiChatParams) {
   const { workspaceId } = useWorkspace();
+  const { getSelectionContext } = useNoteEditor();
 
   const noteIdRef = useRef(noteId);
   noteIdRef.current = noteId;
@@ -21,10 +23,14 @@ export function useAiChat({ noteId }: UseAiChatParams) {
         api: "/api/ai/chat",
         prepareSendMessagesRequest: async ({ messages }) => ({
           headers: { "x-workspace-id": workspaceId },
-          body: { messages, noteId: noteIdRef.current },
+          body: {
+            messages,
+            noteId: noteIdRef.current,
+            selectionContext: getSelectionContext(noteIdRef.current),
+          },
         }),
       }),
-    [workspaceId],
+    [getSelectionContext, workspaceId],
   );
 
   const { messages, sendMessage, status, stop, setMessages } = useChat({

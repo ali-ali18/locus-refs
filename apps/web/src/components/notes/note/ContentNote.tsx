@@ -10,8 +10,10 @@ import statusConfig from "@/lib/data/statusConfig";
 import type { CollabUser } from "@/lib/notes-editor-config";
 import type { SaveStatus } from "@/types/saveStatus.type";
 import { Editor } from "../../ui/baseNote/Editor";
+import { AiNoteReview } from "./AiNoteReview";
 
 interface Props {
+  noteId: string;
   content?: JSONContent | null;
   onChange?: (content: JSONContent) => void;
   status?: SaveStatus;
@@ -20,6 +22,7 @@ interface Props {
 }
 
 export function ContentNote({
+  noteId,
   content,
   onChange,
   status = "idle",
@@ -48,8 +51,11 @@ export function ContentNote({
         </Badge>
       </div>
 
+      <AiNoteReview noteId={noteId} />
+
       <Editor
         key={provider ? "collab" : "solo"}
+        noteId={noteId}
         content={content}
         onChange={onChange}
         provider={provider}

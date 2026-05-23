@@ -23,8 +23,17 @@ function ChatPanelContent({ noteId }: { noteId?: string }) {
   return (
     <div className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground">
       <ChatHeader onClear={clear} hasMessages={messages.length > 0} />
-      <ChatMessages messages={messages} isStreaming={isStreaming} />
-      <ChatInput onSend={send} onStop={stop} isStreaming={isStreaming} noteId={noteId} />
+      <ChatMessages
+        messages={messages}
+        isStreaming={isStreaming}
+        noteId={noteId}
+      />
+      <ChatInput
+        onSend={send}
+        onStop={stop}
+        isStreaming={isStreaming}
+        noteId={noteId}
+      />
     </div>
   );
 }
