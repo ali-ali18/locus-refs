@@ -13,6 +13,7 @@ interface UpdateWorkspaceParams {
   slug: string;
   logo?: string;
   logoFile?: File;
+  previousLogo?: string | null;
 }
 
 export function useWorkspaceSettings() {
@@ -26,6 +27,7 @@ export function useWorkspaceSettings() {
       slug,
       logo,
       logoFile,
+      previousLogo,
     }: UpdateWorkspaceParams) => {
       let resolvedLogo = logo;
 
@@ -40,6 +42,19 @@ export function useWorkspaceSettings() {
 
       if (error)
         throw new Error(error.message ?? "Erro ao atualizar workspace");
+
+      if (
+        previousLogo &&
+        previousLogo !== resolvedLogo &&
+        previousLogo.startsWith("/storage/")
+      ) {
+        api
+          .delete("/api/upload/workspace-logo", {
+            data: { oldUrl: previousLogo },
+          })
+          .catch(() => {});
+      }
+
       return data;
     },
     onSuccess: (data) => {
