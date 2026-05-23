@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         icon: icon ?? null,
-        content: "",
+        content: { type: "doc", content: [] },
         userId: session.user.id,
         workspaceId,
         collectionId: collectionId ?? null,

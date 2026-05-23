@@ -1,3 +1,4 @@
+import type { JSONContent } from "@tiptap/core";
 import { useCallback, useEffect, useState } from "react";
 import { useDebounceCallback } from "usehooks-ts";
 import { useNoteMutations } from "@/hook/notes/useNote";
@@ -11,7 +12,7 @@ export function useNoteContentStatus({ id }: UseNoteContentStatusParams) {
   const { updateNote } = useNoteMutations();
   const [status, setStatus] = useState<SaveStatus>("idle");
 
-  const saveContent = useDebounceCallback(async (content: string) => {
+  const saveContent = useDebounceCallback(async (content: JSONContent) => {
     try {
       setStatus("saving");
       await updateNote({ id, content });
@@ -22,7 +23,7 @@ export function useNoteContentStatus({ id }: UseNoteContentStatusParams) {
   }, 500);
 
   const handleContentChange = useCallback(
-    (content: string) => {
+    (content: JSONContent) => {
       saveContent(content);
     },
     [saveContent],

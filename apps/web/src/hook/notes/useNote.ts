@@ -1,8 +1,9 @@
+import type { Note } from "@refstash/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { JSONContent } from "@tiptap/core";
 import { toast } from "sonner";
 import { useWorkspace } from "@/context/workspace";
 import { api } from "@/lib/api";
-import type { Note } from "@refstash/shared";
 import { noteKeys } from "./noteKeys";
 
 interface CreateNotePayload {
@@ -15,7 +16,7 @@ interface UpdateNotePayload {
   id: string;
   title?: string;
   icon?: string;
-  content?: string;
+  content?: JSONContent;
   collectionId?: string;
 }
 
@@ -46,7 +47,9 @@ export function useNoteMutations() {
     },
     onSuccess: (note) => {
       queryClient.invalidateQueries({ queryKey: noteKeys.all(workspaceId) });
-      queryClient.invalidateQueries({ queryKey: noteKeys.detail(workspaceId, note.id) });
+      queryClient.invalidateQueries({
+        queryKey: noteKeys.detail(workspaceId, note.id),
+      });
     },
     onError: () => {
       toast.error("Erro ao atualizar nota. Tente novamente.");
@@ -60,7 +63,9 @@ export function useNoteMutations() {
     },
     onSuccess: (_deletedId) => {
       queryClient.invalidateQueries({ queryKey: noteKeys.all(workspaceId) });
-      queryClient.invalidateQueries({ queryKey: noteKeys.detail(workspaceId, _deletedId) });
+      queryClient.invalidateQueries({
+        queryKey: noteKeys.detail(workspaceId, _deletedId),
+      });
     },
     onError: () => {
       toast.error("Erro ao excluir nota. Tente novamente.");

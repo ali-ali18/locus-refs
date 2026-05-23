@@ -12,6 +12,7 @@ export {
 export {
   type CreateNoteSchema,
   createNoteSchema,
+  noteContentSchema,
   type UpdateHeaderNoteSchema,
   updateHeaderNoteSchema,
 } from "./schemas/note.schema";
@@ -25,7 +26,8 @@ export {
 } from "./schemas/workspace.schema";
 export type { Category } from "./types/categories.type";
 export type { Collection } from "./types/collection.type";
-export type { Note } from "./types/note.type";
+export type { Note, NoteContent } from "./types/note.type";
+export { EMPTY_NOTE_CONTENT } from "./types/note.type";
 export type {
   Workspace,
   WorkspaceInvitation,

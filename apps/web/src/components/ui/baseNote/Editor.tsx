@@ -1,6 +1,7 @@
 "use client";
 
 import type { HocuspocusProvider } from "@hocuspocus/provider";
+import type { JSONContent } from "@tiptap/core";
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -16,8 +17,8 @@ import { useImageUpload } from "./imageBlock/useImageUpload";
 import { SlashCommand } from "./SlashCommand/SlashCommand";
 
 interface EditorProps {
-  content?: string | null;
-  onChange?: (content: string) => void;
+  content?: JSONContent | null;
+  onChange?: (content: JSONContent) => void;
   provider?: HocuspocusProvider;
   user?: CollabUser;
 }
@@ -40,7 +41,7 @@ export function Editor({ content, onChange, provider, user }: EditorProps) {
     editorProps: NOTES_EDITOR_PROPS,
     onUpdate({ editor }) {
       if (!onChange) return;
-      onChange(editor.getHTML());
+      onChange(editor.getJSON());
     },
   });
 

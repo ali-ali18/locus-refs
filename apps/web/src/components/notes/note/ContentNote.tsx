@@ -1,6 +1,7 @@
 "use client";
 
 import type { HocuspocusProvider } from "@hocuspocus/provider";
+import type { JSONContent } from "@tiptap/core";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { Icon } from "@/components/shared/Icon";
@@ -11,8 +12,8 @@ import type { SaveStatus } from "@/types/saveStatus.type";
 import { Editor } from "../../ui/baseNote/Editor";
 
 interface Props {
-  content?: string | null;
-  onChange?: (content: string) => void;
+  content?: JSONContent | null;
+  onChange?: (content: JSONContent) => void;
   status?: SaveStatus;
   provider?: HocuspocusProvider;
   user?: CollabUser;

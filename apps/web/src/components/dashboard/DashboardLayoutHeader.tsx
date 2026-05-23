@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { resolveBreadcrumb } from "@/lib/breadcrumb/actions/resolve-breadcrumb";
 import type { BreadcrumbItem } from "@/lib/breadcrumb/route-resolvers";
 import { cn } from "@/lib/utils";
+import { ButtonChatPanel } from "../chat/ButtonChatPanel";
 import { Icon } from "../shared/Icon";
 import { ButtonTheme } from "../shared/ToggleButton";
 import { Button } from "../ui/button";
@@ -59,7 +60,10 @@ export function DashboardLayoutHeader() {
         )}
       </div>
 
-      <ButtonTheme />
+      <div className="flex items-center gap-1">
+        <ButtonChatPanel />
+        <ButtonTheme />
+      </div>
     </header>
   );
 }
