@@ -3,10 +3,8 @@ RUN corepack enable
 
 FROM base AS prisma-cli
 WORKDIR /prisma-cli
-# Instalação isolada e flat só com a CLI do Prisma + dotenv (todas as deps transitivas
-# incluídas). Mantém o runner enxuto — não polui o node_modules da standalone.
-RUN echo '{"name":"prisma-cli","version":"0.0.0","dependencies":{"prisma":"7.5.0","dotenv":"17.3.1"},"pnpm":{"onlyBuiltDependencies":["prisma","@prisma/engines"]}}' > package.json \
- && echo "node-linker=hoisted" > .npmrc \
+RUN echo '{"name":"prisma-cli","version":"0.0.0","dependencies":{"prisma":"7.5.0","dotenv":"17.3.1"}}' > package.json \
+ && printf 'nodeLinker: hoisted\nallowBuilds:\n  prisma: true\n  "@prisma/engines": true\n' > pnpm-workspace.yaml \
  && pnpm install --prod
 
 FROM base AS builder
