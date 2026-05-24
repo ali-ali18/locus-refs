@@ -7,7 +7,7 @@ WORKDIR /app
 # Layer 1: manifests + prisma schema — só invalida quando deps mudarem
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY prisma ./prisma
-COPY prisma.config.ts ./
+COPY prisma.config.mjs ./
 COPY apps/web/package.json apps/web/
 COPY packages/shared/package.json packages/shared/
 
@@ -44,5 +44,12 @@ COPY --from=builder /app/apps/web/public ./apps/web/public
 # WASM do Prisma não é traçado pelo standalone — copia do package pra onde o .bin/prisma espera
 COPY --from=builder /app/node_modules/prisma/build/prisma_schema_build_bg.wasm ./node_modules/.bin/
 
+# Prisma CLI + deps + schema/migrations/config para rodar "migrate deploy" no startup
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.mjs ./
+
 EXPOSE 3000
-CMD ["node", "apps/web/server.js"]
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy && node apps/web/server.js"]
