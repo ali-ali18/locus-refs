@@ -1,11 +1,14 @@
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { WorkspaceProvider } from "@/context/workspace";
-import { ThemeProvider } from "@/components/shared/ThemeProvider";
-import { WorkspaceNavigationMenu } from "@/components/workspace/WorkspaceNavigationMenu";
+import { ChatPanel } from "@/components/chat/ChatPanel";
 import { DashboardLayoutHeader } from "@/components/dashboard/DashboardLayoutHeader";
+import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { WorkspaceNavigationMenu } from "@/components/workspace/WorkspaceNavigationMenu";
+import { ChatPanelProvider } from "@/context/chatPanel";
+import { NoteEditorProvider } from "@/context/noteEditor";
+import { WorkspaceProvider } from "@/context/workspace";
 import prisma from "@/lib/prisma";
 import { requireSession } from "@/server/requireSession";
 
@@ -37,21 +40,26 @@ export default async function WorkspaceLayout({ children, params }: Props) {
       enableSystem
       disableTransitionOnChange
     >
-    <WorkspaceProvider
-      workspaceId={workspace.id}
-      workspaceSlug={workspace.slug}
-      workspaceName={workspace.name}
-      workspaceLogo={workspace.logo}
-    >
-      <SidebarProvider>
-        <AppSidebar />
-        <div className="flex flex-1 flex-col">
-          <DashboardLayoutHeader />
-          {children}
-        </div>
-        <WorkspaceNavigationMenu />
-      </SidebarProvider>
-    </WorkspaceProvider>
+      <WorkspaceProvider
+        workspaceId={workspace.id}
+        workspaceSlug={workspace.slug}
+        workspaceName={workspace.name}
+        workspaceLogo={workspace.logo}
+      >
+        <NoteEditorProvider>
+          <ChatPanelProvider>
+            <SidebarProvider>
+              <AppSidebar />
+              <div className="flex flex-1 flex-col">
+                <DashboardLayoutHeader />
+                {children}
+              </div>
+              <ChatPanel />
+              <WorkspaceNavigationMenu />
+            </SidebarProvider>
+          </ChatPanelProvider>
+        </NoteEditorProvider>
+      </WorkspaceProvider>
     </ThemeProvider>
   );
 }

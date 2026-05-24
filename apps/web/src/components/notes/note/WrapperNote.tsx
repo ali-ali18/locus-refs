@@ -71,6 +71,7 @@ export function WrapperNote({ id }: Props) {
     <>
       <PageHeaderNote title={note.title} icon={note.icon} id={id} />
       <ContentNote
+        noteId={id}
         content={note.content}
         onChange={handleContentChange}
         status={status}

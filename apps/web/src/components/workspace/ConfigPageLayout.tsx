@@ -1,6 +1,6 @@
 "use client";
 
-import { Config, UserListFreeIcons } from "@hugeicons/core-free-icons";
+import { BubbleChatIcon, Config, UserListFreeIcons } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
@@ -8,6 +8,7 @@ import { WorkspaceConfigClient } from "@/components/workspace/WorkspaceConfigCli
 import { cn } from "@/lib/utils";
 import { Icon } from "../shared/Icon";
 import { ConfigNavCarousel } from "./ConfigNavCarousel";
+import { WorkspaceAiConfig } from "./config/WorkspaceAiConfig";
 import { WorkspaceUserList } from "./config/WorkspaceUserList";
 
 interface NavItem {
@@ -29,6 +30,12 @@ const navItems: NavItem[] = [
     label: "Usuários",
     icon: UserListFreeIcons,
     content: <WorkspaceUserList />,
+  },
+  {
+    id: "ai",
+    label: "Assistente IA",
+    icon: BubbleChatIcon,
+    content: <WorkspaceAiConfig />,
   },
 ];
 

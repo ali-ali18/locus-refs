@@ -3,11 +3,28 @@ import prisma from "@/lib/prisma";
 import { requireWorkspaceAccess } from "@/server/requireSession";
 import { deleteObjects } from "@/server/upload";
 
-function extractS3ImageKeys(html: string, workspaceId: string): string[] {
-  const regex = /src=["']\/storage\/([^"']+)["']/g;
-  return [...html.matchAll(regex)]
-    .map((m) => decodeURIComponent(m[1]))
-    .filter((key) => key.startsWith(`${workspaceId}/notes/`));
+interface TiptapNode {
+  type?: string;
+  attrs?: Record<string, unknown>;
+  content?: TiptapNode[];
+  marks?: { type: string; attrs?: Record<string, unknown> }[];
+  text?: string;
+}
+
+function extractS3ImageKeys(doc: TiptapNode, workspaceId: string): string[] {
+  const keys: string[] = [];
+  const walk = (node: TiptapNode) => {
+    if (node.type === "image" && typeof node.attrs?.src === "string") {
+      const match = /^\/storage\/(.+)$/.exec(node.attrs.src);
+      if (match) {
+        const key = decodeURIComponent(match[1]);
+        if (key.startsWith(`${workspaceId}/notes/`)) keys.push(key);
+      }
+    }
+    node.content?.forEach(walk);
+  };
+  walk(doc);
+  return keys;
 }
 
 export async function GET(
@@ -62,8 +79,13 @@ export async function PATCH(
         select: { content: true },
       });
       if (existing?.content) {
-        const oldKeys = extractS3ImageKeys(existing.content, workspaceId);
-        const newKeys = new Set(extractS3ImageKeys(content, workspaceId));
+        const oldKeys = extractS3ImageKeys(
+          existing.content as TiptapNode,
+          workspaceId,
+        );
+        const newKeys = new Set(
+          extractS3ImageKeys(content as TiptapNode, workspaceId),
+        );
         orphanedKeys = oldKeys.filter((k) => !newKeys.has(k));
       }
     }
@@ -120,7 +142,7 @@ export async function DELETE(
     await prisma.note.delete({ where: { id } });
 
     if (note.content) {
-      const keys = extractS3ImageKeys(note.content, workspaceId);
+      const keys = extractS3ImageKeys(note.content as TiptapNode, workspaceId);
       if (keys.length > 0) deleteObjects(keys).catch(console.error);
     }
 
