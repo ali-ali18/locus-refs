@@ -1,6 +1,14 @@
 FROM node:22-alpine AS base
 RUN corepack enable
 
+FROM base AS prisma-cli
+WORKDIR /prisma-cli
+# Instalação isolada e flat só com a CLI do Prisma + dotenv (todas as deps transitivas
+# incluídas). Mantém o runner enxuto — não polui o node_modules da standalone.
+RUN echo '{"name":"prisma-cli","version":"0.0.0","dependencies":{"prisma":"7.5.0","dotenv":"17.3.1"},"pnpm":{"onlyBuiltDependencies":["prisma","@prisma/engines"]}}' > package.json \
+ && echo "node-linker=hoisted" > .npmrc \
+ && pnpm install --prod
+
 FROM base AS builder
 WORKDIR /app
 
@@ -44,12 +52,11 @@ COPY --from=builder /app/apps/web/public ./apps/web/public
 # WASM do Prisma não é traçado pelo standalone — copia do package pra onde o .bin/prisma espera
 COPY --from=builder /app/node_modules/prisma/build/prisma_schema_build_bg.wasm ./node_modules/.bin/
 
-# Prisma CLI + deps + schema/migrations/config para rodar "migrate deploy" no startup
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.mjs ./
+# Prisma CLI isolada em /app/.prisma-cli (não mexe no node_modules da standalone).
+# Schema, migrations e config vão pra dentro do mesmo dir para o resolve de dotenv funcionar.
+COPY --from=prisma-cli /prisma-cli /app/.prisma-cli
+COPY --from=builder /app/prisma /app/.prisma-cli/prisma
+COPY --from=builder /app/prisma.config.mjs /app/.prisma-cli/
 
 EXPOSE 3000
-CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy && node apps/web/server.js"]
+CMD ["sh", "-c", "(cd /app/.prisma-cli && node node_modules/prisma/build/index.js migrate deploy) && node apps/web/server.js"]
