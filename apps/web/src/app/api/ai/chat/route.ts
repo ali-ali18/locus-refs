@@ -9,7 +9,7 @@ const DEFAULT_SYSTEM_PROMPT =
   "Voce e um assistente de notas inteligente. Ajude o usuario a escrever, organizar e melhorar suas notas. Seja conciso e direto. Responda sempre no mesmo idioma da pergunta do usuario. Use Markdown para estruturar listas, titulos e codigo quando isso ajudar.";
 
 const NOTE_EDITING_PROMPT =
-  "Quando houver uma nota atual no contexto e o pedido implicar escrever, revisar, resumir, reestruturar, cortar, limpar, remover ou substituir conteudo, responda com a versao final proposta em Markdown, pronta para aplicacao. Nao adicione introducoes, explicacoes, despedidas nem perguntas do tipo 'quer que eu ajuste algo?'. So faca perguntas se faltar informacao critica para executar o pedido. Se o usuario pedir para remover, encurtar ou substituir partes do texto, reflita isso diretamente na proposta final.";
+  "Nao adicione introducoes, explicacoes, despedidas nem perguntas do tipo 'quer que eu ajuste algo?'. So faca perguntas se faltar informacao critica para executar o pedido.";
 
 const ROADMAP_BLOCK_PROMPT =
   'Se o usuario pedir explicitamente um roadmap block, responda usando um fenced block com linguagem `roadmap` contendo JSON valido no formato {"items":[{"name":"...","startAt":"YYYY-MM-DD","endAt":"YYYY-MM-DD","statusId":"todo|in-progress|done"}],"statuses":[{"id":"todo","name":"A fazer","color":"#94a3b8"}]}.';
@@ -60,17 +60,17 @@ export async function POST(request: NextRequest) {
       if (selection?.hasSelection && selection.text?.trim()) {
         selectionPrompt =
           `\n\n## Trecho selecionado\n\n${selection.text.trim()}` +
-          "\n\nSe o pedido for de edicao, responda apenas com a nova versao desse trecho, em Markdown, sem repetir o resto da nota.";
+          "\n\nSe o pedido for de edicao, responda apenas com a nova versao desse trecho em Markdown, sem repetir o resto da nota. Se o pedido for para remover, encurtar ou substituir, aplique a mudanca diretamente no trecho.";
       } else {
         selectionPrompt =
-          "\n\nSe o pedido for de edicao da nota, responda com a nova versao completa da nota em Markdown.";
+          "\n\nResponda APENAS com o novo conteudo Markdown a ser inserido na nota. Nao repita nem inclua o conteudo que ja existe na nota.";
       }
     }
 
     const systemPrompt =
       (aiSettings?.systemPrompt ?? DEFAULT_SYSTEM_PROMPT) +
+      `\n\n${ROADMAP_BLOCK_PROMPT}` +
       (noteId ? `\n\n${NOTE_EDITING_PROMPT}` : "") +
-      (noteId ? `\n\n${ROADMAP_BLOCK_PROMPT}` : "") +
       selectionPrompt +
       noteContext;
 

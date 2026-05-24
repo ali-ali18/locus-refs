@@ -93,11 +93,9 @@ export function ChatMessages({
   noteId,
 }: ChatMessagesProps) {
   const endRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   if (messages.length === 0) {
@@ -123,10 +121,8 @@ export function ChatMessages({
   }
 
   return (
-    <div
-      ref={scrollRef}
-      className="flex flex-1 flex-col gap-3 overflow-y-auto px-3 py-4"
-    >
+    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-4">
+      <div className="flex-1" />
       {messages.map((message) => {
         const textParts = message.parts.filter(isTextUIPart);
         const text = textParts.map((p) => p.text).join("");

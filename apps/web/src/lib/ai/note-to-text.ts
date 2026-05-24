@@ -42,8 +42,20 @@ export function noteJsonToText(doc: TiptapNode): string {
       }
       case "image":
         return `[image: ${node.attrs?.src ?? ""}]`;
-      case "roadmapBlock":
-        return "[roadmap block]";
+      case "roadmapBlock": {
+        try {
+          const items = JSON.parse(
+            (node.attrs?.items as string) ?? "[]",
+          ) as Array<{ name?: string; startAt?: string; endAt?: string; statusId?: string }>;
+          if (items.length === 0) return "[roadmap block vazio]";
+          const summary = items
+            .map((item) => `${item.name ?? "?"} (${item.startAt ?? "?"} → ${item.endAt ?? "?"}, ${item.statusId ?? "?"})`)
+            .join(", ");
+          return `[roadmap: ${summary}]`;
+        } catch {
+          return "[roadmap block]";
+        }
+      }
       default:
         return children.join("");
     }

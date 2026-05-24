@@ -67,7 +67,7 @@ function ModelDropdown() {
             <DropdownMenuItem
               key={model.id}
               onClick={() => updateSettings({ defaultModelId: model.id })}
-              className={model.id === settings?.defaultModelId ? "font-medium" : ""}
+              className={`${model.id === settings?.defaultModelId ? "font-medium" : ""}`}
             >
               {model.label}
             </DropdownMenuItem>

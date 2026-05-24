@@ -107,7 +107,8 @@ export function Editor({
           return true;
         }
 
-        editor.chain().focus().setContent(doc).run();
+        const end = editor.state.doc.content.size;
+        editor.chain().focus().insertContentAt(end, doc.content).run();
         return true;
       } catch {
         return false;

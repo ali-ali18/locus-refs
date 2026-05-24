@@ -37,7 +37,7 @@ export function AiNoteReview({ noteId }: AiNoteReviewProps) {
       toast.success(
         isSelectionProposal
           ? "Sugestao aplicada ao trecho selecionado."
-          : "Sugestao aplicada na nota.",
+          : "Conteudo inserido na nota.",
       );
       return;
     }
@@ -61,7 +61,7 @@ export function AiNoteReview({ noteId }: AiNoteReviewProps) {
           <p className="text-sm text-muted-foreground">
             {isSelectionProposal
               ? "Verifique o conteudo abaixo antes de substituir o trecho selecionado."
-              : "Verifique o conteudo abaixo antes de reescrever a nota atual."}
+              : "Verifique o conteudo abaixo antes de inserir na nota."}
           </p>
         </div>
         <div className="flex items-center gap-2">
