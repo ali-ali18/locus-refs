@@ -7,7 +7,7 @@ WORKDIR /app
 # Layer 1: manifests + prisma schema — só invalida quando deps mudarem
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY prisma ./prisma
-COPY prisma.config.ts ./
+COPY prisma.config.mjs ./
 COPY apps/collab/package.json apps/collab/
 COPY packages/shared/package.json packages/shared/
 
