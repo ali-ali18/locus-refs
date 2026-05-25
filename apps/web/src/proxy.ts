@@ -8,7 +8,12 @@ export async function proxy(request: NextRequest) {
   const isInvitePage = pathname.startsWith("/invite/");
   const isAuthApi = pathname.startsWith("/api/auth");
 
-  if (!publicRoutes.includes(pathname) && !isAuthApi && !isInvitePage && !sessionCookie) {
+  if (
+    !publicRoutes.includes(pathname) &&
+    !isAuthApi &&
+    !isInvitePage &&
+    !sessionCookie
+  ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

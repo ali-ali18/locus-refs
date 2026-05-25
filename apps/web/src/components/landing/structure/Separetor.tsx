@@ -24,9 +24,7 @@ export function SeparetorLading({ className, isStriped = false }: Props) {
         <NodeConnector position="right" />
       </div>
       <div
-        className={cn(
-          isStriped && "bg-stripes h-full w-full absolute inset-0",
-        )}
+        className={cn(isStriped && "bg-stripes h-full w-full absolute inset-0")}
       />
       <BorderDivider variant="flex" side="right" />
       <BorderDivider variant="shrink" side="right" />

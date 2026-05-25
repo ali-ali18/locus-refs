@@ -11,7 +11,13 @@ interface Props {
   workspaceSlug: string;
 }
 
-export function ActivityListItem({ id, name, type, updatedAt, workspaceSlug }: Props) {
+export function ActivityListItem({
+  id,
+  name,
+  type,
+  updatedAt,
+  workspaceSlug,
+}: Props) {
   const href =
     type === "note"
       ? `/${workspaceSlug}/notes/${id}`

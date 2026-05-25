@@ -14,7 +14,7 @@ export function CtaContainer() {
 
 export function CtaContent() {
   return (
-    <LandingContent >
+    <LandingContent>
       <div className="-mr-3 -ml-3 min-h-[calc(40vh)] relative flex flex-col items-center justify-center py-6">
         <div className="flex flex-col gap-6 text-center max-w-2xl mx-auto px-4 mt-8 mb-4">
           <div className="space-y-2">

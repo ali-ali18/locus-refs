@@ -197,7 +197,7 @@ function CollectionCategories({
             />
           }
         >
-          <Icon icon={MoreHorizontalCircle01Icon}/>
+          <Icon icon={MoreHorizontalCircle01Icon} />
           <span className="sr-only">Mais opções</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -227,7 +227,15 @@ function CollectionCategories({
           className="group/collapsible"
         >
           <CollapsibleTrigger
-            render={<SidebarMenuAction className={isActive ? "text-sidebar-primary-foreground hover:text-sidebar-primary-foreground " : "text-sidebar-foreground hover:text-sidebar-foreground "} />}
+            render={
+              <SidebarMenuAction
+                className={
+                  isActive
+                    ? "text-sidebar-primary-foreground hover:text-sidebar-primary-foreground "
+                    : "text-sidebar-foreground hover:text-sidebar-foreground "
+                }
+              />
+            }
           >
             <Icon
               icon={ChevronDown}
@@ -249,7 +257,7 @@ function CollectionCategories({
                         onCategoryClick(collectionId, category.slug)
                       }
                     >
-                      <Icon icon={Folder02Icon}/>
+                      <Icon icon={Folder02Icon} />
                       <span>{category.name}</span>
                       <span className="ml-auto text-xs text-muted-foreground">
                         {category._count.resources}

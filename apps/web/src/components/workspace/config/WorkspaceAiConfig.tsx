@@ -28,8 +28,7 @@ export function WorkspaceAiConfig() {
     systemPrompt !== undefined ? systemPrompt : (settings?.systemPrompt ?? "");
 
   const isLoading = modelsLoading || settingsLoading;
-  const promptDirty =
-    currentSystemPrompt !== (settings?.systemPrompt ?? "");
+  const promptDirty = currentSystemPrompt !== (settings?.systemPrompt ?? "");
 
   const handleSaveSystemPrompt = () => {
     updateSettings(
@@ -98,7 +97,8 @@ export function WorkspaceAiConfig() {
         <div>
           <h3 className="text-base font-semibold">System prompt</h3>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Instrução base enviada ao modelo em toda conversa. Vazio = padrão do sistema.
+            Instrução base enviada ao modelo em toda conversa. Vazio = padrão do
+            sistema.
           </p>
         </div>
 

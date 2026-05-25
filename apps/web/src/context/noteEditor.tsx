@@ -1,10 +1,19 @@
 "use client";
 
 import { createContext, useCallback, useContext, useState } from "react";
+import type { NoteEditToolInput, NoteEditToolResult } from "@/lib/ai/tools";
+
+export interface EnumeratedBlock {
+  index: number;
+  type: string;
+  preview: string;
+}
 
 interface NoteEditorActions {
   getSelectionContext: () => SelectionContext;
   applyGeneratedText: (text: string, target: PendingProposalTarget) => boolean;
+  getEnumeratedBlocks: () => EnumeratedBlock[];
+  applyToolOperation: (op: NoteEditToolInput) => NoteEditToolResult;
 }
 
 export interface SelectionContext {
@@ -38,6 +47,11 @@ interface NoteEditorContextValue {
   queueProposalReview: (noteId: string, text: string) => boolean;
   clearPendingProposal: (noteId?: string) => void;
   applyPendingProposal: (noteId: string) => boolean;
+  getEnumeratedBlocks: (noteId?: string) => EnumeratedBlock[];
+  applyToolOperation: (
+    noteId: string,
+    op: NoteEditToolInput,
+  ) => NoteEditToolResult;
 }
 
 const NoteEditorContext = createContext<NoteEditorContextValue | null>(null);
@@ -126,6 +140,24 @@ export function NoteEditorProvider({
     [activeEditor, pendingProposal],
   );
 
+  const getEnumeratedBlocks = useCallback(
+    (noteId?: string): EnumeratedBlock[] => {
+      if (!noteId || activeEditor?.noteId !== noteId) return [];
+      return activeEditor.actions.getEnumeratedBlocks();
+    },
+    [activeEditor],
+  );
+
+  const applyToolOperation = useCallback(
+    (noteId: string, op: NoteEditToolInput): NoteEditToolResult => {
+      if (activeEditor?.noteId !== noteId) {
+        return { status: "error", reason: "Editor não está ativo nesta nota." };
+      }
+      return activeEditor.actions.applyToolOperation(op);
+    },
+    [activeEditor],
+  );
+
   return (
     <NoteEditorContext.Provider
       value={{
@@ -136,6 +168,8 @@ export function NoteEditorProvider({
         queueProposalReview,
         clearPendingProposal,
         applyPendingProposal,
+        getEnumeratedBlocks,
+        applyToolOperation,
       }}
     >
       {children}

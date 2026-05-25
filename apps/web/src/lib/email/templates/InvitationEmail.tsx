@@ -42,7 +42,9 @@ export function InvitationEmail({
   const hasAvatar = isImageUrl(inviterImage);
 
   const footer = (
-    <Text style={{ margin: 0, fontSize: 12, color: "#a09a91", lineHeight: "18px" }}>
+    <Text
+      style={{ margin: 0, fontSize: 12, color: "#a09a91", lineHeight: "18px" }}
+    >
       Você está recebendo este email porque{" "}
       <strong style={{ color: "#57524a" }}>{inviterName}</strong> enviou um
       convite para este endereço. Caso não reconheça o remetente ou não tenha
@@ -129,7 +131,8 @@ export function InvitationEmail({
             color: "#57524a",
           }}
         >
-          Função: <strong style={{ color: "#1c1a16" }}>{roleLabel(role)}</strong>
+          Função:{" "}
+          <strong style={{ color: "#1c1a16" }}>{roleLabel(role)}</strong>
         </Text>
       </Section>
 

@@ -77,7 +77,6 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
   return (
     <main className="min-h-screen flex items-center justify-center bg-linear-to-br from-background via-muted to-accent/30 p-4">
       <div className="w-full max-w-sm flex flex-col items-center gap-6 rounded-2xl border border-border bg-card shadow-xl px-8 py-10">
-
         <div className="flex items-center gap-2">
           <Avatar className="size-5 shrink-0">
             <AvatarImage src={invitation.inviterImage ?? undefined} />
@@ -86,7 +85,9 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
             </AvatarFallback>
           </Avatar>
           <p className="text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">{invitation.inviterName}</span>
+            <span className="font-medium text-foreground">
+              {invitation.inviterName}
+            </span>
             convidou você para se juntar
           </p>
         </div>
@@ -100,11 +101,14 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
         </div>
 
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold tracking-tight">{invitation.organizationName}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {invitation.organizationName}
+          </h1>
           <div className="flex items-center gap-1.5">
             <span className="size-2 rounded-full bg-primary inline-block" />
             <span className="text-sm text-muted-foreground">
-              {invitation.memberCount} {invitation.memberCount === 1 ? "membro" : "membros"}
+              {invitation.memberCount}{" "}
+              {invitation.memberCount === 1 ? "membro" : "membros"}
             </span>
           </div>
         </div>
@@ -175,7 +179,9 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
 
         {isReady && (
           <div className="w-full flex flex-col gap-3">
-            {error && <p className="text-sm text-destructive text-center">{error}</p>}
+            {error && (
+              <p className="text-sm text-destructive text-center">{error}</p>
+            )}
             <Button
               rounded="xl"
               className="w-full"

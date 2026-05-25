@@ -27,11 +27,11 @@ export function LandingWrapper({
     >
       <NodeConnector position="left" showOnLg />
       <NodeConnector position="right" showOnLg />
-      <BorderDivider variant="shrink" side="left" isStriped={isStriped}/>
-      <BorderDivider variant="flex" side="left"  />
+      <BorderDivider variant="shrink" side="left" isStriped={isStriped} />
+      <BorderDivider variant="flex" side="left" />
       {children}
-      <BorderDivider variant="flex" side="right"  />
-      <BorderDivider variant="shrink" side="right" isStriped={isStriped}/>
+      <BorderDivider variant="flex" side="right" />
+      <BorderDivider variant="shrink" side="right" isStriped={isStriped} />
     </div>
   );
 }
@@ -57,7 +57,7 @@ export function LandingContent({
       className={cn(baseLandingContentClass, contentClassName, className)}
     >
       <NodeConnector position="left" />
-      <NodeConnector position="right"/>
+      <NodeConnector position="right" />
       {children}
     </Component>
   );
