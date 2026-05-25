@@ -1,7 +1,15 @@
 "use client";
 
-import { ArrowUp02Icon, ChevronDown, Note01Icon, StopIcon } from "@hugeicons/core-free-icons";
+import {
+  ArrowUp02Icon,
+  Cancel01Icon,
+  ChevronDown,
+  Note01Icon,
+  QuoteUpIcon,
+  StopIcon,
+} from "@hugeicons/core-free-icons";
 import { type KeyboardEvent, useRef, useState } from "react";
+import { useChatPanel } from "@/context/chatPanel";
 import {
   useAiModels,
   useAiSettings,
@@ -34,11 +42,15 @@ interface ChatInputProps {
 function NoteChip({ noteId }: { noteId: string }) {
   const { data: note } = useNote(noteId);
   if (!note) return null;
-  const title = note.title.length > 20 ? `${note.title.slice(0, 20)}…` : note.title;
+  const title =
+    note.title.length > 20 ? `${note.title.slice(0, 20)}…` : note.title;
   return (
     <InputGroupText className="gap-1.5">
       <Icon icon={Note01Icon} className="size-3 shrink-0" />
-      <span className="truncate text-xs">{title}</span>
+      <span className="truncate text-xs">
+        {title.slice(0, 14)}
+        {title.length > 10 ? "…" : ""}
+      </span>
     </InputGroupText>
   );
 }
@@ -53,15 +65,19 @@ function ModelDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="ml-auto"
+        className="ml-auto rounded-xl"
         render={
-          <InputGroupButton variant="ghost" className="pr-1.5! text-xs" suppressHydrationWarning>
-            {current?.label ?? "Modelo"}{" "}
+          <InputGroupButton
+            variant="ghost"
+            className="pr-1.5! text-xs"
+            suppressHydrationWarning
+          >
+            {current?.label ?? "Modelo"}
             <Icon icon={ChevronDown} className="size-3" />
           </InputGroupButton>
         }
       />
-      <DropdownMenuContent align="center" className={'min-w-40'}>
+      <DropdownMenuContent align="center" className={"min-w-40"}>
         <DropdownMenuGroup>
           {models?.map((model) => (
             <DropdownMenuItem
@@ -78,7 +94,13 @@ function ModelDropdown() {
   );
 }
 
-export function ChatInput({ onSend, onStop, isStreaming, noteId }: ChatInputProps) {
+export function ChatInput({
+  onSend,
+  onStop,
+  isStreaming,
+  noteId,
+}: ChatInputProps) {
+  const { attachedSelection, clearAttachedSelection } = useChatPanel();
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -98,15 +120,35 @@ export function ChatInput({ onSend, onStop, isStreaming, noteId }: ChatInputProp
   };
 
   return (
-    <div className="mx-4 my-3 grid grid-cols-1 gap-2">
-      <InputGroup className="rounded-2xl">
+    <div className="mx-4 my-3 grid grid-cols-1 shadow-md rounded-2xl">
+      <InputGroup className="rounded-2xl z-20">
+        {attachedSelection && (
+          <InputGroupAddon align="block-start" className="border-b">
+            <InputGroupText className="text-muted-foreground gap-1.5">
+              <Icon icon={QuoteUpIcon} className="size-3 shrink-0" />
+              <span className="truncate text-xs">
+                {attachedSelection.text.length > 40
+                  ? `${attachedSelection.text.slice(0, 40)}…`
+                  : attachedSelection.text}
+              </span>
+            </InputGroupText>
+            <button
+              type="button"
+              onClick={clearAttachedSelection}
+              className="ml-auto rounded-full p-0.5 text-sidebar-foreground/60 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground "
+              aria-label="Remover trecho anexado"
+            >
+              <Icon icon={Cancel01Icon} className="size-3" />
+            </button>
+          </InputGroupAddon>
+        )}
         <InputGroupTextarea
           ref={textareaRef}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Digite aqui..."
-          className="min-h-[90px]"
+          className="min-h-[100px]"
           disabled={isStreaming}
         />
         <InputGroupAddon align="block-end">
