@@ -48,6 +48,7 @@ import { useNavMain } from "./hook/useNavMain";
 export function NavMain() {
   const {
     collections,
+    resourceCollections,
     collectionSlice,
     isLoading,
     activeCategorySlug,
@@ -115,6 +116,8 @@ export function NavMain() {
                     setCollectionToEdit({
                       id: collection.id,
                       name: collection.name,
+                      description: collection.description ?? undefined,
+                      color: collection.color ?? undefined,
                     })
                   }
                   onDeleteClick={() => handleDelete(collection.id)}
@@ -122,7 +125,7 @@ export function NavMain() {
               </SidebarMenuItem>
             ))}
 
-            {collections.length > 3 && (
+            {resourceCollections.length > 3 && (
               <SidebarMenuButton
                 onClick={() => setIsAllCollections(!isAllCollections)}
                 tooltip={isAllCollections ? "Ver menos" : "Ver mais"}
@@ -154,6 +157,8 @@ export function NavMain() {
         onOpenChange={(open) => !open && setCollectionToEdit(null)}
         collectionId={collectionToEdit?.id ?? ""}
         currentName={collectionToEdit?.name ?? ""}
+        currentDescription={collectionToEdit?.description}
+        currentColor={collectionToEdit?.color}
       />
     </>
   );

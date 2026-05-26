@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
 
-  const { name } = await request.json();
+  const body = await request.json();
+  const { name, description, color, isNoteCollection } = body;
 
   if (!name) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -43,15 +44,19 @@ export async function POST(request: NextRequest) {
         slug,
         userId: session.user.id,
         workspaceId,
+        ...(description !== undefined && { description }),
+        ...(color !== undefined && { color }),
+        ...(isNoteCollection !== undefined && { isNoteCollection }),
       },
     });
     return NextResponse.json(
       { message: "Collection created successfully", collection },
       { status: 201 },
     );
-  } catch (_error) {
+  } catch (error) {
+    console.error("Error creating collection:", error);
     return NextResponse.json(
-      { error: "Failed to create collection" },
+      { error: "Failed to create collection", details: String(error) },
       { status: 500 },
     );
   }

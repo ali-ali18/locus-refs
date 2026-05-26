@@ -17,7 +17,7 @@ interface UpdateNotePayload {
   title?: string;
   icon?: string;
   content?: JSONContent;
-  collectionId?: string;
+  collectionId?: string | null;
 }
 
 export function useNoteMutations() {

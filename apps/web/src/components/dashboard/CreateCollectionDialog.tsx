@@ -38,7 +38,7 @@ export function CreateCollectionDialog({ open, onOpenChange }: Props) {
 
   const onSubmit = async (data: CreateCollectionSchema) => {
     try {
-      await createCollection(data.name);
+      await createCollection(data);
       toast.success("Coleção criada com sucesso!");
       form.reset();
       onOpenChange(false);
