@@ -39,17 +39,24 @@ interface ChatInputProps {
   noteId?: string;
 }
 
+const NOTE_TITLE_MAX_LENGTH = 20;
+const NOTE_TITLE_PREVIEW_LENGTH = 14;
+const NOTE_TITLE_SHORT_CHECK = 10;
+const SELECTION_PREVIEW_MAX = 40;
+
 function NoteChip({ noteId }: { noteId: string }) {
   const { data: note } = useNote(noteId);
   if (!note) return null;
   const title =
-    note.title.length > 20 ? `${note.title.slice(0, 20)}…` : note.title;
+    note.title.length > NOTE_TITLE_MAX_LENGTH
+      ? `${note.title.slice(0, NOTE_TITLE_MAX_LENGTH)}…`
+      : note.title;
   return (
     <InputGroupText className="gap-1.5">
       <Icon icon={Note01Icon} className="size-3 shrink-0" />
       <span className="truncate text-xs">
-        {title.slice(0, 14)}
-        {title.length > 10 ? "…" : ""}
+        {title.slice(0, NOTE_TITLE_PREVIEW_LENGTH)}
+        {title.length > NOTE_TITLE_SHORT_CHECK ? "…" : ""}
       </span>
     </InputGroupText>
   );
@@ -127,8 +134,8 @@ export function ChatInput({
             <InputGroupText className="text-muted-foreground gap-1.5">
               <Icon icon={QuoteUpIcon} className="size-3 shrink-0" />
               <span className="truncate text-xs">
-                {attachedSelection.text.length > 40
-                  ? `${attachedSelection.text.slice(0, 40)}…`
+                {attachedSelection.text.length > SELECTION_PREVIEW_MAX
+                  ? `${attachedSelection.text.slice(0, SELECTION_PREVIEW_MAX)}…`
                   : attachedSelection.text}
               </span>
             </InputGroupText>

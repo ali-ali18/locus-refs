@@ -1,5 +1,6 @@
 "use client";
 
+import DOMPurify from "dompurify";
 import { BubbleChatIcon } from "@hugeicons/core-free-icons";
 import { isToolUIPart, type ToolUIPart } from "ai";
 import { useEffect, useRef } from "react";
@@ -38,9 +39,8 @@ const INTENT_PILL_LABELS: Record<AiIntent, string> = {
 
 function MarkdownMessage({ text }: { text: string }) {
   const html = markdownToHtml(text);
-
-  // biome-ignore lint/security/noDangerouslySetInnerHtml: markdownToHtml escapes raw HTML and emits a fixed tag set locally.
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  const sanitized = DOMPurify.sanitize(html);
+  return <div dangerouslySetInnerHTML={{ __html: sanitized }} />;
 }
 
 function PlanToNoteAction({ noteId, text }: PlanToNoteActionProps) {

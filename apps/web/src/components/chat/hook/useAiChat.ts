@@ -51,7 +51,12 @@ export function useAiChat({ noteId }: UseAiChatParams) {
                     text: chip.text,
                   }
                 : chip
-                  ? { hasSelection: true, from: chip.from, to: chip.to, text: chip.text }
+                  ? {
+                      hasSelection: true,
+                      from: chip.from,
+                      to: chip.to,
+                      text: chip.text,
+                    }
                   : getSelectionContext(currentNoteId),
             },
           };
