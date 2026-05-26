@@ -1,6 +1,10 @@
 "use client";
 
-import { BubbleChatIcon, Config, UserListFreeIcons } from "@hugeicons/core-free-icons";
+import {
+  BubbleChatIcon,
+  Config,
+  UserListFreeIcons,
+} from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { ReactNode } from "react";
 import { useState } from "react";

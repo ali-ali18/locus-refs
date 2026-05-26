@@ -22,5 +22,12 @@ export function useRemoveMember(
     setConfirmEmail("");
   }
 
-  return { confirmEmail, setConfirmEmail, handleConfirm, isRemoving, isConfirmed, reset };
+  return {
+    confirmEmail,
+    setConfirmEmail,
+    handleConfirm,
+    isRemoving,
+    isConfirmed,
+    reset,
+  };
 }

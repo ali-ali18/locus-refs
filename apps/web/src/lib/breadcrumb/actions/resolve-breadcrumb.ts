@@ -8,7 +8,7 @@ const ROUTE_LABELS: Record<string, string> = {
   notes: "Notas",
   categories: "Categorias",
   resources: "Recursos",
-  config: "Configuração"
+  config: "Configuração",
 };
 
 function getSegmentLabel(segment: string): string {

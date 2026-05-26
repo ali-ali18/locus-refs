@@ -18,15 +18,18 @@ import { ChatMessages } from "./ChatMessages";
 import { useAiChat } from "./hook/useAiChat";
 
 function ChatPanelContent({ noteId }: { noteId?: string }) {
-  const { messages, isStreaming, send, clear, stop } = useAiChat({ noteId });
+  const { messages, isStreaming, send, clear, stop, addToolOutput } = useAiChat(
+    { noteId },
+  );
 
   return (
-    <div className="flex w-full flex-1 flex-col bg-sidebar text-sidebar-foreground">
+    <div className="flex min-h-0 w-full flex-1 flex-col bg-sidebar text-sidebar-foreground">
       <ChatHeader onClear={clear} hasMessages={messages.length > 0} />
       <ChatMessages
         messages={messages}
         isStreaming={isStreaming}
         noteId={noteId}
+        addToolOutput={addToolOutput}
       />
       <ChatInput
         onSend={send}
@@ -76,13 +79,13 @@ export function ChatPanel() {
   return (
     <aside
       className={cn(
-        "sticky top-0 hidden h-svh shrink-0 flex-col self-start border-l border-sidebar-border bg-sidebar",
-        "overflow-hidden transition-[width] duration-200 ease-linear md:flex",
+        "sticky top-0 hidden h-svh shrink-0 flex-col self-start border-l border-sidebar-border bg-sidebar overflow-hidden",
+        "transition-[width] duration-200 ease-linear md:flex",
         open ? "w-96" : "w-0",
       )}
       aria-hidden={!open}
     >
-      <div className="flex w-96 flex-1 flex-col">
+      <div className="flex h-full w-96 flex-col">
         <ChatPanelContent noteId={noteId} />
       </div>
     </aside>

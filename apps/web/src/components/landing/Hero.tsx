@@ -39,10 +39,7 @@ export function HeroContent() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full items-center justify-center">
-          <Button
-            size="lg"
-            className="text-sm font-medium w-full sm:w-auto"
-          >
+          <Button size="lg" className="text-sm font-medium w-full sm:w-auto">
             <Icon icon={GithubIcon} className="size-4" /> Repositório
           </Button>
           <Button

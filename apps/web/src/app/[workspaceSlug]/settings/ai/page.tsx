@@ -59,7 +59,8 @@ export default function AiSettingsPage() {
           <div className="space-y-3">
             <h2 className="text-base font-semibold">Modelo padrão</h2>
             <p className="text-sm text-muted-foreground -mt-1">
-              Usado pelo assistente quando nenhum modelo é especificado na sessão.
+              Usado pelo assistente quando nenhum modelo é especificado na
+              sessão.
             </p>
             <div className="flex flex-col gap-2">
               {models?.map((model) => {

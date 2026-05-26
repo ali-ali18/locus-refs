@@ -6,12 +6,14 @@ export async function GET(request: NextRequest) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
 
-  const models = getAvailableModels().map(({ id, provider, label, description }) => ({
-    id,
-    provider,
-    label,
-    description,
-  }));
+  const models = getAvailableModels().map(
+    ({ id, provider, label, description }) => ({
+      id,
+      provider,
+      label,
+      description,
+    }),
+  );
 
   return NextResponse.json({ models });
 }

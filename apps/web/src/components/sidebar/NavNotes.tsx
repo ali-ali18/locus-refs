@@ -109,7 +109,11 @@ export function NavNotes() {
                     <DropdownMenuLabel>Ações</DropdownMenuLabel>
                     <DropdownMenuItem
                       onClick={() =>
-                        setNoteToRename({ id: note.id, title: note.title, icon: note.icon ?? undefined })
+                        setNoteToRename({
+                          id: note.id,
+                          title: note.title,
+                          icon: note.icon ?? undefined,
+                        })
                       }
                     >
                       <Icon icon={PencilEdit01Icon} />

@@ -11,7 +11,13 @@ import { FormCreateCollection } from "@/components/collections/FormCreateCollect
 import { FormCreateNote } from "@/components/notes/FormCreateNote";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DialogApp } from "../../base/DialogApp";
 
 export function QuickCreate() {
@@ -22,7 +28,9 @@ export function QuickCreate() {
     <Card className="rounded-xl">
       <CardHeader>
         <CardTitle>Centro de criação</CardTitle>
-        <CardDescription>Todas funcionalidades de criação estão aqui</CardDescription>
+        <CardDescription>
+          Todas funcionalidades de criação estão aqui
+        </CardDescription>
       </CardHeader>
 
       <CardContent>

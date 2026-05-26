@@ -55,7 +55,10 @@ export function Welcome() {
             </Avatar>
             {members?.map((member) => (
               <Avatar key={member.id} className="sm:flex">
-                <AvatarImage src={member?.user?.image} alt={member.user?.name} />
+                <AvatarImage
+                  src={member?.user?.image}
+                  alt={member.user?.name}
+                />
                 <AvatarFallback>
                   {member.user?.name?.charAt(0).toUpperCase()}
                 </AvatarFallback>

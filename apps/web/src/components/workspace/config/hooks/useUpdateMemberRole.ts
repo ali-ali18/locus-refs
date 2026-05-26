@@ -12,10 +12,7 @@ export function useUpdateMemberRole(
   const { updateRole, isUpdatingRole } = useWorkspaceMembers();
 
   function handleConfirm() {
-    updateRole(
-      { memberId, role: selectedRole },
-      { onSuccess: onClose },
-    );
+    updateRole({ memberId, role: selectedRole }, { onSuccess: onClose });
   }
 
   return { selectedRole, setSelectedRole, handleConfirm, isUpdatingRole };

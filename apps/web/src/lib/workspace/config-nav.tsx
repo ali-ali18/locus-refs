@@ -1,7 +1,4 @@
-import {
-  Config,
-  UserListFreeIcons,
-} from "@hugeicons/core-free-icons";
+import { Config, UserListFreeIcons } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { ReactNode } from "react";
 import { WorkspaceConfigClient } from "@/components/workspace/WorkspaceConfigClient";

@@ -45,7 +45,8 @@ export function UpdateMemberRoleDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Mudança de cargo</AlertDialogTitle>
           <AlertDialogDescription>
-            Você está prestes a realizar uma mudança de cargo para <strong>{memberName}</strong>.
+            Você está prestes a realizar uma mudança de cargo para{" "}
+            <strong>{memberName}</strong>.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -53,7 +54,9 @@ export function UpdateMemberRoleDialog({
           <Label>Cargo</Label>
           <Select
             value={selectedRole}
-            onValueChange={(value) => { if (value) setSelectedRole(value); }}
+            onValueChange={(value) => {
+              if (value) setSelectedRole(value);
+            }}
           >
             <SelectTrigger className="w-full rounded-xl">
               <SelectValue placeholder="Selecione um cargo" />
@@ -64,7 +67,6 @@ export function UpdateMemberRoleDialog({
                 <SelectItem value="admin">Admin</SelectItem>
               </SelectGroup>
             </SelectContent>
-
           </Select>
         </div>
 
