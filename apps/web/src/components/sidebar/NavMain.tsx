@@ -48,6 +48,7 @@ import { useNavMain } from "./hook/useNavMain";
 export function NavMain() {
   const {
     collections,
+    resourceCollections,
     collectionSlice,
     isLoading,
     activeCategorySlug,
@@ -124,7 +125,7 @@ export function NavMain() {
               </SidebarMenuItem>
             ))}
 
-            {collections.length > 3 && (
+            {resourceCollections.length > 3 && (
               <SidebarMenuButton
                 onClick={() => setIsAllCollections(!isAllCollections)}
                 tooltip={isAllCollections ? "Ver menos" : "Ver mais"}

@@ -5,6 +5,7 @@ export interface Collection {
   userId: string;
   color: string | null;
   description: string | null;
+  isNoteCollection: boolean;
   createdAt: string;
   updatedAt: string;
 }

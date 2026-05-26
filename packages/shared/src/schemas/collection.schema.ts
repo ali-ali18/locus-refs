@@ -7,6 +7,7 @@ export const createCollectionSchema = z.object({
     .max(50, "O nome deve ter no máximo 50 caracteres"),
   description: z.string().max(200).optional(),
   color: z.string().max(30).optional(),
+  isNoteCollection: z.boolean().optional(),
 });
 
 export type CreateCollectionSchema = z.infer<typeof createCollectionSchema>;

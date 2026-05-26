@@ -56,7 +56,7 @@ export function CreateNoteCollectionDialog({ open, onOpenChange }: Props) {
 
   const onSubmit = async (data: CreateCollectionSchema) => {
     try {
-      await createCollection({ ...data, color: pickerColor });
+      await createCollection({ ...data, color: pickerColor, isNoteCollection: true });
       toast.success("Coleção criada com sucesso!");
       form.reset();
       onOpenChange(false);

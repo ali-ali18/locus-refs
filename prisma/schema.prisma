@@ -89,10 +89,11 @@ model Collection {
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   workspaceId    String
   workspace      Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  resources      Resource[]
-  color          String?
-  description    String?
-  createdAt      DateTime     @default(now())
+  resources         Resource[]
+  color             String?
+  description       String?
+  isNoteCollection  Boolean      @default(false)
+  createdAt         DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   notes          Note[]
 

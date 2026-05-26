@@ -46,10 +46,12 @@ export function useNavNotes() {
     });
   };
 
-  const collectionsWithNotes = collections.map((c) => ({
-    ...c,
-    notes: notes.filter((n) => n.collectionId === c.id),
-  }));
+  const collectionsWithNotes = collections
+    .filter((c) => c.isNoteCollection)
+    .map((c) => ({
+      ...c,
+      notes: notes.filter((n) => n.collectionId === c.id),
+    }));
 
   const ungroupedNotes = notes.filter((n) => n.collectionId === null);
   const ungroupedSlice = isAllNotes

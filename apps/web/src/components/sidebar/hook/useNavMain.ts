@@ -24,9 +24,10 @@ export function useNavMain() {
     new Set(),
   );
 
+  const resourceCollections = collections.filter((c) => !c.isNoteCollection);
   const collectionSlice = isAllCollections
-    ? collections
-    : collections.slice(0, 3);
+    ? resourceCollections
+    : resourceCollections.slice(0, 3);
 
   const activeCategorySlug = searchParams.get("category");
 
@@ -59,6 +60,7 @@ export function useNavMain() {
 
   return {
     collections,
+    resourceCollections,
     collectionSlice,
     isLoading,
     activeCategorySlug,
