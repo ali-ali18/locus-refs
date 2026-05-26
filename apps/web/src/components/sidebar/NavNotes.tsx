@@ -2,8 +2,19 @@
 "use client";
 
 import {
+  DndContext,
+  type DragEndEvent,
+  DragOverlay,
+  PointerSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
   ChevronDown,
   Folder01Icon,
+  Folder02Icon,
   MinusSignIcon,
   MoreHorizontalCircle01Icon,
   NoteEditIcon,
@@ -11,24 +22,20 @@ import {
   Plus,
   Trash2,
 } from "@hugeicons/core-free-icons";
-import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  useDraggable,
-  useDroppable,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
+import type { Note } from "@refstash/shared";
 import Link from "next/link";
 import { useState } from "react";
-import { EditNoteDialog } from "@/components/notes/EditNoteDialog";
-import { CreateNoteCollectionDialog } from "@/components/notes/CreateNoteCollectionDialog";
-import { Icon } from "@/components/shared/Icon";
 import { DialogApp } from "@/components/base/DialogApp";
-import { FormCreateNote } from "@/components/notes/FormCreateNote";
 import { EditCollectionDialog } from "@/components/dashboard/EditCollectionDialog";
+import { CreateNoteCollectionDialog } from "@/components/notes/CreateNoteCollectionDialog";
+import { EditNoteDialog } from "@/components/notes/EditNoteDialog";
+import { FormCreateNote } from "@/components/notes/FormCreateNote";
+import { Icon } from "@/components/shared/Icon";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,11 +45,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupAction,
@@ -59,7 +61,6 @@ import {
 import { resolveIcon } from "@/lib/icons";
 import { Skeleton } from "../ui/skeleton";
 import { useNavNotes } from "./hook/useNavNotes";
-import type { Note } from "@refstash/shared";
 
 interface DraggableNoteProps {
   note: Note;
@@ -200,9 +201,9 @@ function DroppableCollection({
         tooltip={collection.name}
         onClick={onOpenChange}
       >
-        <span
-          className="size-2 rounded-full flex-shrink-0 border border-border/50"
-          style={{ backgroundColor: collection.color ?? undefined }}
+        <Icon
+          icon={open ? Folder02Icon : Folder01Icon}
+          style={{ color: collection.color ?? undefined }}
         />
         <span>{collection.name}</span>
       </SidebarMenuButton>
@@ -314,12 +315,29 @@ export function NavNotes() {
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     setActiveDragId(null);
-    if (!over) return;
     const noteId = active.id as string;
-    const collectionId = over.id as string;
     const note = notes.find((n) => n.id === noteId);
-    if (!note || note.collectionId === collectionId) return;
-    updateNote({ id: noteId, collectionId });
+    if (!note) return;
+
+    if (!over) {
+      if (note.collectionId !== null) {
+        updateNote({ id: noteId, collectionId: null });
+      }
+      return;
+    }
+
+    const collectionId = over.id as string;
+    const collection = collectionsWithNotes.find((c) => c.id === collectionId);
+
+    if (collection) {
+      if (note.collectionId !== collectionId) {
+        updateNote({ id: noteId, collectionId });
+      }
+    } else {
+      if (note.collectionId !== null) {
+        updateNote({ id: noteId, collectionId: null });
+      }
+    }
   };
 
   const activeDragNote = activeDragId

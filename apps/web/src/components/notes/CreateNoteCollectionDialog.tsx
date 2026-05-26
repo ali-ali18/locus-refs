@@ -2,18 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Folder01Icon, Loading02Icon } from "@hugeicons/core-free-icons";
-import Color from "color";
+import {
+  type CreateCollectionSchema,
+  createCollectionSchema,
+} from "@refstash/shared";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FieldGroupApp } from "@/components/base";
-import {
-  ColorPicker,
-  ColorPickerFormat,
-  ColorPickerHue,
-  ColorPickerOutput,
-  ColorPickerSelection,
-} from "@/components/kibo-ui/color-picker";
+import { ColorPickerPredefined } from "@/components/kibo-ui/color-picker/ColorPickerPredefined";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,10 +23,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  type CreateCollectionSchema,
-  createCollectionSchema,
-} from "@refstash/shared";
 import { useCollections } from "@/hook/collections/useCollections";
 
 interface Props {
@@ -46,17 +39,17 @@ export function CreateNoteCollectionDialog({ open, onOpenChange }: Props) {
     defaultValues: { name: "", description: "" },
   });
 
-  const handleColorChange = useCallback(
-    (rgba: Parameters<typeof Color.rgb>[0]) => {
-      const hex = Color.rgb(rgba).hex().toLowerCase();
-      setPickerColor(hex);
-    },
-    [],
-  );
+  const handleColorChange = useCallback((color: string) => {
+    setPickerColor(color);
+  }, []);
 
   const onSubmit = async (data: CreateCollectionSchema) => {
     try {
-      await createCollection({ ...data, color: pickerColor, isNoteCollection: true });
+      await createCollection({
+        ...data,
+        color: pickerColor,
+        isNoteCollection: true,
+      });
       toast.success("Coleção criada com sucesso!");
       form.reset();
       onOpenChange(false);
@@ -112,14 +105,10 @@ export function CreateNoteCollectionDialog({ open, onOpenChange }: Props) {
                 style={{ backgroundColor: pickerColor }}
               />
             </FieldLabel>
-            <ColorPicker value={pickerColor} onChange={handleColorChange}>
-              <ColorPickerSelection className="h-32 rounded-xl" />
-              <ColorPickerHue />
-              <div className="flex items-center gap-2">
-                <ColorPickerOutput />
-                <ColorPickerFormat className="flex-1" />
-              </div>
-            </ColorPicker>
+            <ColorPickerPredefined
+              value={pickerColor}
+              onChange={handleColorChange}
+            />
           </Field>
 
           <DialogFooter>
