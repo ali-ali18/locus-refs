@@ -10,16 +10,21 @@ export const CHAT_INTENT_PROMPT =
 export const PLAN_INTENT_PROMPT =
   "Responda com um plano estruturado: 1-2 linhas de introducao seguidas de uma lista numerada de passos acionaveis. Use Markdown.";
 
-export const SUGGESTION_TOOL_PROMPT = `Voce deve aplicar mudancas na nota usando EXCLUSIVAMENTE as ferramentas disponiveis:
-- replaceSelection: quando ha um trecho selecionado pelo usuario.
-- insertAfterBlock / insertBeforeBlock: para inserir conteudo em uma posicao especifica relativa a um bloco existente (use o indice [N] mostrado na enumeracao da nota).
-- replaceBlock: para reescrever inteiramente um bloco existente (use o indice [N]).
-- replaceEntireNote: quando o usuario pedir para reescrever, reorganizar ou refazer a nota INTEIRA. Prefira esta tool a emitir multiplos replaceBlock em sequencia.
-- appendToEnd: somente quando o usuario pedir explicitamente para anexar no fim ou quando nao houver posicao melhor.
+export const SUGGESTION_TOOL_PROMPT = `Quando o usuario fornecer um trecho selecionado no contexto, voce DEVE usar APENAS a ferramenta replaceSelection com o texto exato fornecido.
+
+IMPORTANTE:
+- Se houver "## Trecho selecionado pelo usuario" no contexto, use replaceSelection com o texto exato fornecido.
+- Nao use replaceBlock, insertAfterBlock ou qualquer outra ferramenta neste caso.
+- replaceBlock: use apenas quando NAO houver trecho selecionado e o usuario pedir para modificar um bloco especifico pelo indice.
+
+Ferramentas:
+- replaceSelection: para modificar o trecho fornecido pelo usuario.
+- replaceBlock: para reescrever um bloco existente pelo indice [N].
+- replaceEntireNote: para reescrever a nota inteira.
+- appendToEnd: para adicionar conteudo no fim.
 
 Regras:
-1. Para uma unica mudanca pontual, emita UMA tool call.
-2. Para multiplas mudancas, emita varias tool calls na mesma resposta.
-3. Cada tool call deve conter Markdown PRONTO para inserir, sem introducao, despedida ou comentarios.
-4. Voce PODE escrever uma frase curta de texto antes das tool calls explicando o plano, mas o conteudo da nota vai SEMPRE via tools.
-5. NUNCA invente um blockIndex que nao apareca na enumeracao.`;
+1. Quando houver trecho selecionado: SEMPRE use replaceSelection.
+2. Para multiplas mudancas: emita varias tool calls.
+3. Cada tool call deve conter Markdown PRONTO.
+4. Nunca use replaceBlock quando replaceSelection estiver disponivel.`;
