@@ -319,19 +319,19 @@ export function NavNotes() {
     const note = notes.find((n) => n.id === noteId);
     if (!note) return;
 
-    if (!over) {
+    if (!over || over.id === noteId) {
       if (note.collectionId !== null) {
         updateNote({ id: noteId, collectionId: null });
       }
       return;
     }
 
-    const collectionId = over.id as string;
-    const collection = collectionsWithNotes.find((c) => c.id === collectionId);
+    const overId = over.id as string;
+    const targetCollection = collectionsWithNotes.find((c) => c.id === overId);
 
-    if (collection) {
-      if (note.collectionId !== collectionId) {
-        updateNote({ id: noteId, collectionId });
+    if (targetCollection) {
+      if (note.collectionId !== overId) {
+        updateNote({ id: noteId, collectionId: overId });
       }
     } else {
       if (note.collectionId !== null) {
