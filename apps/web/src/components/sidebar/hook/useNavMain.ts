@@ -17,6 +17,8 @@ export function useNavMain() {
   const [collectionToEdit, setCollectionToEdit] = useState<{
     id: string;
     name: string;
+    description?: string;
+    color?: string;
   } | null>(null);
   const [openCollections, setOpenCollections] = useState<Set<string>>(
     new Set(),

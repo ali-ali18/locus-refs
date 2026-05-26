@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Folder01Icon, Loading02Icon } from "@hugeicons/core-free-icons";
 import Color from "color";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FieldGroupApp } from "@/components/base";
@@ -30,44 +30,21 @@ import {
   type CreateCollectionSchema,
   createCollectionSchema,
 } from "@refstash/shared";
-import { useCollections } from "../../hook/collections/useCollections";
+import { useCollections } from "@/hook/collections/useCollections";
 
-interface EditCollectionDialogProps {
+interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  collectionId: string;
-  currentName: string;
-  currentDescription?: string;
-  currentColor?: string;
 }
 
-export function EditCollectionDialog({
-  open,
-  onOpenChange,
-  collectionId,
-  currentName,
-  currentDescription,
-  currentColor,
-}: EditCollectionDialogProps) {
-  const { updateCollection, isUpdating } = useCollections();
-  const [pickerColor, setPickerColor] = useState<string>(
-    currentColor ?? "#3b82f6",
-  );
+export function CreateNoteCollectionDialog({ open, onOpenChange }: Props) {
+  const { createCollection, isCreating } = useCollections();
+  const [pickerColor, setPickerColor] = useState<string>("#3b82f6");
 
   const form = useForm<CreateCollectionSchema>({
     resolver: zodResolver(createCollectionSchema),
-    defaultValues: { name: currentName, description: currentDescription ?? "" },
+    defaultValues: { name: "", description: "" },
   });
-
-  useEffect(() => {
-    if (open) {
-      form.reset({
-        name: currentName,
-        description: currentDescription ?? "",
-      });
-      setPickerColor(currentColor ?? "#3b82f6");
-    }
-  }, [open, currentName, currentDescription, currentColor, form]);
 
   const handleColorChange = useCallback(
     (rgba: Parameters<typeof Color.rgb>[0]) => {
@@ -79,16 +56,12 @@ export function EditCollectionDialog({
 
   const onSubmit = async (data: CreateCollectionSchema) => {
     try {
-      await updateCollection({
-        id: collectionId,
-        name: data.name,
-        description: data.description,
-        color: pickerColor,
-      });
-      toast.success("Coleção atualizada!");
+      await createCollection({ ...data, color: pickerColor });
+      toast.success("Coleção criada com sucesso!");
+      form.reset();
       onOpenChange(false);
     } catch (error) {
-      toast.error("Erro ao atualizar coleção. Tente novamente.");
+      toast.error("Erro ao criar coleção. Tente novamente.");
       console.error(error);
     }
   };
@@ -98,9 +71,11 @@ export function EditCollectionDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
-            Editar coleção
+            Nova coleção
           </DialogTitle>
-          <DialogDescription>Altere os dados da coleção.</DialogDescription>
+          <DialogDescription>
+            Agrupe suas notas em coleções para manter tudo organizado.
+          </DialogDescription>
         </DialogHeader>
 
         <form
@@ -153,21 +128,21 @@ export function EditCollectionDialog({
               variant="secondary"
               rounded="full"
               onClick={() => onOpenChange(false)}
-              disabled={isUpdating}
+              disabled={isCreating}
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isUpdating} rounded="full">
-              {isUpdating ? (
+            <Button type="submit" disabled={isCreating} rounded="full">
+              {isCreating ? (
                 <>
                   <Icon
                     icon={Loading02Icon}
                     className="mr-2 animate-spin size-4"
                   />
-                  <span className="sr-only">Salvando...</span>
+                  <span className="sr-only">Criando...</span>
                 </>
               ) : (
-                "Salvar"
+                "Criar coleção"
               )}
             </Button>
           </DialogFooter>

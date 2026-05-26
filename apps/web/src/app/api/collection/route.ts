@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
 
-  const { name } = await request.json();
+  const { name, description, color } = await request.json();
 
   if (!name) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -43,6 +43,8 @@ export async function POST(request: NextRequest) {
         slug,
         userId: session.user.id,
         workspaceId,
+        ...(description !== undefined && { description }),
+        ...(color !== undefined && { color }),
       },
     });
     return NextResponse.json(
