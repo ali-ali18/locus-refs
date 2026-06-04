@@ -1,0 +1,30 @@
+# Workspace
+
+Operações de gerenciamento do workspace. Ações destrutivas exigem o papel de **owner**.
+
+
+## `DELETE /api/workspace`
+
+Remove o workspace do usuário autenticado. Exige que o usuário seja o **owner** do workspace.
+
+**Efeitos colaterais:**
+- Apaga toda a organização e seus dados no banco
+- Remove a logo do S3 (se existir)
+
+### Resposta `200`
+
+```typescript
+{ message: "Workspace deletado com sucesso" }
+```
+
+### Erros
+
+<DocsTable>
+  <thead>
+    <tr><th>Código</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>403</code></td><td>Usuário não é owner do workspace</td></tr>
+    <tr><td><code>404</code></td><td>Workspace não encontrado</td></tr>
+  </tbody>
+</DocsTable>

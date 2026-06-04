@@ -1,0 +1,136 @@
+# Coleções
+
+Coleções organizam recursos ou notas em grupos temáticos dentro do workspace. O campo `isNoteCollection` distingue coleções de notas de coleções de recursos.
+
+
+## `GET /api/collection`
+
+Retorna todas as coleções do workspace.
+
+### Resposta `200`
+
+```typescript
+{
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  color: string | null;
+  isNoteCollection: boolean;
+  userId: string;
+  workspaceId: string;
+}[]
+```
+
+
+## `POST /api/collection`
+
+Cria uma nova coleção.
+
+### Corpo da requisição
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>name*</code></td><td><code>string</code></td><td>Nome da coleção</td></tr>
+    <tr><td><code>description</code></td><td><code>string</code></td><td>Descrição</td></tr>
+    <tr><td><code>color</code></td><td><code>string</code></td><td>Identificador de cor</td></tr>
+    <tr><td><code>isNoteCollection</code></td><td><code>boolean</code></td><td>Define se é coleção de notas (padrão: <code>false</code>)</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `201`
+
+```typescript
+{
+  message: "Collection created successfully";
+  collection: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    color: string | null;
+    isNoteCollection: boolean;
+    userId: string;
+    workspaceId: string;
+  };
+}
+```
+
+
+## `PATCH /api/collection/[id]`
+
+Atualiza uma coleção existente.
+
+### Parâmetros de rota
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>id</code></td><td><code>string</code></td><td>ID da coleção</td></tr>
+  </tbody>
+</DocsTable>
+
+### Corpo da requisição
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>name</code></td><td><code>string</code></td><td>Novo nome</td></tr>
+    <tr><td><code>description</code></td><td><code>string</code></td><td>Nova descrição</td></tr>
+    <tr><td><code>color</code></td><td><code>string</code></td><td>Nova cor</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+```typescript
+{
+  message: "Collection updated successfully";
+  collection: { id: string; name: string; description: string | null; color: string | null };
+}
+```
+
+
+## `DELETE /api/collection/[id]`
+
+Remove uma coleção.
+
+### Resposta `200`
+
+```typescript
+{ message: "Collection deleted successfully" }
+```
+
+
+## `GET /api/collection/[id]/categories`
+
+Lista as categorias associadas aos recursos dentro de uma coleção específica.
+
+### Parâmetros de rota
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>id</code></td><td><code>string</code></td><td>ID da coleção</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+```typescript
+{
+  id: string;
+  name: string;
+  slug: string;
+  _count: { resources: number };
+}[]
+```

@@ -1,0 +1,143 @@
+# Notas
+
+Notas são documentos rich-text editados com o Tiptap. O conteúdo é armazenado no formato JSON do Tiptap e suporta links entre notas via `linkedTo` / `linkedFrom`.
+
+
+## `GET /api/notes`
+
+Retorna todas as notas do workspace (metadados, sem conteúdo completo).
+
+### Resposta `200`
+
+```typescript
+{
+  id: string;
+  title: string;
+  icon: string | null;
+  collectionId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}[]
+```
+
+
+## `POST /api/notes`
+
+Cria uma nova nota com conteúdo vazio.
+
+### Corpo da requisição
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>title*</code></td><td><code>string</code></td><td>Título da nota</td></tr>
+    <tr><td><code>icon</code></td><td><code>string</code></td><td>Emoji ou identificador de ícone</td></tr>
+    <tr><td><code>collectionId</code></td><td><code>string</code></td><td>ID da coleção de notas</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `201`
+
+```typescript
+{
+  message: "Note created successfully";
+  note: {
+    id: string;
+    title: string;
+    icon: string | null;
+    collectionId: string | null;
+    content: { type: "doc"; content: [] }; // Tiptap JSON inicial
+    userId: string;
+    workspaceId: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+```
+
+
+## `GET /api/notes/[id]`
+
+Retorna uma nota completa com conteúdo e links.
+
+### Parâmetros de rota
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>id</code></td><td><code>string</code></td><td>ID da nota</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+```typescript
+{
+  id: string;
+  title: string;
+  icon: string | null;
+  content: TiptapNode; // JSON do editor Tiptap
+  collectionId: string | null;
+  collection: { id: string; name: string } | null;
+  linkedTo: { target: { id: string; title: string; icon: string | null } }[];
+  linkedFrom: { source: { id: string; title: string; icon: string | null } }[];
+  userId: string;
+  workspaceId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+
+## `PATCH /api/notes/[id]`
+
+Atualiza uma nota. Ao alterar o conteúdo, imagens órfãs no S3 são removidas automaticamente.
+
+### Parâmetros de rota
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>id</code></td><td><code>string</code></td><td>ID da nota</td></tr>
+  </tbody>
+</DocsTable>
+
+### Corpo da requisição
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>title</code></td><td><code>string</code></td><td>Novo título</td></tr>
+    <tr><td><code>icon</code></td><td><code>string</code></td><td>Novo ícone</td></tr>
+    <tr><td><code>content</code></td><td><code>object</code></td><td>JSON Tiptap do conteúdo</td></tr>
+    <tr><td><code>collectionId</code></td><td><code>string | null</code></td><td>ID da coleção (null para remover)</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+```typescript
+{
+  message: "Note updated successfully";
+  note: { /* objeto completo da nota */ };
+}
+```
+
+
+## `DELETE /api/notes/[id]`
+
+Remove uma nota e todas as imagens associadas no S3.
+
+### Resposta `200`
+
+```typescript
+{ message: "Note deleted successfully" }
+```

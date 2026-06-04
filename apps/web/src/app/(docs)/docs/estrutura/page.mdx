@@ -1,0 +1,156 @@
+# Estrutura do Projeto
+
+O Refstash é um **monorepo** gerenciado com pnpm workspaces. Abaixo está a estrutura completa do repositório — incluindo pastas de configuração de ferramentas que você pode não estar familiarizado.
+
+<DocsProjectTree
+  defaultExpandedIds={["root", "apps", "web", "web-src", "collab", "prisma"]}
+  items={[
+    {
+      id: "root",
+      label: "locus-refs/",
+      children: [
+        {
+          id: "agents-dir",
+          label: ".agents/",
+          comment: "instruções para agentes de IA (ex: skills)"
+        },
+        {
+          id: "claude-dir",
+          label: ".claude/",
+          comment: "configuração do Claude Code"
+        },
+        {
+          id: "cursor-dir",
+          label: ".cursor/",
+          children: [
+            { id: "cursor-mcp", label: "mcp.json", comment: "servidores MCP do Cursor" },
+            { id: "cursor-rules", label: "rules/", comment: "regras de contexto para o Cursor" }
+          ]
+        },
+        {
+          id: "zed-dir",
+          label: ".zed/",
+          comment: "configuração do editor Zed"
+        },
+        {
+          id: "apps",
+          label: "apps/",
+          comment: "aplicações do monorepo",
+          children: [
+            {
+              id: "web",
+              label: "web/",
+              comment: "Next.js 16 — app principal",
+              children: [
+                {
+                  id: "web-src",
+                  label: "src/",
+                  children: [
+                    { id: "web-app", label: "app/", comment: "App Router — páginas e rotas de API" },
+                    { id: "web-components", label: "components/", comment: "componentes React por feature" },
+                    { id: "web-hook", label: "hook/", comment: "TanStack Query hooks globais" },
+                    { id: "web-lib", label: "lib/", comment: "utilitários, config Tiptap, extensões" },
+                    { id: "web-server", label: "server/", comment: "helpers server-side (requireSession)" },
+                    { id: "web-styles", label: "styles/", comment: "variáveis SCSS e animações" },
+                    { id: "web-types", label: "types/", comment: "tipos TypeScript e schemas Zod" }
+                  ]
+                },
+                { id: "web-public", label: "public/", comment: "assets estáticos" },
+                { id: "web-dockerfile", label: "Dockerfile" },
+                { id: "web-components-json", label: "components.json", comment: "configuração shadcn/ui" },
+                { id: "web-next", label: "next.config.ts", comment: "standalone output, MDX, imagens" },
+                { id: "web-postcss", label: "postcss.config.mjs" },
+                { id: "web-tsconfig", label: "tsconfig.json" },
+                { id: "web-vitest", label: "vitest.config.ts", comment: "configuração de testes" }
+              ]
+            },
+            {
+              id: "collab",
+              label: "collab/",
+              comment: "Hocuspocus — servidor WebSocket de colaboração",
+              children: [
+                { id: "collab-src", label: "src/", comment: "servidor Hocuspocus na porta 1234" },
+                { id: "collab-dockerfile", label: "Dockerfile" },
+                { id: "collab-tsconfig", label: "tsconfig.json" }
+              ]
+            }
+          ]
+        },
+        {
+          id: "docs",
+          label: "docs/",
+          comment: "documentação interna (ia.md)"
+        },
+        {
+          id: "packages",
+          label: "packages/",
+          children: [
+            {
+              id: "packages-shared",
+              label: "shared/",
+              comment: "tipos e utilitários compartilhados entre apps",
+              children: [
+                { id: "shared-src", label: "src/" },
+                { id: "shared-pkg", label: "package.json" }
+              ]
+            }
+          ]
+        },
+        {
+          id: "prisma",
+          label: "prisma/",
+          comment: "schema e migrations compartilhados",
+          children: [
+            { id: "prisma-schema", label: "schema.prisma", comment: "modelos do banco de dados" },
+            { id: "prisma-migrations", label: "migrations/", comment: "histórico de migrations" }
+          ]
+        },
+        { id: "agents-md", label: "AGENTS.md", comment: "instruções para agentes de IA" },
+        { id: "claude-md", label: "CLAUDE.md", comment: "instruções para o Claude Code" },
+        { id: "gemini-md", label: "GEMINI.md", comment: "instruções para o Gemini" },
+        { id: "plan-md", label: "PLAN.md", comment: "planejamento interno do projeto" },
+        { id: "readme-md", label: "README.md" },
+        { id: "biome-json", label: "biome.json", comment: "linter e formatter (substitui ESLint + Prettier)" },
+        { id: "cz-config", label: ".cz-config.js", comment: "configuração de commits semânticos (Commitizen)" },
+        { id: "docker-ignore", label: ".dockerignore" },
+        { id: "env-example", label: ".env.example" },
+        { id: "git-attributes", label: ".gitattributes" },
+        { id: "git-ignore", label: ".gitignore" },
+        { id: "package-json", label: "package.json", comment: "scripts e dependências raiz" },
+        { id: "pnpm-lock", label: "pnpm-lock.yaml", comment: "lockfile do pnpm — não editar manualmente" },
+        { id: "pnpm-workspace", label: "pnpm-workspace.yaml", comment: "declara os workspaces do monorepo" },
+        { id: "prisma-config", label: "prisma.config.mjs", comment: "configuração do Prisma CLI" },
+        { id: "skills-lock", label: "skills-lock.json", comment: "lockfile de skills de agentes de IA" }
+      ]
+    }
+  ]}
+/>
+
+## Pastas de ferramentas de IA
+
+Se você não tem experiência com agentes de IA, pode ignorar as pastas `.agents/`, `.claude/`, `.cursor/` e os arquivos `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`. São instruções de contexto para ferramentas como Claude Code, Cursor e Gemini CLI — não afetam o funcionamento da aplicação.
+
+## apps/web
+
+O app principal. Next.js 16 com App Router, responsável pelo frontend e pela API REST. O build usa `output: "standalone"` — o Docker copia apenas os arquivos necessários para produção, resultando em imagens menores.
+
+A estrutura interna de `src/` segue uma divisão clara:
+
+- **`app/`** — rotas de página e de API, organizadas por grupos `(auth)`, `(docs)`, `(landing)`, `(onboarding)` e `[workspaceSlug]`
+- **`components/`** — componentes React organizados por feature, com `ui/` para shadcn e `kibo-ui/` para componentes extras
+- **`hook/`** — hooks globais de TanStack Query, um por recurso
+- **`lib/`** — utilitários, configuração do editor Tiptap e extensões customizadas
+- **`server/`** — helpers server-side como `requireSession()` e `requireWorkspaceAccess()`
+- **`types/`** — tipos TypeScript (`*.type.ts`) e schemas Zod (`*.schema.ts`)
+
+## apps/collab
+
+Servidor WebSocket construído com [Hocuspocus](https://tiptap.dev/docs/hocuspocus/introduction) para colaboração em tempo real nas notas. Roda na porta `1234` e se autentica via JWT gerado pela rota `/api/collab/token` do app web.
+
+## prisma/
+
+Schema e migrations ficam na raiz do monorepo e são compartilhados entre `web` e `collab` — ambos se conectam ao mesmo banco PostgreSQL. As migrations rodam automaticamente no startup do container `web`.
+
+## biome.json
+
+O projeto usa [Biome](https://biomejs.dev) no lugar de ESLint + Prettier. Um único arquivo de configuração cobre lint e formatação para todo o monorepo.

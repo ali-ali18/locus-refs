@@ -1,0 +1,50 @@
+# Docs Content
+
+Rota interna que retorna o conteúdo raw (`.mdx`) de uma página da documentação. Usada pelo botão de copiar conteúdo presente no cabeçalho de cada página.
+
+
+## `GET /api/docs/content`
+
+Lê o arquivo `.mdx` correspondente ao caminho informado e retorna seu conteúdo como texto.
+
+### Query params
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>path*</code></td><td><code>string</code></td><td>Caminho da página (ex: <code>/docs/categories</code>)</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+```
+text/plain; charset=utf-8
+```
+
+Conteúdo raw do arquivo `page.mdx` da rota solicitada.
+
+### Erros
+
+<DocsTable>
+  <thead>
+    <tr><th>Código</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>400</code></td><td>Caminho não começa com <code>/docs</code></td></tr>
+    <tr><td><code>404</code></td><td>Arquivo não encontrado</td></tr>
+  </tbody>
+</DocsTable>
+
+### Mapeamento de caminhos
+
+O `path` é mapeado diretamente para o sistema de arquivos:
+
+```
+/docs/categories → src/app/(docs)/docs/categories/page.mdx
+/docs            → src/app/(docs)/docs/page.mdx
+```
+
+> **Nota de segurança:** A rota valida que o `path` começa com `/docs` para evitar path traversal.

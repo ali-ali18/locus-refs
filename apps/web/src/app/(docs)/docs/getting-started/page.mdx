@@ -1,0 +1,260 @@
+# Getting Started
+
+O Refstash pode ser executado localmente para desenvolvimento ou em produção via Docker. Escolha o modo que se aplica ao seu caso.
+
+## Local
+
+Ambiente de desenvolvimento com hot-reload.
+
+### Pré-requisitos
+
+- Node.js 20+
+- pnpm 10+
+- PostgreSQL 15+ rodando localmente
+
+### 1. Clone o repositório
+
+```bash
+git clone https://github.com/ali-ali18/locus-refs.git
+cd locus-refs
+```
+
+### 2. Instale as dependências
+
+```bash
+pnpm install
+```
+
+### 3. Configure as variáveis de ambiente
+
+```bash
+cp apps/web/.env.example apps/web/.env.local
+```
+
+Preencha ao menos as variáveis obrigatórias:
+
+```bash
+DATABASE_URL="postgresql://user:password@localhost:5432/refstash"
+BETTER_AUTH_SECRET="sua-chave-secreta"
+BETTER_AUTH_URL="http://localhost:3000"
+COLLAB_JWT_SECRET="sua-chave-collab"
+ANTHROPIC_API_KEY="sk-ant-..."
+```
+
+### 4. Execute as migrations
+
+```bash
+pnpm db:migrate
+```
+
+### 5. Inicie o servidor de desenvolvimento
+
+```bash
+pnpm dev
+```
+
+A aplicação estará disponível em `http://localhost:3000`.
+O servidor de colaboração sobe separadamente via `pnpm collab:dev` na porta `1234`.
+
+## VPS com Docker
+
+O projeto possui dois serviços com Dockerfiles independentes:
+
+<DocsTable>
+  <thead>
+    <tr><th>Serviço</th><th>Dockerfile</th><th>Porta</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>web</code></td><td><code>apps/web/Dockerfile</code></td><td><code>3000</code></td></tr>
+    <tr><td><code>collab</code></td><td><code>apps/collab/Dockerfile</code></td><td><code>1234</code></td></tr>
+  </tbody>
+</DocsTable>
+
+O Docker suporta build direto de uma URL do git como `context` — não é necessário clonar o projeto manualmente na VPS. Basta criar dois arquivos no servidor.
+
+### 1. Configure as variáveis de ambiente
+
+Crie um diretório e o arquivo `.env` na VPS:
+
+```bash
+mkdir refstash && cd refstash
+nano .env
+```
+
+Preencha as variáveis:
+
+```bash
+# Banco de dados
+DATABASE_URL="postgresql://user:password@host:5432/refstash"
+
+# Auth
+BETTER_AUTH_SECRET="chave-longa-e-aleatoria"
+BETTER_AUTH_URL="https://seudominio.com"
+
+# Colaboração
+COLLAB_JWT_SECRET="chave-jwt-collab"
+
+# Storage (S3-compatible)
+STORAGE_ENDPOINT=""
+STORAGE_BUCKET=""
+STORAGE_ACCESS_KEY=""
+STORAGE_SECRET_KEY=""
+STORAGE_REGION=""
+
+# Email
+RESEND_API_KEY=""
+RESEND_FROM_EMAIL=""
+
+# IA (ao menos uma chave obrigatória)
+ANTHROPIC_API_KEY="sk-ant-..."
+```
+
+### 2. Crie o docker-compose.yml
+
+```bash
+nano docker-compose.yml
+```
+
+```yaml
+services:
+  web:
+    build:
+      context: https://github.com/ali-ali18/locus-refs.git
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_COLLAB_WS_URL: wss://collab.seudominio.com
+        NEXT_PUBLIC_APP_URL: https://seudominio.com
+        NEXT_PUBLIC_API_URL: https://seudominio.com
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  collab:
+    build:
+      context: https://github.com/ali-ali18/locus-refs.git
+      dockerfile: apps/collab/Dockerfile
+    ports:
+      - "1234:1234"
+    env_file:
+      - .env
+    restart: unless-stopped
+```
+
+> **Atenção:** As variáveis `NEXT_PUBLIC_*` são injetadas **em tempo de build**, não em runtime. Elas devem ser passadas como `args` no `docker-compose.yml`.
+
+### 3. Build e inicialização
+
+```bash
+docker compose up -d --build
+```
+
+As migrations do Prisma rodam automaticamente no startup do container `web` — não é necessário executá-las manualmente.
+
+### 4. Configure o Nginx
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name seudominio.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name collab.seudominio.com;
+
+    location / {
+        proxy_pass http://localhost:1234;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+    }
+}
+```
+
+Ative o SSL com Certbot:
+
+```bash
+certbot --nginx -d seudominio.com -d collab.seudominio.com
+```
+
+## Com Dokploy
+
+[Dokploy](https://dokploy.com) é uma plataforma self-hosted que gerencia deploys Docker com interface visual, SSL automático e integração com GitHub. É a opção mais simples para quem não quer configurar Nginx e Certbot manualmente.
+
+### 1. Instale o Dokploy na VPS
+
+```bash
+curl -sSL https://dokploy.com/install.sh | sh
+```
+
+Acesse o painel em `http://seu-ip:3000` e crie sua conta de administrador.
+
+### 2. Crie um projeto Docker Compose
+
+No painel do Dokploy:
+
+1. Clique em **New Project** → **Create**
+2. Dentro do projeto, clique em **New Service** → **Docker Compose**
+3. Em **Provider**, selecione **GitHub** e conecte o repositório `ali-ali18/locus-refs`
+4. Em **Compose Path**, deixe vazio (o `docker-compose.yml` ficará na raiz, que você criará a seguir)
+
+### 3. Configure o docker-compose.yml
+
+Na aba **Compose** do serviço, cole o conteúdo:
+
+```yaml
+services:
+  web:
+    build:
+      context: https://github.com/ali-ali18/locus-refs.git
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_COLLAB_WS_URL: wss://collab.seudominio.com
+        NEXT_PUBLIC_APP_URL: https://seudominio.com
+        NEXT_PUBLIC_API_URL: https://seudominio.com
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  collab:
+    build:
+      context: https://github.com/ali-ali18/locus-refs.git
+      dockerfile: apps/collab/Dockerfile
+    ports:
+      - "1234:1234"
+    env_file:
+      - .env
+    restart: unless-stopped
+```
+
+### 4. Configure as variáveis de ambiente
+
+Na aba **Environment** do serviço, adicione todas as variáveis do `.env`. O Dokploy as injeta automaticamente nos containers.
+
+> **Atenção:** As variáveis `NEXT_PUBLIC_*` são injetadas em tempo de build — configure-as nos `args` do `docker-compose.yml` acima, não nas variáveis de ambiente do painel.
+
+### 5. Configure os domínios
+
+Na aba **Domains** de cada serviço:
+
+- Serviço `web` → adicione `seudominio.com` apontando para a porta `3000`
+- Serviço `collab` → adicione `collab.seudominio.com` apontando para a porta `1234`
+
+Ative **Generate SSL** em cada domínio — o Dokploy emite o certificado via Let's Encrypt automaticamente.
+
+### 6. Faça o deploy
+
+Clique em **Deploy**. O Dokploy clona o repositório, executa o build e sobe os containers. Acompanhe os logs em tempo real na aba **Logs**.
