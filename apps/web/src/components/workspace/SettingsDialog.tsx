@@ -110,8 +110,8 @@ export function SettingsDialog() {
       >
         <DialogTitle className="sr-only">Configurações</DialogTitle>
         <div className="flex h-full min-h-0 flex-col">
-          <div className="grid min-h-0 flex-1 grid-cols-1 min-h-[600px] max-h-[600px] md:grid-cols-[200px_1fr]">
-            <nav className="flex min-h-0 flex-row gap-1 overflow-x-auto border-b border-border bg-muted/30 p-2 pe-12 md:flex-col md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:p-3 md:pe-3">
+          <div className="grid min-h-0 flex-1 grid-cols-1 md:min-h-[600px] md:max-h-[600px] md:grid-cols-[200px_1fr]">
+            <nav className="flex min-h-0 flex-row gap-1 overflow-x-auto border-b border-border bg-muted/30 p-2 [mask-image:linear-gradient(to_right,black_0%,black_75%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_right,black_0%,black_75%,transparent_100%)] md:flex-col md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:p-3 md:[mask-image:none] md:[-webkit-mask-image:none]">
               <SettingsSectionLabel
                 label={USER_SECTION}
                 className="hidden md:flex"
