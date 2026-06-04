@@ -8,6 +8,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSettingsDialog } from "@/context/settingsDialog";
 import { useWorkspace } from "@/context/workspace";
 import { useWorkspaceMembers } from "@/hook/workspace/useWorkspaceMembers";
 import { Icon } from "../shared/Icon";
@@ -23,6 +24,7 @@ import {
 export function NavBase() {
   const { workspaceSlug } = useWorkspace();
   const { currentMember } = useWorkspaceMembers();
+  const { openSettings } = useSettingsDialog();
   const canSeeSettings =
     currentMember?.role === "admin" || currentMember?.role === "owner";
   const pathname = usePathname();
@@ -45,13 +47,6 @@ export function NavBase() {
       label: "Coleções",
       className: "group-data-[collapsible=icon]:hidden",
     },
-    {
-      href: `/${workspaceSlug}/config`,
-      icon: Setting07Icon,
-      label: "Configuração do workspace",
-      rule: canSeeSettings,
-      className: "group-data-[collapsible=icon]:hidden",
-    },
   ];
 
   return (
@@ -59,25 +54,36 @@ export function NavBase() {
       <SidebarGroupLabel>Paginas</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {links
-            .filter((link) => link.rule !== false)
-            .map((link) => (
-              <SidebarMenuItem key={link.href} className={link.className}>
-                <SidebarMenuButton
-                  suppressHydrationWarning
-                  tooltip={link.label}
-                  isActive={
-                    link.href === `/${workspaceSlug}`
-                      ? pathname === link.href
-                      : pathname.startsWith(link.href)
-                  }
-                  render={<Link href={link.href} />}
-                >
-                  <Icon icon={link.icon} />
-                  {link.label}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+          {links.map((link) => (
+            <SidebarMenuItem key={link.href} className={link.className}>
+              <SidebarMenuButton
+                suppressHydrationWarning
+                tooltip={link.label}
+                isActive={
+                  link.href === `/${workspaceSlug}`
+                    ? pathname === link.href
+                    : pathname.startsWith(link.href)
+                }
+                render={<Link href={link.href} />}
+              >
+                <Icon icon={link.icon} />
+                {link.label}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+
+          {canSeeSettings && (
+            <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
+              <SidebarMenuButton
+                suppressHydrationWarning
+                tooltip="Configuração"
+                onClick={() => openSettings("workspace-general")}
+              >
+                <Icon icon={Setting07Icon} />
+                Configuração
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

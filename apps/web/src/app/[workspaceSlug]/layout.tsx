@@ -8,6 +8,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { WorkspaceNavigationMenu } from "@/components/workspace/WorkspaceNavigationMenu";
 import { ChatPanelProvider } from "@/context/chatPanel";
 import { NoteEditorProvider } from "@/context/noteEditor";
+import { SettingsDialogProvider } from "@/context/settingsDialog";
 import { WorkspaceProvider } from "@/context/workspace";
 import prisma from "@/lib/prisma";
 import { requireSession } from "@/server/requireSession";
@@ -48,15 +49,17 @@ export default async function WorkspaceLayout({ children, params }: Props) {
       >
         <NoteEditorProvider>
           <ChatPanelProvider>
-            <SidebarProvider>
-              <AppSidebar />
-              <div className="flex flex-1 flex-col">
-                <DashboardLayoutHeader />
-                {children}
-              </div>
-              <ChatPanel />
-              <WorkspaceNavigationMenu />
-            </SidebarProvider>
+            <SettingsDialogProvider>
+              <SidebarProvider>
+                <AppSidebar />
+                <div className="flex flex-1 flex-col">
+                  <DashboardLayoutHeader />
+                  {children}
+                </div>
+                <ChatPanel />
+                <WorkspaceNavigationMenu />
+              </SidebarProvider>
+            </SettingsDialogProvider>
           </ChatPanelProvider>
         </NoteEditorProvider>
       </WorkspaceProvider>
