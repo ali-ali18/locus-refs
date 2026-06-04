@@ -104,12 +104,12 @@ export function SettingsDialog() {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && closeSettings()}>
       <DialogContent
-        className="sm:max-w-3xl p-0 gap-0 overflow-hidden flex flex-col max-h-[85vh]"
+        className="sm:max-w-3xl p-0 gap-0 overflow-hidden flex flex-col max-h-[85vh] min-h-0"
         showCloseButton
       >
         <DialogTitle className="sr-only">Configurações</DialogTitle>
-        <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] flex-1 min-h-0 md:min-h-[500px]">
-          <nav className="flex flex-col gap-1 border-b md:border-b-0 md:border-r border-border bg-muted/30 p-3 md:overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] flex-1 min-h-0 md:min-h-[600px]">
+          <nav className="flex flex-col gap-1 border-b md:border-b-0 md:border-r border-border bg-muted/30 p-3 md:overflow-y-auto min-h-0">
             <SettingsSectionLabel label={USER_SECTION} />
             {entries
               .filter((e) => !isWorkspaceTab(e.id))
