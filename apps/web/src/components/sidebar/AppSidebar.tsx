@@ -11,7 +11,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { SettingsDialog } from "@/components/workspace/SettingsDialog";
 import { NavBase } from "./NavBase";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -29,7 +28,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser />
       </SidebarFooter>
       <SidebarRail />
-      <SettingsDialog />
     </Sidebar>
   );
 }
