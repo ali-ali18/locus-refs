@@ -114,7 +114,7 @@ export function SettingsDialog() {
             <h2 className="text-base font-semibold">Configurações</h2>
           </div>
           <div className="flex min-h-0 min-w-0 flex-1 flex-col md:grid md:min-h-[600px] md:max-h-[600px] md:grid-cols-[200px_1fr]">
-            <nav className="flex min-h-0 min-w-0 flex-row gap-1 overflow-x-auto border-b border-border bg-muted/30 p-2 [mask-image:linear-gradient(to_right,black_80%,transparent)] md:flex-col md:overflow-x-visible md:overflow-y-auto md:[mask-image:none] md:border-b-0 md:border-r md:p-3">
+            <nav className="flex min-h-0 min-w-0 flex-row gap-1 overflow-x-auto border-b border-border bg-muted/30 p-2 md:flex-col md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:p-3">
               <SettingsSectionLabel
                 label={USER_SECTION}
                 className="hidden md:flex"
