@@ -7,7 +7,7 @@ import {
   UserListFreeIcons,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -101,20 +101,50 @@ export function SettingsDialog() {
 
   const activeEntry = entries.find((e) => e.id === activeTabId) ?? entries[0];
 
+  // Fade na borda direita do nav mobile enquanto houver conteúdo para rolar.
+  const navRef = useRef<HTMLElement>(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      setCanScrollRight(maxScroll > 1 && el.scrollLeft < maxScroll - 1);
+    };
+
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [entries.length]);
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && closeSettings()}>
       <DialogContent
         className="sm:max-w-2xl md:max-w-3xl p-0 gap-0 overflow-hidden"
         style={{ maxHeight: "min(85vh, 800px)" }}
         showCloseButton
+        closeButtonClassName="top-2 md:top-4"
       >
         <DialogTitle className="sr-only">Configurações</DialogTitle>
         <div className="flex h-full min-h-0 min-w-0 flex-col">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3 pr-12 md:hidden">
+          <div className="flex h-12 items-center justify-between px-4 pr-12 md:hidden">
             <h2 className="text-base font-semibold">Configurações</h2>
           </div>
           <div className="flex min-h-0 min-w-0 flex-1 flex-col md:grid md:min-h-[600px] md:max-h-[600px] md:grid-cols-[200px_1fr]">
-            <nav className="flex min-h-0 min-w-0 flex-row gap-1 overflow-x-auto border-b border-border bg-muted/30 p-2 md:flex-col md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:p-3">
+            <nav
+              ref={navRef}
+              className={cn(
+                "flex min-h-0 min-w-0 flex-row gap-1 overflow-x-auto p-2 border-t md:flex-col md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:p-3",
+                canScrollRight &&
+                  "[mask-image:linear-gradient(to_right,black_calc(100%-2rem),transparent)]",
+              )}
+            >
               <SettingsSectionLabel
                 label={USER_SECTION}
                 className="hidden md:flex"
