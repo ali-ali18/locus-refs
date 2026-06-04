@@ -104,15 +104,18 @@ export function SettingsDialog() {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && closeSettings()}>
       <DialogContent
-        className="sm:max-w-3xl p-0 gap-0 overflow-hidden"
+        className="sm:max-w-2xl md:max-w-3xl p-0 gap-0 overflow-hidden"
         style={{ maxHeight: "min(85vh, 800px)" }}
         showCloseButton
       >
         <DialogTitle className="sr-only">Configurações</DialogTitle>
         <div className="flex h-full min-h-0 flex-col">
-          <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto md:min-h-[600px] md:grid-cols-[200px_1fr] md:overflow-hidden">
-            <nav className="flex min-h-0 flex-col gap-1 border-b border-border bg-muted/30 p-3 md:border-b-0 md:border-r md:overflow-y-auto">
-              <SettingsSectionLabel label={USER_SECTION} />
+          <div className="grid min-h-0 flex-1 grid-cols-1 md:min-h-[600px] md:max-h-[600px] md:grid-cols-[200px_1fr]">
+            <nav className="flex min-h-0 flex-row gap-1 overflow-x-auto border-b border-border bg-muted/30 p-2 md:flex-col md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:p-3">
+              <SettingsSectionLabel
+                label={USER_SECTION}
+                className="hidden md:flex"
+              />
               {entries
                 .filter((e) => !isWorkspaceTab(e.id))
                 .map((entry) => (
@@ -128,7 +131,7 @@ export function SettingsDialog() {
                 <>
                   <SettingsSectionLabel
                     label={WORKSPACE_SECTION}
-                    className="mt-3"
+                    className="mt-3 hidden md:flex"
                   />
                   {entries
                     .filter((e) => isWorkspaceTab(e.id))
@@ -144,7 +147,7 @@ export function SettingsDialog() {
               )}
             </nav>
 
-            <div className="flex min-h-0 flex-col gap-6 p-6 md:overflow-y-auto">
+            <div className="flex min-h-0 flex-col gap-6 p-4 overflow-y-auto md:p-6">
               <WorkspaceHeaderConfig
                 title={activeEntry.headerTitle}
                 description={activeEntry.headerDescription}
@@ -191,7 +194,7 @@ function SettingsNavItem({
       type="button"
       onClick={() => onSelect(entry.id)}
       className={cn(
-        "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-left transition-colors",
+        "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-left transition-colors whitespace-nowrap md:whitespace-normal",
         isActive
           ? "bg-accent text-accent-foreground font-medium"
           : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
