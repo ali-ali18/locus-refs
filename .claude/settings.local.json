@@ -10,7 +10,12 @@
       "Bash(pnpm --filter @refstash/web exec tsc --noEmit)",
       "Bash(echo \"exit=$?\")",
       "Bash(pnpm lint *)",
-      "Bash(pnpm --filter @refstash/web build)"
+      "Bash(pnpm --filter @refstash/web build)",
+      "Bash(Select-Object Name)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }

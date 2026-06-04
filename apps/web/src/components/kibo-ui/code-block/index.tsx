@@ -12,11 +12,9 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 import type {
   ComponentProps,
   HTMLAttributes,
-  ReactElement,
   ReactNode,
 } from "react";
 import {
-  cloneElement,
   createContext,
   useContext,
   useEffect,
@@ -32,7 +30,7 @@ import {
   SiCircleci,
   SiCoffeescript,
   SiCplusplus,
-  SiCss3,
+  SiCss,
   SiCssmodules,
   SiDart,
   SiDocker,
@@ -121,7 +119,7 @@ const filenameIconMap = {
   ".circleci/config.yml": SiCircleci,
   "*.coffee": SiCoffeescript,
   "*.module.css": SiCssmodules,
-  "*.css": SiCss3,
+  "*.css": SiCss,
   "*.dart": SiDart,
   Dockerfile: SiDocker,
   "docusaurus.config.js": SiDocusaurus,
@@ -421,7 +419,13 @@ export type CodeBlockSelectProps = ComponentProps<typeof Select>;
 export const CodeBlockSelect = (props: CodeBlockSelectProps) => {
   const { value, onValueChange } = useContext(CodeBlockContext);
 
-  return <Select onValueChange={onValueChange} value={value} {...props} />;
+  return (
+    <Select
+      onValueChange={(v) => onValueChange?.(v as string)}
+      value={value}
+      {...props}
+    />
+  );
 };
 
 export type CodeBlockSelectTriggerProps = ComponentProps<typeof SelectTrigger>;
@@ -477,7 +481,6 @@ export type CodeBlockCopyButtonProps = ComponentProps<typeof Button> & {
 };
 
 export const CodeBlockCopyButton = ({
-  asChild,
   onCopy,
   onError,
   timeout = 2000,
@@ -505,13 +508,6 @@ export const CodeBlockCopyButton = ({
       setTimeout(() => setIsCopied(false), timeout);
     }, onError);
   };
-
-  if (asChild) {
-    return cloneElement(children as ReactElement, {
-      // @ts-expect-error - we know this is a button
-      onClick: copyToClipboard,
-    });
-  }
 
   const Icon = isCopied ? CheckIcon : CopyIcon;
 
