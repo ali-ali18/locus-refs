@@ -37,7 +37,6 @@ import { useWorkspaceMembers } from "@/hook/workspace/useWorkspaceMembers";
 import { InviteMemberDialog } from "./InviteMemberDialog";
 import { RemoveMemberDialog } from "./RemoveMemberDialog";
 import { UpdateMemberRoleDialog } from "./UpdateMemberRoleDialog";
-import { WorkspaceHeaderConfig } from "./WorkspaceHeaderConfig";
 
 export function WorkspaceUserList() {
   const {
@@ -73,11 +72,6 @@ export function WorkspaceUserList() {
 
   return (
     <section className="flex flex-col gap-6">
-      <WorkspaceHeaderConfig
-        title="Gerenciamento de usuários"
-        description="Faça a gestão de todos os membros participantes do workspace."
-      />
-
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-muted-foreground">
