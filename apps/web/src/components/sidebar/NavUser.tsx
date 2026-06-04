@@ -30,9 +30,14 @@ import { authClient } from "@/lib/auth-client";
 
 export function NavUser() {
   const { data: session, isPending } = authClient.useSession();
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const { openSettings } = useSettingsDialog();
   const router = useRouter();
+
+  const openSettingsAndCloseSidebar = () => {
+    if (isMobile) setOpenMobile(false);
+    openSettings();
+  };
 
   const handleSignOut = async () => {
     await authClient.signOut({
@@ -117,7 +122,7 @@ export function NavUser() {
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => openSettings()}>
+            <DropdownMenuItem onClick={openSettingsAndCloseSidebar}>
               <HugeiconsIcon icon={Settings01Icon} strokeWidth={2} />
               Configurações
             </DropdownMenuItem>

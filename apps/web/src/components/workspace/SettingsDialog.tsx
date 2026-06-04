@@ -110,7 +110,7 @@ export function SettingsDialog() {
       >
         <DialogTitle className="sr-only">Configurações</DialogTitle>
         <div className="flex h-full min-h-0 flex-col">
-          <div className="grid min-h-0 flex-1 grid-cols-1 md:min-h-[600px] md:grid-cols-[200px_1fr]">
+          <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto md:min-h-[600px] md:grid-cols-[200px_1fr] md:overflow-hidden">
             <nav className="flex min-h-0 flex-col gap-1 border-b border-border bg-muted/30 p-3 md:border-b-0 md:border-r md:overflow-y-auto">
               <SettingsSectionLabel label={USER_SECTION} />
               {entries
