@@ -117,11 +117,7 @@ export function NavUser() {
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => openSettings("profile")}>
-              <HugeiconsIcon icon={UserIcon} strokeWidth={2} />
-              Perfil
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => openSettings("workspace-general")}>
+            <DropdownMenuItem onClick={() => openSettings()}>
               <HugeiconsIcon icon={Settings01Icon} strokeWidth={2} />
               Configurações
             </DropdownMenuItem>

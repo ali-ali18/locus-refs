@@ -4,13 +4,10 @@ import {
   Folder01FreeIcons,
   Home01Icon,
   Note01FreeIcons,
-  Setting07Icon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSettingsDialog } from "@/context/settingsDialog";
 import { useWorkspace } from "@/context/workspace";
-import { useWorkspaceMembers } from "@/hook/workspace/useWorkspaceMembers";
 import { Icon } from "../shared/Icon";
 import {
   SidebarGroup,
@@ -23,10 +20,6 @@ import {
 
 export function NavBase() {
   const { workspaceSlug } = useWorkspace();
-  const { currentMember } = useWorkspaceMembers();
-  const { openSettings } = useSettingsDialog();
-  const canSeeSettings =
-    currentMember?.role === "admin" || currentMember?.role === "owner";
   const pathname = usePathname();
 
   const links = [
@@ -71,19 +64,6 @@ export function NavBase() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
-
-          {canSeeSettings && (
-            <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
-              <SidebarMenuButton
-                suppressHydrationWarning
-                tooltip="Configuração"
-                onClick={() => openSettings("workspace-general")}
-              >
-                <Icon icon={Setting07Icon} />
-                Configuração
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
