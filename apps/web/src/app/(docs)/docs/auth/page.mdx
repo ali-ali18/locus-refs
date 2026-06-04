@@ -1,0 +1,32 @@
+# Autenticação
+
+O Refstash usa [Better Auth](https://www.better-auth.com/) para autenticação. Toda a lógica de sessão, login, registro e OAuth é gerenciada pela rota catch-all `/api/auth/[...all]`.
+
+
+## `GET` / `POST /api/auth/[...all]`
+
+Rota catch-all que delega ao handler do Better Auth. Suporta os fluxos:
+
+- Login com e-mail e senha
+- Registro de novo usuário
+- Logout
+- Refresh de sessão
+
+### Credenciais de registro
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Regra</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Nome</td><td>Mínimo 2 caracteres</td></tr>
+    <tr><td>E-mail</td><td>Formato de e-mail válido</td></tr>
+    <tr><td>Senha</td><td>Mínimo 8 caracteres, 1 maiúscula, 1 número, 1 caractere especial</td></tr>
+  </tbody>
+</DocsTable>
+
+### Sessão no servidor
+
+Use `requireSession()` ou `requireWorkspaceAccess()` de `src/server/` para proteger rotas de API. Nunca leia a sessão diretamente nos route handlers.
+
+> Consulte a [documentação do Better Auth](https://www.better-auth.com/docs) para detalhes sobre os endpoints disponíveis.

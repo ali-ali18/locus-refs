@@ -1,0 +1,106 @@
+# App Router
+
+O Next.js App Router organiza as rotas pelo sistema de arquivos. O Refstash usa **route groups** — pastas entre parênteses que agrupam rotas sem afetar a URL — para separar contextos distintos da aplicação.
+
+<DocsProjectTree
+  defaultExpandedIds={["app", "auth", "landing", "onboarding", "docs-group", "workspace", "api"]}
+  items={[
+    {
+      id: "app",
+      label: "app/",
+      children: [
+        {
+          id: "auth",
+          label: "(auth)/",
+          comment: "rotas públicas de autenticação",
+          children: [
+            { id: "login", label: "login/page.tsx" },
+            { id: "register", label: "register/page.tsx" }
+          ]
+        },
+        {
+          id: "landing",
+          label: "(landing)/",
+          comment: "página inicial pública",
+          children: [
+            { id: "landing-layout", label: "layout.tsx" },
+            { id: "landing-page", label: "page.tsx" }
+          ]
+        },
+        {
+          id: "onboarding",
+          label: "(onboarding)/",
+          comment: "fluxo de criação de workspace",
+          children: [
+            { id: "workspace-new", label: "workspace/new/page.tsx" }
+          ]
+        },
+        {
+          id: "docs-group",
+          label: "(docs)/",
+          comment: "documentação — páginas MDX",
+          children: [
+            { id: "docs-layout", label: "layout.tsx" },
+            { id: "docs-pages", label: "docs/", comment: "páginas .mdx da documentação" }
+          ]
+        },
+        {
+          id: "workspace",
+          label: "[workspaceSlug]/",
+          comment: "app principal — requer autenticação",
+          children: [
+            { id: "ws-layout", label: "layout.tsx", comment: "sidebar, header, chat panel" },
+            { id: "ws-page", label: "page.tsx", comment: "dashboard do workspace" },
+            { id: "ws-categories", label: "categories/page.tsx" },
+            { id: "ws-collections", label: "collections/page.tsx" },
+            { id: "ws-collection-id", label: "collections/[id]/page.tsx" },
+            { id: "ws-notes", label: "notes/page.tsx" },
+            { id: "ws-note-id", label: "notes/[id]/page.tsx", comment: "editor Tiptap" },
+            { id: "ws-settings", label: "settings/page.tsx" },
+            { id: "ws-settings-members", label: "settings/members/page.tsx" },
+            { id: "ws-settings-ai", label: "settings/ai/page.tsx" }
+          ]
+        },
+        {
+          id: "invite",
+          label: "invite/[id]/page.tsx",
+          comment: "aceitar convite de workspace"
+        },
+        {
+          id: "api",
+          label: "api/",
+          comment: "rotas de API REST",
+          children: [
+            { id: "api-auth", label: "auth/[...all]/route.ts", comment: "Better Auth handler" },
+            { id: "api-categories", label: "categories/route.ts + [id]/route.ts" },
+            { id: "api-collection", label: "collection/route.ts + [id]/route.ts" },
+            { id: "api-notes", label: "notes/route.ts + [id]/route.ts" },
+            { id: "api-resources", label: "resources/route.ts + [id]/route.ts" },
+            { id: "api-ai", label: "ai/chat + models + settings" },
+            { id: "api-upload", label: "upload/notes + workspace-logo" },
+            { id: "api-collab", label: "collab/token/route.ts" },
+            { id: "api-metadata", label: "fetchMetadata/route.ts" },
+            { id: "api-storage", label: "storage/[...path]/route.ts" },
+            { id: "api-docs", label: "docs/content/route.ts" },
+            { id: "api-workspace", label: "workspace/route.ts" }
+          ]
+        },
+        { id: "root-layout", label: "layout.tsx", comment: "providers globais (Query, Theme, Toast)" }
+      ]
+    }
+  ]}
+/>
+
+## Route groups
+
+Os parênteses na pasta criam um grupo sem impactar a URL. `/login` é acessível em `/login`, não em `/(auth)/login`.
+
+Isso serve para compartilhar layouts entre rotas sem criar segmentos de URL extras. Por exemplo, todas as rotas dentro de `[workspaceSlug]/` compartilham o mesmo layout com sidebar e header.
+
+## [workspaceSlug]
+
+Segmento dinâmico — o slug do workspace ativo aparece na URL (`/meu-workspace/notes`). O layout desse grupo valida a sessão e carrega o contexto do workspace. Rotas fora desse grupo (como `/login`) são públicas.
+
+## api/
+
+Serverless API routes. Cada `route.ts` exporta handlers HTTP (`GET`, `POST`, `PATCH`, `DELETE`). Todas as rotas de negócio usam `requireWorkspaceAccess()` do `src/server/` para validar a sessão antes de processar a requisição.

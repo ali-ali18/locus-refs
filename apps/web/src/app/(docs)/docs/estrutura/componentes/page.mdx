@@ -1,0 +1,83 @@
+# Componentes
+
+Os componentes ficam em `apps/web/src/components/` e são organizados por **feature** — cada pasta agrupa tudo relacionado a um contexto específico da aplicação.
+
+<DocsProjectTree
+  defaultExpandedIds={["components", "ui-group", "kibo", "workspace-comp"]}
+  items={[
+    {
+      id: "components",
+      label: "components/",
+      children: [
+        { id: "auth-comp", label: "auth/", comment: "formulários de login e registro" },
+        { id: "base-comp", label: "base/", comment: "wrappers reutilizáveis (Dialog, Dropdown, Table...)" },
+        { id: "breadcrumb-comp", label: "breadcrumb/", comment: "navegação em migalhas" },
+        { id: "categories-comp", label: "categories/", comment: "CRUD de categorias + tabela" },
+        { id: "chat-comp", label: "chat/", comment: "painel de IA — mensagens, input, seletor de modelo" },
+        { id: "collections-comp", label: "collections/", comment: "formulário de criação de coleções" },
+        { id: "dashboard-comp", label: "dashboard/", comment: "grid de recursos, cards, dialogs de CRUD" },
+        { id: "docs-comp", label: "docs/", comment: "componentes exclusivos da documentação" },
+        {
+          id: "kibo",
+          label: "kibo-ui/",
+          comment: "biblioteca de componentes avançados",
+          children: [
+            { id: "kibo-calendar", label: "calendar/" },
+            { id: "kibo-code", label: "code-block/" },
+            { id: "kibo-dropzone", label: "dropzone/" },
+            { id: "kibo-gantt", label: "gantt/" },
+            { id: "kibo-image", label: "image-zoom/" },
+            { id: "kibo-kanban", label: "kanban/" },
+            { id: "kibo-list", label: "list/" },
+            { id: "kibo-tree", label: "tree/" }
+          ]
+        },
+        { id: "landing-comp", label: "landing/", comment: "seções da landing page (Hero, FAQ, CTA...)" },
+        { id: "notes-comp", label: "notes/", comment: "lista de notas, cards, editor, icon picker" },
+        { id: "shared-comp", label: "shared/", comment: "providers globais (Theme, QueryClient) e utilitários" },
+        { id: "sidebar-comp", label: "sidebar/", comment: "sidebar do workspace — nav, user, workspace switcher" },
+        { id: "tiptap-icons", label: "tiptap-icons/", comment: "ícones SVG do editor rich-text" },
+        { id: "tiptap-ui", label: "tiptap-ui/", comment: "UI do editor Tiptap (toolbar, menus)" },
+        { id: "tiptap-prim", label: "tiptap-ui-primitive/", comment: "primitivos baixo nível do editor" },
+        { id: "tiptap-utils", label: "tiptap-ui-utils/", comment: "utilitários do editor" },
+        {
+          id: "ui-group",
+          label: "ui/",
+          comment: "componentes shadcn/ui — base de toda a UI",
+          children: [
+            { id: "ui-button", label: "button.tsx" },
+            { id: "ui-dialog", label: "dialog.tsx" },
+            { id: "ui-sheet", label: "sheet.tsx" },
+            { id: "ui-drawer", label: "drawer.tsx" },
+            { id: "ui-input", label: "input.tsx" },
+            { id: "ui-table", label: "table.tsx" },
+            { id: "ui-select", label: "select.tsx" },
+            { id: "ui-etc", label: "... e outros" }
+          ]
+        },
+        {
+          id: "workspace-comp",
+          label: "workspace/",
+          comment: "features específicas do workspace",
+          children: [
+            { id: "ws-nav", label: "WorkspaceNavigationMenu.tsx" },
+            { id: "ws-overview", label: "overview/", comment: "dashboard e estatísticas" },
+            { id: "ws-config", label: "config/", comment: "configurações de membros e workspace" }
+          ]
+        }
+      ]
+    }
+  ]}
+/>
+
+## Regras de organização
+
+**Componentes de feature** ficam na pasta da feature — `notes/`, `categories/`, `dashboard/`. Cada pasta pode ter uma subpasta `hook/` para hooks locais que não precisam ser globais.
+
+**Hooks globais** ficam em `src/hook/` (fora de `components/`) — são os hooks de TanStack Query compartilhados por múltiplos componentes.
+
+**`ui/`** contém apenas os componentes do shadcn/ui. Não se cria componentes do zero aqui — se o shadcn/ui tem um equivalente, ele é usado.
+
+**`kibo-ui/`** é uma coleção de componentes mais complexos (árvore, kanban, gantt, code block) que complementam o shadcn/ui.
+
+**`shared/`** guarda os providers globais (`ThemeProvider`, `QueryClient`) e componentes verdadeiramente reutilizáveis em contextos diferentes como `Icon`, `Logo` e `Container`.

@@ -1,0 +1,32 @@
+# Metadados
+
+Extrai metadados de uma URL externa (título, descrição, imagem OG, favicon) para pré-preencher formulários de criação de recursos.
+
+
+## `POST /api/fetchMetadata`
+
+Faz scraping de uma página web e retorna seus metadados Open Graph.
+
+### Corpo da requisição
+
+```typescript
+{ url: string }
+```
+
+### Resposta `200`
+
+```typescript
+{
+  title: string | null;        // og:title ou <title>
+  description: string | null;  // og:description ou meta[name=description]
+  ogImageUrl: string | null;   // og:image
+  iconUrl: string;             // link[rel="icon"] ou /favicon.ico
+}
+```
+
+### Detalhes de implementação
+
+- Timeout de 6 segundos na requisição externa
+- User-Agent: `Mozilla/5.0 (compatible; Googlebot)`
+- URLs relativas de favicon são resolvidas para absolutas
+- Requer sessão autenticada (não requer workspace)

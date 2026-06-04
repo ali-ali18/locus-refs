@@ -103,7 +103,7 @@ export function ContentHeader() {
                 <li>
                   <Button variant={"ghost"} className="w-full">
                     <Icon icon={File} />
-                    <Link href={"/contact"}>Documentação</Link>
+                    <Link href={"/docs"}>Documentação</Link>
                   </Button>
                 </li>
               </ul>

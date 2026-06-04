@@ -1,0 +1,121 @@
+# Recursos
+
+Recursos são links externos (URLs) salvos dentro de coleções, com metadados como título, descrição e imagens OG. Cada recurso pode ter múltiplas categorias.
+
+
+## `GET /api/resources`
+
+Retorna os recursos do workspace. Pode ser filtrado por coleção.
+
+### Query params
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>collectionId</code></td><td><code>string</code></td><td>Filtra recursos de uma coleção específica</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+```typescript
+{
+  id: string;
+  title: string;
+  url: string;
+  description: string | null;
+  iconUrl: string | null;
+  ogImageUrl: string | null;
+  collectionId: string;
+  categories: { id: string; name: string; slug: string }[];
+  fetchedAt: string;
+}[]
+```
+
+
+## `POST /api/resources`
+
+Cria um novo recurso.
+
+### Corpo da requisição
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>title*</code></td><td><code>string</code></td><td>Título do recurso</td></tr>
+    <tr><td><code>url*</code></td><td><code>string</code></td><td>URL válida</td></tr>
+    <tr><td><code>collectionId*</code></td><td><code>string</code></td><td>ID da coleção de destino</td></tr>
+    <tr><td><code>categoryIds*</code></td><td><code>string[]</code></td><td>IDs das categorias (mínimo 1)</td></tr>
+    <tr><td><code>description</code></td><td><code>string</code></td><td>Descrição</td></tr>
+    <tr><td><code>iconUrl</code></td><td><code>string</code></td><td>URL do favicon</td></tr>
+    <tr><td><code>ogImageUrl</code></td><td><code>string</code></td><td>URL da imagem Open Graph</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `201`
+
+```typescript
+{
+  message: "Resource created successfully";
+  resource: {
+    id: string;
+    title: string;
+    url: string;
+    collectionId: string;
+    categories: { id: string; name: string; slug: string }[];
+    /* demais campos */
+  };
+}
+```
+
+
+## `PATCH /api/resources/[id]`
+
+Atualiza um recurso existente.
+
+### Parâmetros de rota
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>id</code></td><td><code>string</code></td><td>ID do recurso</td></tr>
+  </tbody>
+</DocsTable>
+
+### Corpo da requisição
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>title</code></td><td><code>string</code></td><td>Novo título</td></tr>
+    <tr><td><code>description</code></td><td><code>string | null</code></td><td>Nova descrição</td></tr>
+    <tr><td><code>url</code></td><td><code>string</code></td><td>Nova URL válida</td></tr>
+    <tr><td><code>iconUrl</code></td><td><code>string | null</code></td><td>Novo favicon</td></tr>
+    <tr><td><code>ogImageUrl</code></td><td><code>string | null</code></td><td>Nova imagem OG</td></tr>
+    <tr><td><code>collectionId</code></td><td><code>string</code></td><td>Mover para outra coleção</td></tr>
+    <tr><td><code>categoryIds</code></td><td><code>string[]</code></td><td>Substituir categorias</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+Retorna o objeto do recurso atualizado.
+
+
+## `DELETE /api/resources/[id]`
+
+Remove um recurso.
+
+### Resposta `200`
+
+```typescript
+{ message: "Resource deleted successfully" }
+```

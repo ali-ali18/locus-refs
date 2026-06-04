@@ -1,0 +1,167 @@
+# Banco de Dados
+
+O schema do Prisma fica em `prisma/schema.prisma` na raiz do monorepo e é compartilhado entre o app web e o servidor de colaboração. O banco é **PostgreSQL**.
+
+## Modelos
+
+### User
+
+Usuário da aplicação. Criado pelo Better Auth no cadastro.
+
+```typescript
+User {
+  id        String
+  name      String
+  email     String   // único
+  image     String?
+  sessions  Session[]
+  accounts  Account[]
+  members   Member[]  // workspaces que pertence
+}
+```
+
+### Organization (Workspace)
+
+Representa um workspace. O nome no banco é `organization` por compatibilidade com o Better Auth, mas na aplicação é chamado de workspace.
+
+```typescript
+Organization {
+  id          String
+  name        String
+  slug        String   // único — aparece na URL
+  logo        String?
+  members     Member[]
+  collections Collection[]
+  categories  Category[]
+  notes       Note[]
+  aiSettings  WorkspaceAiSettings?
+}
+```
+
+### Member
+
+Vínculo entre um usuário e um workspace. O campo `role` pode ser `"owner"`, `"admin"` ou `"member"`.
+
+```typescript
+Member {
+  id             String
+  userId         String
+  organizationId String
+  role           String  // default: "member"
+}
+```
+
+### Collection
+
+Agrupa recursos ou notas. O campo `isNoteCollection` distingue os dois tipos — coleções de recursos e coleções de notas são separadas na UI mas compartilham o mesmo modelo.
+
+```typescript
+Collection {
+  id               String
+  name             String
+  slug             String
+  color            String?
+  description      String?
+  isNoteCollection Boolean  // default: false
+  workspaceId      String
+  resources        Resource[]
+  notes            Note[]
+}
+```
+
+### Resource
+
+Link externo salvo dentro de uma coleção, com metadados extraídos via scraping.
+
+```typescript
+Resource {
+  id          String
+  title       String
+  url         String
+  description String?
+  iconUrl     String?
+  ogImageUrl  String?
+  collectionId String
+  categories   Category[]  // relação many-to-many
+  fetchedAt    DateTime?
+}
+```
+
+### Category
+
+Tag reutilizável por workspace. Um recurso pode ter múltiplas categorias; uma categoria pode estar em múltiplos recursos.
+
+```typescript
+Category {
+  id          String
+  name        String
+  slug        String
+  workspaceId String
+  resources   Resource[]  // many-to-many com Resource
+}
+```
+
+### Note
+
+Documento rich-text editado com Tiptap. O conteúdo é armazenado em dois formatos:
+
+- **`content`** (JSON) — estrutura do Tiptap, usada para renderização
+- **`ydoc`** (Bytes) — estado binário do Y.js, usado pelo servidor de colaboração para sincronização em tempo real
+
+```typescript
+Note {
+  id           String
+  title        String
+  icon         String?   // emoji
+  content      Json      // Tiptap JSON
+  ydoc         Bytes?    // Y.js binary state
+  collectionId String?
+  workspaceId  String
+  linkedTo     NoteLink[]  // notas que esta referencia
+  linkedFrom   NoteLink[]  // notas que referenciam esta
+}
+```
+
+### NoteLink
+
+Relação many-to-many entre notas — permite criar links bidirecionais entre documentos.
+
+```typescript
+NoteLink {
+  sourceId  String  // nota origem
+  targetId  String  // nota destino
+  // chave primária composta: sourceId + targetId
+}
+```
+
+### WorkspaceAiSettings
+
+Configurações de IA por workspace. Criada automaticamente na primeira vez que o workspace acessa as configurações de IA.
+
+```typescript
+WorkspaceAiSettings {
+  workspaceId    String  // PK e FK para Organization
+  defaultModelId String  // default: "claude-sonnet-4-6"
+  systemPrompt   String? // prompt de sistema customizado
+}
+```
+
+## Diagrama de relações
+
+```
+User ──── Member ──── Organization (Workspace)
+                          │
+               ┌──────────┼──────────┐
+               │          │          │
+           Collection  Category    Note
+               │          │          │
+            Resource ─────┘      NoteLink
+```
+
+## Migrations
+
+As migrations ficam em `prisma/migrations/` e são executadas automaticamente no startup do container `web` via `prisma migrate deploy`. Para criar uma nova migration em desenvolvimento:
+
+```bash
+pnpm db:migrate
+```
