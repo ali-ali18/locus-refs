@@ -104,50 +104,53 @@ export function SettingsDialog() {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && closeSettings()}>
       <DialogContent
-        className="sm:max-w-3xl p-0 gap-0 overflow-hidden flex flex-col max-h-[85vh] min-h-0"
+        className="sm:max-w-3xl p-0 gap-0 overflow-hidden"
+        style={{ maxHeight: "min(85vh, 800px)" }}
         showCloseButton
       >
         <DialogTitle className="sr-only">Configurações</DialogTitle>
-        <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] flex-1 min-h-0 md:min-h-[600px]">
-          <nav className="flex flex-col gap-1 border-b md:border-b-0 md:border-r border-border bg-muted/30 p-3 md:overflow-y-auto min-h-0">
-            <SettingsSectionLabel label={USER_SECTION} />
-            {entries
-              .filter((e) => !isWorkspaceTab(e.id))
-              .map((entry) => (
-                <SettingsNavItem
-                  key={entry.id}
-                  entry={entry}
-                  isActive={activeTabId === entry.id}
-                  onSelect={setActiveTab}
-                />
-              ))}
+        <div className="flex h-full min-h-0 flex-col">
+          <div className="grid min-h-0 flex-1 grid-cols-1 md:min-h-[600px] md:grid-cols-[200px_1fr]">
+            <nav className="flex min-h-0 flex-col gap-1 border-b border-border bg-muted/30 p-3 md:border-b-0 md:border-r md:overflow-y-auto">
+              <SettingsSectionLabel label={USER_SECTION} />
+              {entries
+                .filter((e) => !isWorkspaceTab(e.id))
+                .map((entry) => (
+                  <SettingsNavItem
+                    key={entry.id}
+                    entry={entry}
+                    isActive={activeTabId === entry.id}
+                    onSelect={setActiveTab}
+                  />
+                ))}
 
-            {isAdminOrOwner && (
-              <>
-                <SettingsSectionLabel
-                  label={WORKSPACE_SECTION}
-                  className="mt-3"
-                />
-                {entries
-                  .filter((e) => isWorkspaceTab(e.id))
-                  .map((entry) => (
-                    <SettingsNavItem
-                      key={entry.id}
-                      entry={entry}
-                      isActive={activeTabId === entry.id}
-                      onSelect={setActiveTab}
-                    />
-                  ))}
-              </>
-            )}
-          </nav>
+              {isAdminOrOwner && (
+                <>
+                  <SettingsSectionLabel
+                    label={WORKSPACE_SECTION}
+                    className="mt-3"
+                  />
+                  {entries
+                    .filter((e) => isWorkspaceTab(e.id))
+                    .map((entry) => (
+                      <SettingsNavItem
+                        key={entry.id}
+                        entry={entry}
+                        isActive={activeTabId === entry.id}
+                        onSelect={setActiveTab}
+                      />
+                    ))}
+                </>
+              )}
+            </nav>
 
-          <div className="flex flex-col gap-6 p-6 md:overflow-y-auto min-h-0">
-            <WorkspaceHeaderConfig
-              title={activeEntry.headerTitle}
-              description={activeEntry.headerDescription}
-            />
-            {activeEntry.content}
+            <div className="flex min-h-0 flex-col gap-6 p-6 md:overflow-y-auto">
+              <WorkspaceHeaderConfig
+                title={activeEntry.headerTitle}
+                description={activeEntry.headerDescription}
+              />
+              {activeEntry.content}
+            </div>
           </div>
         </div>
       </DialogContent>
