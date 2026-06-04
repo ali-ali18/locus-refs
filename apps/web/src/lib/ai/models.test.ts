@@ -30,7 +30,7 @@ describe("models facade", () => {
         "claude-sonnet-4-6",
         "claude-haiku-4-5",
         "minimax-m2.7",
-        "minimax-m2.7-highspeed",
+        "minimax-m3",
       ]);
     });
 
@@ -122,7 +122,7 @@ describe("models facade", () => {
       expect(available.map((m) => m.provider)).toEqual(["minimax", "minimax"]);
       expect(available.map((m) => m.id)).toEqual([
         "minimax-m2.7",
-        "minimax-m2.7-highspeed",
+        "minimax-m3",
       ]);
     });
 

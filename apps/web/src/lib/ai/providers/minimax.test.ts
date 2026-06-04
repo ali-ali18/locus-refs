@@ -105,18 +105,14 @@ describe("minimaxProvider", () => {
   });
 
   describe("staticModels", () => {
-    it("contém minimax-m2.7 e minimax-m2.7-highspeed com metadata válida", () => {
-      const standard = MINIMAX_STATIC_MODELS.find(
-        (m) => m.id === "minimax-m2.7",
-      );
-      const highspeed = MINIMAX_STATIC_MODELS.find(
-        (m) => m.id === "minimax-m2.7-highspeed",
-      );
+    it("contém minimax-m2.7 e minimax-m3 com metadata válida", () => {
+      const m27 = MINIMAX_STATIC_MODELS.find((m) => m.id === "minimax-m2.7");
+      const m3 = MINIMAX_STATIC_MODELS.find((m) => m.id === "minimax-m3");
 
-      expect(standard).toBeDefined();
-      expect(highspeed).toBeDefined();
+      expect(m27).toBeDefined();
+      expect(m3).toBeDefined();
 
-      for (const m of [standard, highspeed]) {
+      for (const m of [m27, m3]) {
         expect(m?.contextWindow).toBeGreaterThan(0);
         expect(m?.maxOutputTokens).toBeGreaterThan(0);
         expect(m?.inputModalities).toContain("text");
@@ -124,15 +120,11 @@ describe("minimaxProvider", () => {
     });
 
     it("aponta modelId para os IDs da SDK", () => {
-      const standard = MINIMAX_STATIC_MODELS.find(
-        (m) => m.id === "minimax-m2.7",
-      );
-      const highspeed = MINIMAX_STATIC_MODELS.find(
-        (m) => m.id === "minimax-m2.7-highspeed",
-      );
+      const m27 = MINIMAX_STATIC_MODELS.find((m) => m.id === "minimax-m2.7");
+      const m3 = MINIMAX_STATIC_MODELS.find((m) => m.id === "minimax-m3");
 
-      expect(standard?.modelId).toBe("MiniMax-M2.7");
-      expect(highspeed?.modelId).toBe("MiniMax-M2.7-highspeed");
+      expect(m27?.modelId).toBe("MiniMax-M2.7");
+      expect(m3?.modelId).toBe("MiniMax-M3");
     });
   });
 
