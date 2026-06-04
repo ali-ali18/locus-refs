@@ -110,7 +110,11 @@ export function SettingsDialog() {
       >
         <DialogTitle className="sr-only">Configurações</DialogTitle>
         <div className="flex h-full min-h-0 flex-col">
-          <div className="grid min-h-0 flex-1 grid-cols-1 md:min-h-[600px] md:max-h-[600px] md:grid-cols-[200px_1fr]">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3 pr-12 md:hidden">
+            <h2 className="text-base font-semibold">Configurações</h2>
+          </div>
+
+          <div className="flex min-h-0 flex-1 flex-col md:grid md:min-h-[600px] md:max-h-[600px] md:grid-cols-[200px_1fr]">
             <nav className="flex min-h-0 flex-row gap-1 overflow-x-auto border-b border-border bg-muted/30 p-2 [mask-image:linear-gradient(to_right,black_0%,black_55%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_right,black_0%,black_55%,transparent_100%)] md:flex-col md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:p-3 md:[mask-image:none] md:[-webkit-mask-image:none]">
               <SettingsSectionLabel
                 label={USER_SECTION}
@@ -147,7 +151,7 @@ export function SettingsDialog() {
               )}
             </nav>
 
-            <div className="flex min-h-0 flex-col gap-6 p-4 overflow-y-auto md:p-6">
+            <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4 md:p-6">
               <WorkspaceHeaderConfig
                 title={activeEntry.headerTitle}
                 description={activeEntry.headerDescription}
