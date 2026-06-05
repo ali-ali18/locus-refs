@@ -64,20 +64,24 @@ function NoteChip({ noteId }: { noteId: string }) {
 
 function ModelSelect() {
   const { data: models } = useAiModels();
-  const { data: settings } = useAiSettings();
+  const { data: settings, isPending: isSettingsPending } = useAiSettings();
   const { mutate: updateSettings } = useUpdateAiSettings();
 
-  const current = models?.find((m) => m.id === settings?.defaultModelId);
+  // Render placeholder enquanto settings não chega — evita o warning de
+  // uncontrolled→controlled quando o valor muda de undefined pra string.
+  if (isSettingsPending || !settings) {
+    return <span className="text-xs text-muted-foreground/50">Modelo…</span>;
+  }
 
   return (
     <PromptInputSelect
       onValueChange={(value) =>
         updateSettings({ defaultModelId: value as string })
       }
-      value={settings?.defaultModelId as string | undefined}
+      value={settings.defaultModelId}
     >
       <PromptInputSelectTrigger className="text-xs">
-        <PromptInputSelectValue placeholder={current?.label ?? "Modelo"} />
+        <PromptInputSelectValue placeholder="Modelo" />
       </PromptInputSelectTrigger>
       <PromptInputSelectContent className="min-w-40">
         {models?.map((model) => (
@@ -85,7 +89,7 @@ function ModelSelect() {
             key={model.id}
             value={model.id}
             className={
-              model.id === settings?.defaultModelId ? "font-medium" : ""
+              model.id === settings.defaultModelId ? "font-medium" : ""
             }
           >
             {model.label}
