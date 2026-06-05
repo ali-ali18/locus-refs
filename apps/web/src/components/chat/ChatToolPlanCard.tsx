@@ -174,9 +174,9 @@ export function ChatToolPlanCard({
   };
 
   return (
-    <Plan defaultOpen className="mt-2">
+    <Plan defaultOpen className="mt-2 w-full">
       <PlanHeader>
-        <div>
+        <div className="min-w-0 flex-1">
           <PlanTitle>{title}</PlanTitle>
           {"blockIndex" in input ? (
             <div className="mt-0.5 text-[10px] uppercase tracking-wide text-sidebar-foreground/60">

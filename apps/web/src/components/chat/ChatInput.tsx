@@ -74,7 +74,7 @@ function ModelSelect() {
       onValueChange={(value) =>
         updateSettings({ defaultModelId: value as string })
       }
-      value={(settings?.defaultModelId as string) ?? ""}
+      value={settings?.defaultModelId as string | undefined}
     >
       <PromptInputSelectTrigger className="text-xs">
         <PromptInputSelectValue placeholder={current?.label ?? "Modelo"} />
