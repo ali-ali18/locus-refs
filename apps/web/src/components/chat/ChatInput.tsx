@@ -107,8 +107,8 @@ export function ChatInput({ onSend, onStop, status, noteId }: ChatInputProps) {
   };
 
   return (
-    <div className="mx-4 my-3 grid grid-cols-1 shadow-md rounded-2xl">
-      <PromptInput onSubmit={handleSubmit} className="rounded-2xl">
+    <div className="mx-4 my-3 grid grid-cols-1 shadow-md rounded-3xl">
+      <PromptInput onSubmit={handleSubmit} className="rounded-3xl">
         <PromptInputHeader className="border-b">
           {attachedSelection ? (
             <InputGroupText className="text-muted-foreground gap-1.5">
@@ -136,6 +136,7 @@ export function ChatInput({ onSend, onStop, status, noteId }: ChatInputProps) {
           <PromptInputTextarea
             placeholder="Digite aqui..."
             disabled={isStreaming}
+            className="max-h-32"
           />
         </PromptInputBody>
         <PromptInputFooter>

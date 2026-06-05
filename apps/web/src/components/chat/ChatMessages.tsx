@@ -23,7 +23,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useChatPanel } from "@/context/chatPanel";
 import { useNoteEditor } from "@/context/noteEditor";
-import type { AiIntent } from "@/lib/ai/intent";
 import type { NoteEditToolName, NoteEditToolResult } from "@/lib/ai/tools";
 import { cn } from "@/lib/utils";
 import { Icon } from "../shared/Icon";
@@ -45,12 +44,6 @@ interface PlanToNoteActionProps {
   noteId: string;
   text: string;
 }
-
-const INTENT_PILL_LABELS: Record<AiIntent, string> = {
-  chat: "Chat",
-  plan: "Plano",
-  suggestion: "Sugestão",
-};
 
 function PlanToNoteAction({ noteId, text }: PlanToNoteActionProps) {
   const { canInsertIntoNote, queueProposalReview } = useNoteEditor();
@@ -173,12 +166,6 @@ export function ChatMessages({
                       : "max-w-full text-sm",
                   )}
                 >
-                  {!isUser && intent && intent !== "chat" ? (
-                    <span className="mb-1.5 inline-flex items-center rounded-full bg-sidebar-foreground/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-sidebar-foreground/70">
-                      {INTENT_PILL_LABELS[intent]}
-                    </span>
-                  ) : null}
-
                   {message.parts.map((part, idx) => {
                     if (part.type === "text") {
                       if (!part.text.trim()) return null;

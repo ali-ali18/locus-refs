@@ -6,7 +6,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import {
   Plan,
-  PlanAction,
   PlanContent,
   PlanDescription,
   PlanFooter,
@@ -81,7 +80,7 @@ export function ChatToolPlanCard({
   const known = isKnownToolName(toolName);
   const title = known ? TOOL_TITLES[toolName] : toolName;
 
-  // Estados terminais: aprovado, negado, erro — mostra linha fina de status
+  // Estados terminais: aprovado, negado, erro — linha fina de status
   if (
     part.state === "output-available" ||
     part.state === "output-error" ||
@@ -133,19 +132,10 @@ export function ChatToolPlanCard({
     );
   }
 
-  // input-streaming: shimmer título enquanto a tool call chega
+  // input-streaming: nada a renderizar ainda (input incompleto). O typing dot
+  // no ChatMessages cuida do feedback visual durante a stream.
   if (part.state === "input-streaming") {
-    return (
-      <Plan isStreaming className="mt-2">
-        <PlanHeader>
-          <PlanTitle>{title}</PlanTitle>
-          <PlanTrigger />
-        </PlanHeader>
-        <PlanContent>
-          <PlanDescription>Gerando…</PlanDescription>
-        </PlanContent>
-      </Plan>
-    );
+    return null;
   }
 
   // input-available: este é o caso do "Aceitar ou recusar"
@@ -155,6 +145,7 @@ export function ChatToolPlanCard({
   const blocks = getEnumeratedBlocks(noteId);
   const targetBlock =
     "blockIndex" in input ? blocks[input.blockIndex] : undefined;
+  const blocoLabel = "blockIndex" in input ? `bloco ${input.blockIndex}` : null;
 
   const handleAccept = () => {
     setBusy(true);
@@ -176,48 +167,40 @@ export function ChatToolPlanCard({
   return (
     <Plan defaultOpen className="mt-2 w-full">
       <PlanHeader>
-        <div className="min-w-0 flex-1">
-          <PlanTitle>{title}</PlanTitle>
-          {"blockIndex" in input ? (
-            <div className="mt-0.5 text-[10px] uppercase tracking-wide text-sidebar-foreground/60">
-              bloco {input.blockIndex}
-            </div>
-          ) : null}
-        </div>
-        <PlanAction>
-          <PlanTrigger />
-        </PlanAction>
+        <PlanTitle>{title}</PlanTitle>
+        <PlanTrigger />
       </PlanHeader>
       <PlanContent>
+        {blocoLabel ? <PlanDescription>{blocoLabel}</PlanDescription> : null}
         {targetBlock ? (
           <div className="text-[11px] text-sidebar-foreground/60 line-clamp-2">
             Alvo: {targetBlock.preview || `(${targetBlock.type} vazio)`}
           </div>
-        ) : "blockIndex" in input ? (
+        ) : blocoLabel ? (
           <div className="text-[11px] text-destructive">
-            Bloco {input.blockIndex} não existe nesta nota.
+            {blocoLabel} não existe nesta nota.
           </div>
         ) : null}
         <ContentPreview markdown={input.content} />
-        <PlanFooter className="justify-end gap-2">
+        <PlanFooter className="mt-2 justify-end gap-2">
           <Button
             variant="ghost"
-            size="xs"
+            size="sm"
             rounded="xl"
             onClick={handleDeny}
             disabled={busy}
           >
-            <X className="mr-1 size-3.5" />
+            <X className="mr-1.5 size-4" />
             Recusar
           </Button>
           <Button
             variant="default"
-            size="xs"
+            size="sm"
             rounded="xl"
             onClick={handleAccept}
             disabled={busy}
           >
-            <Check className="mr-1 size-3.5" />
+            <Check className="mr-1.5 size-4" />
             Aceitar
           </Button>
         </PlanFooter>
