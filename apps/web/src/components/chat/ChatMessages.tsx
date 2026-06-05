@@ -1,18 +1,33 @@
 "use client";
 
-import DOMPurify from "dompurify";
-import { BubbleChatIcon } from "@hugeicons/core-free-icons";
+import { Cancel01Icon, QuoteUpIcon } from "@hugeicons/core-free-icons";
 import { isToolUIPart, type ToolUIPart } from "ai";
-import { useEffect, useRef } from "react";
+import { BrainIcon } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+} from "@/components/ai-elements/message";
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from "@/components/ai-elements/reasoning";
 import { Button } from "@/components/ui/button";
+import { useChatPanel } from "@/context/chatPanel";
 import { useNoteEditor } from "@/context/noteEditor";
 import type { AiIntent } from "@/lib/ai/intent";
-import { markdownToHtml } from "@/lib/ai/markdown-to-html";
 import type { NoteEditToolName, NoteEditToolResult } from "@/lib/ai/tools";
 import { cn } from "@/lib/utils";
 import { Icon } from "../shared/Icon";
-import { ChatToolCard } from "./ChatToolCard";
+import { ChatToolPlanCard } from "./ChatToolPlanCard";
 import type { AiUIMessage } from "./hook/useAiChat";
 
 interface ChatMessagesProps {
@@ -36,12 +51,6 @@ const INTENT_PILL_LABELS: Record<AiIntent, string> = {
   plan: "Plano",
   suggestion: "Sugestão",
 };
-
-function MarkdownMessage({ text }: { text: string }) {
-  const html = markdownToHtml(text);
-  const sanitized = DOMPurify.sanitize(html);
-  return <div dangerouslySetInnerHTML={{ __html: sanitized }} />;
-}
 
 function PlanToNoteAction({ noteId, text }: PlanToNoteActionProps) {
   const { canInsertIntoNote, queueProposalReview } = useNoteEditor();
@@ -70,132 +79,162 @@ function PlanToNoteAction({ noteId, text }: PlanToNoteActionProps) {
   );
 }
 
+function getMessageText(message: AiUIMessage): string {
+  return message.parts
+    .filter((part) => part.type === "text")
+    .map((part) => part.text)
+    .join("");
+}
+
+function getReasoningText(message: AiUIMessage): string {
+  return message.parts
+    .filter((part) => part.type === "reasoning")
+    .map((part) => (part as { text: string }).text)
+    .join("");
+}
+
 export function ChatMessages({
   messages,
   isStreaming,
   noteId,
   addToolOutput,
 }: ChatMessagesProps) {
-  const endRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  const { attachedSelection, clearAttachedSelection } = useChatPanel();
+  const lastMessage = messages.at(-1);
+  const isLastAssistantStreaming =
+    isStreaming &&
+    !!lastMessage &&
+    lastMessage.role === "assistant" &&
+    getMessageText(lastMessage).length === 0;
 
   if (messages.length === 0) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-sidebar-accent">
-          <Icon
-            icon={BubbleChatIcon}
-            className="size-6 text-sidebar-foreground/70"
+      <Conversation className="flex-1">
+        <ConversationContent className="items-center justify-center">
+          <ConversationEmptyState
+            title="Como posso ajudar?"
+            description="Pergunte sobre suas notas, peca resumos, sugestoes ou qualquer coisa."
+            icon={
+              <div className="flex size-14 items-center justify-center rounded-2xl bg-sidebar-accent">
+                <BrainIcon className="size-6 text-sidebar-foreground/70" />
+              </div>
+            }
           />
-        </div>
-        <div className="space-y-1.5 text-center">
-          <p className="text-sm font-semibold text-sidebar-foreground">
-            Como posso ajudar?
-          </p>
-          <p className="mx-auto max-w-[220px] text-xs leading-relaxed text-muted-foreground">
-            Pergunte sobre suas notas, peca resumos, sugestoes ou qualquer
-            coisa.
-          </p>
-        </div>
-      </div>
+        </ConversationContent>
+      </Conversation>
     );
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-4">
-      <div className="flex-1" />
-      {messages.map((message) => {
-        const isUser = message.role === "user";
-        const intent = message.metadata?.intent;
-        const textBuffer: string[] = [];
-        const renderedParts: React.ReactNode[] = [];
-
-        let textChunkCount = 0;
-        const flushText = () => {
-          const text = textBuffer.join("");
-          textBuffer.length = 0;
-          if (!text.trim()) return;
-          const key = `${message.id}-text-${textChunkCount}`;
-          textChunkCount += 1;
-          renderedParts.push(
-            isUser ? (
-              <span key={key}>{text}</span>
-            ) : (
-              <MarkdownMessage key={key} text={text} />
-            ),
-          );
-        };
-
-        for (const part of message.parts) {
-          if (part.type === "text") {
-            textBuffer.push(part.text);
-            continue;
-          }
-          if (isToolUIPart(part) && noteId) {
-            flushText();
-            const toolPart = part as ToolUIPart;
-            renderedParts.push(
-              <ChatToolCard
-                key={toolPart.toolCallId}
-                part={toolPart}
-                noteId={noteId}
-                onResolve={(toolCallId, toolName, result) =>
-                  addToolOutput({ tool: toolName, toolCallId, output: result })
-                }
-              />,
-            );
-          }
-        }
-        flushText();
-
-        const text = message.parts
-          .filter((p): p is { type: "text"; text: string } => p.type === "text")
-          .map((p) => p.text)
-          .join("");
-
-        return (
-          <div
-            key={message.id}
-            className={cn(
-              "flex w-full",
-              isUser ? "justify-end" : "justify-start",
-            )}
-          >
-            <div
-              className={cn(
-                "max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed wrap-break-word",
-                isUser
-                  ? "rounded-br-sm bg-primary text-primary-foreground"
-                  : "rounded-bl-sm bg-sidebar-accent text-sidebar-foreground [&_a]:text-inherit [&_a]:underline [&_blockquote]:my-3 [&_blockquote]:border-l-2 [&_blockquote]:border-sidebar-border [&_blockquote]:pl-3 [&_code]:rounded [&_code]:bg-black/10 [&_code]:px-1 [&_code]:py-0.5 [&_em]:italic [&_h1]:mt-1 [&_h1]:text-base [&_h1]:font-semibold [&_h2]:mt-1 [&_h2]:text-sm [&_h2]:font-semibold [&_h3]:mt-1 [&_h3]:text-sm [&_h3]:font-medium [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-3 [&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-black/10 [&_pre]:p-3 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_strong]:font-semibold [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-5",
-              )}
+    <Conversation className="flex-1">
+      <ConversationContent>
+        {attachedSelection ? (
+          <div className="mx-3 mb-2 flex items-center gap-2 rounded-xl border border-sidebar-border bg-sidebar-accent/50 px-3 py-1.5 text-xs text-sidebar-foreground">
+            <Icon icon={QuoteUpIcon} className="size-3.5 shrink-0" />
+            <span className="truncate">
+              {attachedSelection.text.length > 40
+                ? `${attachedSelection.text.slice(0, 40)}…`
+                : attachedSelection.text}
+            </span>
+            <button
+              type="button"
+              onClick={clearAttachedSelection}
+              className="ml-auto rounded-full p-0.5 text-sidebar-foreground/60 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground"
+              aria-label="Remover trecho anexado"
             >
-              {!isUser && intent && intent !== "chat" ? (
-                <span className="mb-1.5 inline-flex items-center rounded-full bg-sidebar-foreground/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-sidebar-foreground/70">
-                  {INTENT_PILL_LABELS[intent]}
-                </span>
-              ) : null}
-
-              {renderedParts.length > 0 ? (
-                renderedParts
-              ) : isStreaming && !isUser ? (
-                <span className="inline-flex items-center gap-1 py-0.5">
-                  <span className="size-1.5 rounded-full bg-current animate-bounce [animation-delay:0ms]" />
-                  <span className="size-1.5 rounded-full bg-current animate-bounce [animation-delay:150ms]" />
-                  <span className="size-1.5 rounded-full bg-current animate-bounce [animation-delay:300ms]" />
-                </span>
-              ) : null}
-
-              {!isUser && noteId && !isStreaming && intent === "plan" ? (
-                <PlanToNoteAction noteId={noteId} text={text} />
-              ) : null}
-            </div>
+              <Icon icon={Cancel01Icon} className="size-3" />
+            </button>
           </div>
-        );
-      })}
-      <div ref={endRef} />
-    </div>
+        ) : null}
+
+        {messages.map((message) => {
+          const isUser = message.role === "user";
+          const intent = message.metadata?.intent;
+          const reasoningText = isUser ? "" : getReasoningText(message);
+
+          return (
+            <div key={message.id} className="flex flex-col gap-2">
+              {reasoningText ? (
+                <Reasoning
+                  isStreaming={isStreaming && isLastAssistantStreaming}
+                  className="px-3"
+                >
+                  <ReasoningTrigger />
+                  <ReasoningContent>{reasoningText}</ReasoningContent>
+                </Reasoning>
+              ) : null}
+
+              <Message from={message.role}>
+                <MessageContent
+                  className={cn(
+                    isUser
+                      ? "rounded-2xl rounded-br-sm bg-primary px-3.5 py-2.5 text-primary-foreground"
+                      : "max-w-full text-sm",
+                  )}
+                >
+                  {!isUser && intent && intent !== "chat" ? (
+                    <span className="mb-1.5 inline-flex items-center rounded-full bg-sidebar-foreground/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-sidebar-foreground/70">
+                      {INTENT_PILL_LABELS[intent]}
+                    </span>
+                  ) : null}
+
+                  {message.parts.map((part, idx) => {
+                    if (part.type === "text") {
+                      if (!part.text.trim()) return null;
+                      if (isUser) {
+                        return (
+                          <span key={`${message.id}-t-${idx}`}>
+                            {part.text}
+                          </span>
+                        );
+                      }
+                      return (
+                        <MessageResponse key={`${message.id}-t-${idx}`}>
+                          {part.text}
+                        </MessageResponse>
+                      );
+                    }
+                    if (isToolUIPart(part) && noteId) {
+                      const toolPart = part as ToolUIPart;
+                      return (
+                        <ChatToolPlanCard
+                          key={toolPart.toolCallId}
+                          part={toolPart}
+                          noteId={noteId}
+                          onResolve={(toolCallId, toolName, result) =>
+                            addToolOutput({
+                              tool: toolName,
+                              toolCallId,
+                              output: result,
+                            })
+                          }
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+
+                  {!isUser && noteId && !isStreaming && intent === "plan" ? (
+                    <PlanToNoteAction
+                      noteId={noteId}
+                      text={getMessageText(message)}
+                    />
+                  ) : null}
+                </MessageContent>
+              </Message>
+            </div>
+          );
+        })}
+
+        {isLastAssistantStreaming ? (
+          <span className="text-muted-foreground px-3 inline-flex items-center gap-1 py-1">
+            <span className="size-1.5 rounded-full bg-current animate-bounce [animation-delay:0ms]" />
+            <span className="size-1.5 rounded-full bg-current animate-bounce [animation-delay:150ms]" />
+            <span className="size-1.5 rounded-full bg-current animate-bounce [animation-delay:300ms]" />
+          </span>
+        ) : null}
+      </ConversationContent>
+      <ConversationScrollButton />
+    </Conversation>
   );
 }

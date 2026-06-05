@@ -1,8 +1,19 @@
 "use client";
 
 import { getToolName, type ToolUIPart } from "ai";
+import { Check, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+  Plan,
+  PlanAction,
+  PlanContent,
+  PlanDescription,
+  PlanFooter,
+  PlanHeader,
+  PlanTitle,
+  PlanTrigger,
+} from "@/components/ai-elements/plan";
 import { Button } from "@/components/ui/button";
 import { useNoteEditor } from "@/context/noteEditor";
 import { markdownToHtml } from "@/lib/ai/markdown-to-html";
@@ -15,7 +26,7 @@ import { cn } from "@/lib/utils";
 
 type NoteEditToolPart = ToolUIPart;
 
-interface ChatToolCardProps {
+interface ChatToolPlanCardProps {
   part: NoteEditToolPart;
   noteId: string;
   onResolve: (
@@ -58,7 +69,11 @@ function ContentPreview({ markdown }: { markdown: string }) {
   );
 }
 
-export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
+export function ChatToolPlanCard({
+  part,
+  noteId,
+  onResolve,
+}: ChatToolPlanCardProps) {
   const { applyToolOperation, getEnumeratedBlocks } = useNoteEditor();
   const [busy, setBusy] = useState(false);
 
@@ -66,14 +81,7 @@ export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
   const known = isKnownToolName(toolName);
   const title = known ? TOOL_TITLES[toolName] : toolName;
 
-  if (part.state === "input-streaming") {
-    return (
-      <div className="mt-2 rounded-xl border border-sidebar-border bg-sidebar-accent/50 px-3 py-2 text-xs text-sidebar-foreground/70">
-        <span className="font-medium">{title}</span> — gerando…
-      </div>
-    );
-  }
-
+  // Estados terminais: aprovado, negado, erro — mostra linha fina de status
   if (
     part.state === "output-available" ||
     part.state === "output-error" ||
@@ -116,7 +124,7 @@ export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
     );
   }
 
-  // input-available (or any other waiting state)
+  // Tool desconhecido: avisa
   if (!known) {
     return (
       <div className="mt-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
@@ -125,6 +133,22 @@ export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
     );
   }
 
+  // input-streaming: shimmer título enquanto a tool call chega
+  if (part.state === "input-streaming") {
+    return (
+      <Plan isStreaming className="mt-2">
+        <PlanHeader>
+          <PlanTitle>{title}</PlanTitle>
+          <PlanTrigger />
+        </PlanHeader>
+        <PlanContent>
+          <PlanDescription>Gerando…</PlanDescription>
+        </PlanContent>
+      </Plan>
+    );
+  }
+
+  // input-available: este é o caso do "Aceitar ou recusar"
   const input = part.input as NoteEditToolInput["input"] | undefined;
   if (!input) return null;
 
@@ -132,7 +156,7 @@ export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
   const targetBlock =
     "blockIndex" in input ? blocks[input.blockIndex] : undefined;
 
-  const handleApply = () => {
+  const handleAccept = () => {
     setBusy(true);
     const op = { name: toolName, input } as NoteEditToolInput;
     const result = applyToolOperation(noteId, op);
@@ -150,48 +174,54 @@ export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
   };
 
   return (
-    <div className="mt-2 rounded-xl border border-sidebar-border bg-background/40 p-3 text-xs text-sidebar-foreground">
-      <div className="flex items-center justify-between gap-2">
-        <span className="font-semibold">{title}</span>
-        {"blockIndex" in input ? (
-          <span className="rounded-full bg-sidebar-foreground/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-sidebar-foreground/70">
-            bloco {input.blockIndex}
-          </span>
+    <Plan defaultOpen className="mt-2">
+      <PlanHeader>
+        <div>
+          <PlanTitle>{title}</PlanTitle>
+          {"blockIndex" in input ? (
+            <div className="mt-0.5 text-[10px] uppercase tracking-wide text-sidebar-foreground/60">
+              bloco {input.blockIndex}
+            </div>
+          ) : null}
+        </div>
+        <PlanAction>
+          <PlanTrigger />
+        </PlanAction>
+      </PlanHeader>
+      <PlanContent>
+        {targetBlock ? (
+          <div className="text-[11px] text-sidebar-foreground/60 line-clamp-2">
+            Alvo: {targetBlock.preview || `(${targetBlock.type} vazio)`}
+          </div>
+        ) : "blockIndex" in input ? (
+          <div className="text-[11px] text-destructive">
+            Bloco {input.blockIndex} não existe nesta nota.
+          </div>
         ) : null}
-      </div>
-
-      {targetBlock ? (
-        <div className="mt-1 text-[11px] text-sidebar-foreground/60 line-clamp-2">
-          Alvo: {targetBlock.preview || `(${targetBlock.type} vazio)`}
-        </div>
-      ) : "blockIndex" in input ? (
-        <div className="mt-1 text-[11px] text-destructive">
-          Bloco {input.blockIndex} não existe nesta nota.
-        </div>
-      ) : null}
-
-      <ContentPreview markdown={input.content} />
-
-      <div className="mt-2 flex justify-end gap-2">
-        <Button
-          variant="ghost"
-          size="xs"
-          rounded="xl"
-          onClick={handleDeny}
-          disabled={busy}
-        >
-          Descartar
-        </Button>
-        <Button
-          variant="default"
-          size="xs"
-          rounded="xl"
-          onClick={handleApply}
-          disabled={busy}
-        >
-          Aplicar
-        </Button>
-      </div>
-    </div>
+        <ContentPreview markdown={input.content} />
+        <PlanFooter className="justify-end gap-2">
+          <Button
+            variant="ghost"
+            size="xs"
+            rounded="xl"
+            onClick={handleDeny}
+            disabled={busy}
+          >
+            <X className="mr-1 size-3.5" />
+            Recusar
+          </Button>
+          <Button
+            variant="default"
+            size="xs"
+            rounded="xl"
+            onClick={handleAccept}
+            disabled={busy}
+          >
+            <Check className="mr-1 size-3.5" />
+            Aceitar
+          </Button>
+        </PlanFooter>
+      </PlanContent>
+    </Plan>
   );
 }
