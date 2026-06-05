@@ -14,31 +14,51 @@ const markdownContentField = z
   .min(1)
   .describe("Conteúdo Markdown a aplicar no editor.");
 
+const replaceContentField = z
+  .string()
+  .describe(
+    'Conteúdo Markdown a aplicar. Use string vazia ("") para APAGAR/remover o conteúdo alvo.',
+  );
+
+const titleField = z
+  .string()
+  .min(1)
+  .max(80)
+  .describe(
+    "Título curto (3 a 6 palavras), claro e descritivo da mudança para o usuário, em português. Ex.: 'Adicionar seção de Introdução'. NUNCA use o nome técnico da ferramenta.",
+  );
+
 const appendToEndSchema = z.object({
+  title: titleField,
   content: markdownContentField,
 });
 
 const insertAfterBlockSchema = z.object({
+  title: titleField,
   blockIndex: blockIndexField,
   content: markdownContentField,
 });
 
 const insertBeforeBlockSchema = z.object({
+  title: titleField,
   blockIndex: blockIndexField,
   content: markdownContentField,
 });
 
 const replaceBlockSchema = z.object({
+  title: titleField,
   blockIndex: blockIndexField,
-  content: markdownContentField,
+  content: replaceContentField,
 });
 
 const replaceSelectionSchema = z.object({
-  content: markdownContentField,
+  title: titleField,
+  content: replaceContentField,
 });
 
 const replaceEntireNoteSchema = z.object({
-  content: markdownContentField,
+  title: titleField,
+  content: replaceContentField,
 });
 
 export const noteEditTools = {

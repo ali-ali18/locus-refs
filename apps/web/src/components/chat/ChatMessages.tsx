@@ -163,7 +163,7 @@ export function ChatMessages({
                   className={cn(
                     isUser
                       ? "rounded-2xl rounded-br-sm bg-primary px-3.5 py-2.5 text-primary-foreground"
-                      : "max-w-full text-sm",
+                      : "w-full text-sm",
                   )}
                 >
                   {message.parts.map((part, idx) => {

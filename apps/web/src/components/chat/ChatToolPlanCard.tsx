@@ -1,11 +1,12 @@
 "use client";
 
 import { getToolName, type ToolUIPart } from "ai";
-import { Check, X } from "lucide-react";
+import { Check, FileText, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
   Plan,
+  PlanAction,
   PlanContent,
   PlanDescription,
   PlanFooter,
@@ -61,7 +62,7 @@ function ContentPreview({ markdown }: { markdown: string }) {
   const html = markdownToHtml(markdown);
   return (
     <div
-      className="prose prose-sm mt-2 max-h-48 overflow-y-auto rounded-lg bg-background/60 p-2 text-xs text-foreground/90 [&_a]:underline [&_code]:rounded [&_code]:bg-black/10 [&_code]:px-1 [&_h1]:text-sm [&_h1]:font-semibold [&_h2]:text-sm [&_h2]:font-semibold [&_h3]:text-xs [&_h3]:font-medium [&_ol]:list-decimal [&_ol]:pl-4 [&_p+p]:mt-2 [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded [&_pre]:bg-black/10 [&_pre]:p-2 [&_ul]:list-disc [&_ul]:pl-4"
+      className="prose prose-sm max-h-64 max-w-none overflow-y-auto text-sm text-foreground/90 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-sm [&_ol]:list-decimal [&_ol]:pl-4 [&_p+p]:mt-2 [&_pre]:overflow-x-auto [&_pre]:rounded [&_pre]:bg-muted [&_pre]:p-2 [&_ul]:list-disc [&_ul]:pl-4"
       // biome-ignore lint/security/noDangerouslySetInnerHtml: markdownToHtml escapes raw HTML.
       dangerouslySetInnerHTML={{ __html: html }}
     />
@@ -146,6 +147,13 @@ export function ChatToolPlanCard({
   const targetBlock =
     "blockIndex" in input ? blocks[input.blockIndex] : undefined;
   const blocoLabel = "blockIndex" in input ? `bloco ${input.blockIndex}` : null;
+  const blockMissing = !targetBlock && blocoLabel !== null;
+  const aiTitle = input.title?.trim() || title;
+  const description = targetBlock
+    ? `${title} · ${targetBlock.preview || `(${targetBlock.type} vazio)`}`
+    : blockMissing
+      ? `${title} · ${blocoLabel} não existe nesta nota`
+      : title;
 
   const handleAccept = () => {
     setBusy(true);
@@ -167,44 +175,43 @@ export function ChatToolPlanCard({
   return (
     <Plan defaultOpen className="mt-2 w-full">
       <PlanHeader>
-        <PlanTitle>{title}</PlanTitle>
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2">
+            <FileText className="size-4 shrink-0 text-muted-foreground" />
+            <PlanTitle>{aiTitle}</PlanTitle>
+          </div>
+          <PlanDescription className={blockMissing ? "text-destructive" : ""}>
+            {description}
+          </PlanDescription>
+        </div>
         <PlanTrigger />
       </PlanHeader>
       <PlanContent>
-        {blocoLabel ? <PlanDescription>{blocoLabel}</PlanDescription> : null}
-        {targetBlock ? (
-          <div className="text-[11px] text-sidebar-foreground/60 line-clamp-2">
-            Alvo: {targetBlock.preview || `(${targetBlock.type} vazio)`}
-          </div>
-        ) : blocoLabel ? (
-          <div className="text-[11px] text-destructive">
-            {blocoLabel} não existe nesta nota.
-          </div>
-        ) : null}
-        <ContentPreview markdown={input.content} />
-        <PlanFooter className="mt-2 justify-end gap-2">
+        {input.content.trim() ? (
+          <ContentPreview markdown={input.content} />
+        ) : (
+          <p className="text-sm text-muted-foreground italic">
+            O conteúdo do alvo será removido.
+          </p>
+        )}
+      </PlanContent>
+      <PlanFooter className="justify-end">
+        <PlanAction className="flex gap-2">
           <Button
             variant="ghost"
             size="sm"
-            rounded="xl"
             onClick={handleDeny}
             disabled={busy}
           >
-            <X className="mr-1.5 size-4" />
+            <X className="size-4" />
             Recusar
           </Button>
-          <Button
-            variant="default"
-            size="sm"
-            rounded="xl"
-            onClick={handleAccept}
-            disabled={busy}
-          >
-            <Check className="mr-1.5 size-4" />
+          <Button size="sm" onClick={handleAccept} disabled={busy}>
+            <Check className="size-4" />
             Aceitar
           </Button>
-        </PlanFooter>
-      </PlanContent>
+        </PlanAction>
+      </PlanFooter>
     </Plan>
   );
 }

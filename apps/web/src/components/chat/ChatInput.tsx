@@ -1,23 +1,31 @@
 "use client";
 
 import {
-  ArrowUp02Icon,
   Cancel01Icon,
   Note01Icon,
   QuoteUpIcon,
-  StopIcon,
 } from "@hugeicons/core-free-icons";
+import { CheckIcon } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import {
+  ModelSelector,
+  ModelSelectorContent,
+  ModelSelectorEmpty,
+  ModelSelectorGroup,
+  ModelSelectorInput,
+  ModelSelectorItem,
+  ModelSelectorList,
+  ModelSelectorLogo,
+  ModelSelectorName,
+  ModelSelectorTrigger,
+} from "@/components/ai-elements/model-selector";
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import {
   PromptInput,
   PromptInputBody,
   PromptInputButton,
   PromptInputFooter,
   PromptInputHeader,
-  PromptInputSelect,
-  PromptInputSelectContent,
-  PromptInputSelectItem,
-  PromptInputSelectTrigger,
-  PromptInputSelectValue,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
@@ -39,10 +47,19 @@ interface ChatInputProps {
   noteId?: string;
 }
 
+type ModelOption = NonNullable<ReturnType<typeof useAiModels>["data"]>[number];
+
 const NOTE_TITLE_MAX_LENGTH = 20;
-const NOTE_TITLE_PREVIEW_LENGTH = 14;
-const NOTE_TITLE_SHORT_CHECK = 10;
 const SELECTION_PREVIEW_MAX = 40;
+
+const PROVIDER_LABELS: Record<string, string> = {
+  anthropic: "Anthropic",
+  minimax: "MiniMax",
+};
+
+function providerLabel(provider: string): string {
+  return PROVIDER_LABELS[provider] ?? provider;
+}
 
 function NoteChip({ noteId }: { noteId: string }) {
   const { data: note } = useNote(noteId);
@@ -54,49 +71,79 @@ function NoteChip({ noteId }: { noteId: string }) {
   return (
     <InputGroupText className="gap-1.5">
       <Icon icon={Note01Icon} className="size-3 shrink-0" />
-      <span className="truncate text-xs">
-        {title.slice(0, NOTE_TITLE_PREVIEW_LENGTH)}
-        {title.length > NOTE_TITLE_SHORT_CHECK ? "…" : ""}
-      </span>
+      <span className="truncate text-xs">{title}</span>
     </InputGroupText>
   );
 }
 
 function ModelSelect() {
   const { data: models } = useAiModels();
-  const { data: settings, isPending: isSettingsPending } = useAiSettings();
+  const { data: settings } = useAiSettings();
   const { mutate: updateSettings } = useUpdateAiSettings();
+  const [open, setOpen] = useState(false);
 
-  // Render placeholder enquanto settings não chega — evita o warning de
-  // uncontrolled→controlled quando o valor muda de undefined pra string.
-  if (isSettingsPending || !settings) {
-    return <span className="text-xs text-muted-foreground/50">Modelo…</span>;
-  }
+  const currentModel = models?.find((m) => m.id === settings?.defaultModelId);
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, ModelOption[]>();
+    for (const model of models ?? []) {
+      const list = map.get(model.provider);
+      if (list) {
+        list.push(model);
+      } else {
+        map.set(model.provider, [model]);
+      }
+    }
+    return Array.from(map);
+  }, [models]);
+
+  const handleSelect = useCallback(
+    (id: string) => {
+      updateSettings({ defaultModelId: id });
+      setOpen(false);
+    },
+    [updateSettings],
+  );
 
   return (
-    <PromptInputSelect
-      onValueChange={(value) =>
-        updateSettings({ defaultModelId: value as string })
-      }
-      value={settings.defaultModelId}
-    >
-      <PromptInputSelectTrigger className="text-xs">
-        <PromptInputSelectValue placeholder="Modelo" />
-      </PromptInputSelectTrigger>
-      <PromptInputSelectContent className="min-w-40">
-        {models?.map((model) => (
-          <PromptInputSelectItem
-            key={model.id}
-            value={model.id}
-            className={
-              model.id === settings.defaultModelId ? "font-medium" : ""
-            }
-          >
-            {model.label}
-          </PromptInputSelectItem>
-        ))}
-      </PromptInputSelectContent>
-    </PromptInputSelect>
+    <ModelSelector onOpenChange={setOpen} open={open}>
+      <ModelSelectorTrigger
+        render={<PromptInputButton className="gap-1.5 text-xs" size="sm" />}
+      >
+        {currentModel ? (
+          <ModelSelectorLogo provider={currentModel.provider} />
+        ) : null}
+        <ModelSelectorName>{currentModel?.label ?? "Modelo"}</ModelSelectorName>
+      </ModelSelectorTrigger>
+      <ModelSelectorContent title="Selecionar modelo">
+        <ModelSelectorInput placeholder="Buscar modelos..." />
+        <ModelSelectorList>
+          <ModelSelectorEmpty>Nenhum modelo encontrado.</ModelSelectorEmpty>
+          {grouped.map(([provider, list]) => (
+            <ModelSelectorGroup
+              heading={providerLabel(provider)}
+              key={provider}
+            >
+              {list.map((model) => (
+                <ModelSelectorItem
+                  key={model.id}
+                  onSelect={() => handleSelect(model.id)}
+                  value={`${providerLabel(model.provider)} ${model.label} ${model.id}`}
+                >
+                  <ModelSelectorLogo provider={model.provider} />
+                  <ModelSelectorName>{model.label}</ModelSelectorName>
+                  {settings?.defaultModelId === model.id ? (
+                    <CheckIcon className="ml-auto size-4" />
+                  ) : (
+                    <div className="ml-auto size-4" />
+                  )}
+                </ModelSelectorItem>
+              ))}
+            </ModelSelectorGroup>
+          ))}
+        </ModelSelectorList>
+      </ModelSelectorContent>
+    </ModelSelector>
   );
 }
 
@@ -104,18 +151,18 @@ export function ChatInput({ onSend, onStop, status, noteId }: ChatInputProps) {
   const { attachedSelection, clearAttachedSelection } = useChatPanel();
   const isStreaming = status === "submitted" || status === "streaming";
 
-  const handleSubmit = (message: { text: string }) => {
-    const trimmed = message.text.trim();
+  const handleSubmit = (message: PromptInputMessage) => {
+    const trimmed = message.text?.trim();
     if (!trimmed || isStreaming) return;
     onSend(trimmed);
   };
 
   return (
-    <div className="mx-4 my-3 grid grid-cols-1 shadow-md rounded-3xl">
-      <PromptInput onSubmit={handleSubmit} className="rounded-3xl">
-        <PromptInputHeader className="border-b">
-          {attachedSelection ? (
-            <InputGroupText className="text-muted-foreground gap-1.5">
+    <div className="mx-4 my-3">
+      <PromptInput onSubmit={handleSubmit} className="rounded-[2rem] shadow-md">
+        {attachedSelection ? (
+          <PromptInputHeader className="border-b px-3.5 py-1">
+            <InputGroupText className="gap-1.5 py-0 text-muted-foreground">
               <Icon icon={QuoteUpIcon} className="size-3 shrink-0" />
               <span className="truncate text-xs">
                 {attachedSelection.text.length > SELECTION_PREVIEW_MAX
@@ -123,24 +170,21 @@ export function ChatInput({ onSend, onStop, status, noteId }: ChatInputProps) {
                   : attachedSelection.text}
               </span>
             </InputGroupText>
-          ) : null}
-          {attachedSelection ? (
             <PromptInputButton
-              variant="ghost"
-              size="icon-sm"
-              onClick={clearAttachedSelection}
               aria-label="Remover trecho anexado"
               className="ml-auto"
+              onClick={clearAttachedSelection}
+              size="icon-xs"
+              variant="ghost"
             >
               <Icon icon={Cancel01Icon} className="size-3" />
             </PromptInputButton>
-          ) : null}
-        </PromptInputHeader>
+          </PromptInputHeader>
+        ) : null}
         <PromptInputBody>
           <PromptInputTextarea
-            placeholder="Digite aqui..."
-            disabled={isStreaming}
             className="max-h-32"
+            placeholder="Digite aqui..."
           />
         </PromptInputBody>
         <PromptInputFooter>
@@ -148,17 +192,7 @@ export function ChatInput({ onSend, onStop, status, noteId }: ChatInputProps) {
             {noteId ? <NoteChip noteId={noteId} /> : null}
             <ModelSelect />
           </PromptInputTools>
-          <PromptInputSubmit
-            status={status}
-            onStop={onStop}
-            disabled={isStreaming}
-          >
-            {isStreaming ? (
-              <Icon icon={StopIcon} className="size-4" />
-            ) : (
-              <Icon icon={ArrowUp02Icon} className="size-4" />
-            )}
-          </PromptInputSubmit>
+          <PromptInputSubmit status={status} onStop={onStop} />
         </PromptInputFooter>
       </PromptInput>
     </div>
