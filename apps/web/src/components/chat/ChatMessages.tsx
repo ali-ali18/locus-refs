@@ -156,6 +156,7 @@ export function ChatMessages({
             <div key={message.id} className="flex flex-col gap-2">
               {reasoningText ? (
                 <Reasoning
+                  key={`${message.id}-${isLastAssistantStreaming ? "streaming" : "done"}`}
                   isStreaming={isStreaming && isLastAssistantStreaming}
                   className="px-3"
                 >
