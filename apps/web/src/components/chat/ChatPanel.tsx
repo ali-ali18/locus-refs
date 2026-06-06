@@ -18,9 +18,8 @@ import { ChatMessages } from "./ChatMessages";
 import { useAiChat } from "./hook/useAiChat";
 
 function ChatPanelContent({ noteId }: { noteId?: string }) {
-  const { messages, isStreaming, send, clear, stop, addToolOutput } = useAiChat(
-    { noteId },
-  );
+  const { messages, isStreaming, status, send, clear, stop, addToolOutput } =
+    useAiChat({ noteId });
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col bg-sidebar text-sidebar-foreground">
@@ -31,12 +30,7 @@ function ChatPanelContent({ noteId }: { noteId?: string }) {
         noteId={noteId}
         addToolOutput={addToolOutput}
       />
-      <ChatInput
-        onSend={send}
-        onStop={stop}
-        isStreaming={isStreaming}
-        noteId={noteId}
-      />
+      <ChatInput onSend={send} onStop={stop} status={status} noteId={noteId} />
     </div>
   );
 }

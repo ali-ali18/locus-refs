@@ -1,8 +1,8 @@
 import type { LanguageModel } from "ai";
-import { buildAnthropic } from "./providers/anthropic";
-import { buildMinimax, isMinimaxAvailable } from "./providers/minimax";
+import { providerRegistry } from "./providers/registry";
+import type { ModelMetadata, ProviderDefinition } from "./providers/types";
 
-export type AiProvider = "anthropic" | "minimax";
+export type AiProvider = ProviderDefinition["id"];
 
 export interface AiModelDefinition {
   id: string;
@@ -11,42 +11,33 @@ export interface AiModelDefinition {
   description: string;
   isAvailable: () => boolean;
   build: () => LanguageModel;
+  metadata?: ModelMetadata;
 }
 
-export const AI_MODELS: readonly AiModelDefinition[] = [
-  {
-    id: "claude-sonnet-4-6",
-    provider: "anthropic",
-    label: "Claude Sonnet 4.6",
-    description: "Equilíbrio entre velocidade e qualidade — recomendado",
-    isAvailable: () => !!process.env.ANTHROPIC_API_KEY,
-    build: () => buildAnthropic("claude-sonnet-4-6"),
-  },
-  {
-    id: "claude-haiku-4-5",
-    provider: "anthropic",
-    label: "Claude Haiku 4.5",
-    description: "Mais rápido para tarefas simples",
-    isAvailable: () => !!process.env.ANTHROPIC_API_KEY,
-    build: () => buildAnthropic("claude-haiku-4-5-20251001"),
-  },
-  {
-    id: "minimax-m2.7",
-    provider: "minimax",
-    label: "MiniMax M2.7",
-    description: "Modelo mais recente da MinMax — lançado março 2026",
-    isAvailable: isMinimaxAvailable,
-    build: () => buildMinimax("MiniMax-M2.7"),
-  },
-  {
-    id: "minimax-m2.7-highspeed",
-    provider: "minimax",
-    label: "MiniMax M2.7 Highspeed",
-    description: "Versão rápida do M2.7 — menor latência",
-    isAvailable: isMinimaxAvailable,
-    build: () => buildMinimax("MiniMax-M2.7-highspeed"),
-  },
-] as const;
+function flattenRegistry(): AiModelDefinition[] {
+  const result: AiModelDefinition[] = [];
+  for (const provider of providerRegistry) {
+    for (const model of provider.staticModels ?? []) {
+      if (model.deprecated) continue;
+      result.push({
+        id: model.id,
+        provider: provider.id,
+        label: model.label,
+        description: model.description ?? "",
+        isAvailable: () => provider.isConfigured(provider.defaultConfig()),
+        build: () =>
+          provider.buildModel(
+            model.modelId ?? model.id,
+            provider.defaultConfig(),
+          ),
+        metadata: model,
+      });
+    }
+  }
+  return result;
+}
+
+export const AI_MODELS: readonly AiModelDefinition[] = flattenRegistry();
 
 export const DEFAULT_MODEL_ID = "claude-sonnet-4-6";
 

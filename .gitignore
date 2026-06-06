@@ -51,3 +51,7 @@ prisma/*.db-journal
 
 # Authentication tokens
 .npmrc
+
+# Tool runtime state (never commit)
+.mavis/
+.opencode/
