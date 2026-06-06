@@ -142,7 +142,7 @@ export function SettingsDialog() {
               className={cn(
                 "flex min-h-0 min-w-0 flex-row gap-1 overflow-x-auto p-2 border-t md:flex-col md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:p-3",
                 canScrollRight &&
-                  "[mask-image:linear-gradient(to_right,black_calc(100%-2rem),transparent)]",
+                  "mask-[linear-gradient(to_right,black_calc(100%-2rem),transparent)]",
               )}
             >
               <SettingsSectionLabel
