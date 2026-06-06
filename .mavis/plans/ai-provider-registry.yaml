@@ -1,0 +1,373 @@
+﻿version: 1
+plan:
+  name: 'Refatorar sistema de providers de IA para ProviderRegistry declarativo (Fase 1)'
+  max_concurrency: 2
+  max_consecutive_failures: 2
+  max_cycles: 6
+  verifier_config:
+    default_verifiers: [verifier]
+    audit_sample_rate: 0.0
+tasks:
+  - id: ai-provider-registry-impl
+    title: 'Implementar ProviderDefinition declarativo e migrar providers existentes'
+    assigned_to: coder
+    verified_by: verifier
+    timeout_ms: 1800000
+    prompt: |
+      ## Contexto
+
+      O projeto em `C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6` é um monorepo pnpm. O app principal é `apps/web` (Next.js 16 + AI SDK Vercel v6). O subsistema de providers de IA vive em `apps/web/src/lib/ai/`. Hoje os providers são funções soltas:
+
+        - `providers/anthropic.ts` (6 linhas, função `buildAnthropic(modelId)` que retorna `anthropic(modelId)`).
+        - `providers/minimax.ts` (24 linhas, `buildMinimax(modelId)` que cria um `createAnthropic` com `baseURL` customizado).
+        - `models.ts` define um array hardcoded `AI_MODELS: readonly AiModelDefinition[]` com 4 entradas (claude-sonnet-4-6, claude-haiku-4-5, minimax-m2.7, minimax-m2.7-highspeed), e expõe `getModel`, `getAvailableModels`, `DEFAULT_MODEL_ID`, `AiProvider`, `AiModelDefinition`.
+
+      Esses providers são consumidos em:
+        - `apps/web/src/app/api/ai/chat/route.ts` (chama `getModel(...)` em `streamText`).
+        - `apps/web/src/app/api/ai/models/route.ts` (filtra `AI_MODELS`).
+        - `apps/web/src/lib/ai/classify-intent.ts` (chama `getModel("claude-haiku-4-5")`).
+        - `apps/web/src/components/workspace/config/WorkspaceAiConfig.tsx` (renderiza lista hardcoded dos 4 modelos).
+        - `apps/web/src/app/[workspaceSlug]/settings/ai/page.tsx`.
+
+      Os 2 providers já estão integrados e funcionando, mas a abstração é fraca: adicionar um terceiro provider hoje exige editar 3+ lugares (criar arquivo de provider, editar `models.ts`, atualizar UI). A `AiModelDefinition` não tem `capabilities` (tool calling? vision?), não tem `contextWindow`, não tem `cost`, não tem `inputModalities`. Config é lido direto de `process.env` (escopo global, não por workspace).
+
+      ## Objetivo
+
+      Introduzir uma abstração `ProviderDefinition<C>` declarativa — cada provider vira um objeto com metadata rica (capabilities, lista de modelos, config tipado via zod, ícone, etc.) plugado num `providerRegistry` central. A interface pública de `models.ts` (`AI_MODELS`, `getModel`, `getAvailableModels`, `DEFAULT_MODEL_ID`, `AiProvider`, `AiModelDefinition`) deve permanecer 100% compatível com o que existe hoje — nenhum outro arquivo do projeto pode quebrar.
+
+      ## Mudanças
+
+      1. **Criar `apps/web/src/lib/ai/providers/types.ts`** com as interfaces a seguir. Use zod pra tipar config. O `ProviderDefinition` deve ser genérico em `C extends z.ZodTypeAny`.
+
+         ```ts
+         import type { LanguageModel } from "ai";
+         import type { z } from "zod";
+
+         export interface ProviderCapabilities {
+           toolCalling: boolean;
+           vision: boolean;
+           streaming: boolean;
+           structuredOutput: boolean;
+           jsonMode: boolean;
+           systemPrompt: boolean;
+           parallelToolCalls: boolean;
+         }
+
+         export type Modality = "text" | "image" | "audio" | "pdf";
+
+         export interface ModelMetadata {
+           id: string;
+           label: string;
+           description?: string;
+           contextWindow: number;
+           maxOutputTokens: number;
+           inputModalities: Modality[];
+           outputModalities: Modality[];
+           costPer1kInput?: number;
+           costPer1kOutput?: number;
+           supportsTools?: boolean;
+           deprecated?: boolean;
+         }
+
+         export type ProviderConfigSchema = z.ZodTypeAny;
+
+         export interface ProviderDefinition<C extends ProviderConfigSchema = ProviderConfigSchema> {
+           id: string;                          // 'anthropic' | 'minimax' | ...
+           name: string;                        // 'Anthropic' (UI)
+           icon?: string;
+           configSchema: C;
+           defaultConfig: () => z.infer<C>;
+           isConfigured: (config: z.infer<C>) => boolean;
+           buildModel: (modelId: string, config: z.infer<C>) => LanguageModel;
+           listModels?: (config: z.infer<C>) => Promise<ModelMetadata[]>;
+           capabilities: ProviderCapabilities;
+           staticModels?: readonly ModelMetadata[];  // metadata conhecida sem precisar de API call
+         }
+         ```
+
+         Exporte também `type InferProviderConfig<P>` etc. só se fizer sentido — mantenha enxuto.
+
+      2. **Migrar `apps/web/src/lib/ai/providers/anthropic.ts`** para o novo formato. Exporte `anthropicProvider: ProviderDefinition<typeof anthropicConfigSchema>`. O `configSchema` deve validar `apiKey` (string min 1) e `baseURL` (URL opcional). O `defaultConfig` lê `process.env.ANTHROPIC_API_KEY` e `process.env.ANTHROPIC_BASE_URL`. `isConfigured` checa `apiKey`. `buildModel` usa `createAnthropic({ apiKey, baseURL })(modelId)`. `capabilities`: tudo true exceto coisas que Claude não suporta (pesquise: claude-sonnet-4-6 tem tool calling, vision, structured output, system prompt, parallel tool calls; json mode também). `staticModels` deve listar os 2 modelos hoje existentes no `AI_MODELS`: `claude-sonnet-4-6` (200k context, 8192 max output, input [text, image], output [text], cost 0.003/0.015) e `claude-haiku-4-5-20251001` (200k context, 8192 max output, input [text, image], output [text], cost 0.0008/0.004 — confirme valores). `label` e `description` devem ser os mesmos do `AI_MODELS` atual.
+
+      3. **Migrar `apps/web/src/lib/ai/providers/minimax.ts`** para o novo formato. Exporte `minimaxProvider: ProviderDefinition<typeof minimaxConfigSchema>`. `configSchema`: `apiKey` (min 1) e `baseURL` (URL opcional, default `https://api.minimax.io/anthropic/v1`). `defaultConfig` lê `process.env.MINIMAX_API_KEY` e `process.env.MINIMAX_BASE_URL`. `isConfigured` = isMinimaxAvailable. `buildModel` usa `createAnthropic({ apiKey, baseURL })(modelId)` (igual ao atual). `capabilities`: mesmo do Anthropic (é um clone via baseURL). `staticModels` lista `MiniMax-M2.7` e `MiniMax-M2.7-highspeed` (os mesmos labels/descrições do `AI_MODELS` atual — use as descrições que já estão em `models.ts` linhas 37-46).
+
+      4. **Criar `apps/web/src/lib/ai/providers/registry.ts`**:
+
+         ```ts
+         import type { LanguageModel } from "ai";
+         import { anthropicProvider } from "./anthropic";
+         import { minimaxProvider } from "./minimax";
+         import type { ModelMetadata, ProviderDefinition } from "./types";
+
+         export const providerRegistry = [
+           anthropicProvider,
+           minimaxProvider,
+         ] as const satisfies readonly ProviderDefinition[];
+
+         export type ProviderId = (typeof providerRegistry)[number]["id"];
+
+         export function getProvider(id: string): ProviderDefinition {
+           const p = providerRegistry.find((p) => p.id === id);
+           if (!p) {
+             throw new Error(
+               `Provider "${id}" não registrado. Registrados: ${providerRegistry.map((p) => p.id).join(", ")}.`,
+             );
+           }
+           return p as ProviderDefinition;
+         }
+
+         export function listProviders(): readonly ProviderDefinition[] {
+           return providerRegistry;
+         }
+
+         export interface ResolveModelOptions {
+           providerId: string;
+           modelId: string;
+           config?: Record<string, unknown>;
+         }
+
+         export function resolveModel(opts: ResolveModelOptions): {
+           model: LanguageModel;
+           metadata?: ModelMetadata;
+         } {
+           const provider = getProvider(opts.providerId);
+           const config = { ...provider.defaultConfig(), ...(opts.config ?? {}) };
+           return {
+             model: provider.buildModel(opts.modelId, config),
+             metadata: provider.staticModels?.find((m) => m.id === opts.modelId),
+           };
+         }
+         ```
+
+      5. **Adaptar `apps/web/src/lib/ai/models.ts`** para derivar `AI_MODELS` do registry. A forma recomendada:
+
+         ```ts
+         import type { LanguageModel } from "ai";
+         import { providerRegistry } from "./providers/registry";
+         import type { ModelMetadata } from "./providers/types";
+
+         export type AiProvider = (typeof providerRegistry)[number]["id"];
+
+         export interface AiModelDefinition {
+           id: string;
+           provider: AiProvider;
+           label: string;
+           description: string;
+           isAvailable: () => boolean;
+           build: () => LanguageModel;
+           metadata?: ModelMetadata;  // NOVO campo, opcional; populado quando vem de staticModels
+         }
+
+         function flattenRegistry(): AiModelDefinition[] {
+           const result: AiModelDefinition[] = [];
+           for (const provider of providerRegistry) {
+             const config = provider.defaultConfig();
+             for (const model of provider.staticModels ?? []) {
+               if (model.deprecated) continue;
+               result.push({
+                 id: model.id,
+                 provider: provider.id as AiProvider,
+                 label: model.label,
+                 description: model.description ?? "",
+                 isAvailable: () => provider.isConfigured(config),
+                 build: () => provider.buildModel(model.id, config),
+                 metadata: model,
+               });
+             }
+           }
+           return result;
+         }
+
+         export const AI_MODELS: readonly AiModelDefinition[] = flattenRegistry();
+
+         export const DEFAULT_MODEL_ID = "claude-sonnet-4-6";
+
+         export function getAvailableModels(): readonly AiModelDefinition[] {
+           return AI_MODELS.filter((m) => m.isAvailable());
+         }
+
+         export function getModel(id?: string | null): AiModelDefinition {
+           const available = getAvailableModels();
+           return (
+             available.find((m) => m.id === id) ??
+             available.find((m) => m.id === DEFAULT_MODEL_ID) ??
+             available[0]
+           );
+         }
+         ```
+
+         A forma exata de `flattenRegistry` pode ser ajustada (ex: usar `isAvailable` como função que pega o config atual cada vez, em vez de capturar no momento da construção), desde que:
+         - Os mesmos 4 modelos apareçam com os mesmos `id` exatos: `claude-sonnet-4-6`, `claude-haiku-4-5`, `minimax-m2.7`, `minimax-m2.7-highspeed`. (Note: o `claude-haiku-4-5` no `models.ts` atual tem id `claude-haiku-4-5` mas usa `claude-haiku-4-5-20251001` no build. Preserve esse mapeamento: o `id` no AI_MODELS continua `claude-haiku-4-5`, e o `buildModel` é chamado com `claude-haiku-4-5-20251001`. Solução: use `id` e `modelId` separados no `ModelMetadata` se precisar, ou use um `aliases` map.)
+         - `getModel`, `getAvailableModels`, `DEFAULT_MODEL_ID` mantenham a mesma assinatura e semântica.
+         - `AiProvider` seja `string` (não literal union) — isso é OK porque é compatível com o uso existente.
+
+      ## Restrições
+
+      - **NÃO modifique** arquivos fora de `apps/web/src/lib/ai/`. Em particular, preserve byte-a-byte:
+        - `apps/web/src/app/api/ai/chat/route.ts`
+        - `apps/web/src/app/api/ai/models/route.ts`
+        - `apps/web/src/lib/ai/intent.ts`
+        - `apps/web/src/lib/ai/classify-intent.ts`
+        - `apps/web/src/lib/ai/tools.ts`
+        - `apps/web/src/lib/ai/prompts.ts`
+        - `apps/web/src/components/workspace/config/WorkspaceAiConfig.tsx`
+        - `apps/web/src/app/[workspaceSlug]/settings/ai/page.tsx`
+      - Sem dependências novas no `package.json`.
+      - Sem supressões de lint desnecessárias; siga o style do biome (já tem `biome.json` no root).
+      - Use `import type` para tipos onde fizer sentido.
+      - Use readonly arrays/tuples onde fizer sentido (consistência com o código atual).
+      - Sem comentários inline óbvios; o código deve se explicar.
+      - Não toque em `apps/collab` ou `packages/shared`.
+      - Preserve nomes em PT-BR nas `description`/`label` dos modelos (já estão em PT).
+
+      ## Validação (rode no fim e reporte resultados)
+
+      1. `cd C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6 && pnpm exec tsc --noEmit -p apps/web/tsconfig.json` — deve terminar com 0 erros.
+      2. `cd C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6 && pnpm lint` — deve terminar com 0 erros.
+      3. `cd C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6 && pnpm test:run` — todos os testes existentes devem passar (não há nenhum teste novo ainda, é esperado zero).
+      4. Confira com `git status` e `git diff --stat` que os únicos arquivos modificados/criados estão em `apps/web/src/lib/ai/`.
+
+      ## Entrega
+
+      - Commit único na branch atual com mensagem `refactor(ai): introduce ProviderDefinition registry and migrate anthropic/minimax providers`. NÃO faça push.
+      - Escreva `deliverable.md` em `C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6\.mavis\plans\ai-provider-registry\impl-deliverable.md` resumindo:
+        - Arquivos criados e arquivos modificados (com paths absolutos).
+        - Hash do commit.
+        - Resultado dos 4 comandos de validação.
+        - Decisões de design relevantes (ex: como resolveu o mapeamento de id `claude-haiku-4-5` vs `claude-haiku-4-5-20251001`).
+        - Qualquer divergência em relação a este prompt e o porquê.
+    verify_prompt: |
+      Você é o verifier adversarial desta task. NÃO leia o `deliverable.md` como prova — RE-derive as verificações independentemente.
+
+      Worktree: `C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6`
+
+      1. Rode você mesmo:
+         - `cd C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6 && pnpm exec tsc --noEmit -p apps/web/tsconfig.json` — deve ser 0.
+         - `cd C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6 && pnpm lint` — deve ser 0.
+         - `cd C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6 && pnpm test:run` — todos passam.
+      2. Com `git diff --stat` confirme que os únicos arquivos alterados estão em `apps/web/src/lib/ai/`. Se houver mudança em qualquer outro path, FAIL com a lista.
+      3. Leia `apps/web/src/lib/ai/models.ts` e confirme que estes exports continuam com a mesma assinatura pública (mesmo nome, mesma aridade):
+         - `AiProvider` (tipo)
+         - `AiModelDefinition` (interface; um campo opcional novo `metadata` é aceitável, mas os campos `id`, `provider`, `label`, `description`, `isAvailable`, `build` precisam existir com os mesmos tipos)
+         - `AI_MODELS` (readonly array)
+         - `DEFAULT_MODEL_ID` (string `"claude-sonnet-4-6"`)
+         - `getAvailableModels()` (função sem args)
+         - `getModel(id?: string | null)` (função com arg opcional)
+         Se faltar algum, FAIL.
+      4. Confirme por grep que `apps/web/src/app/api/ai/chat/route.ts` e `apps/web/src/components/workspace/config/WorkspaceAiConfig.tsx` NÃO foram modificados (`git diff HEAD -- <path>` deve estar vazio).
+      5. Verifique que `AI_MODELS` ainda produz exatamente 4 entradas: `claude-sonnet-4-6`, `claude-haiku-4-5`, `minimax-m2.7`, `minimax-m2.7-highspeed`. Leia `models.ts` e conte ou use um `node -e` rápido.
+      6. Verifique que `providers/registry.ts` exporta `providerRegistry`, `getProvider`, `resolveModel`, `listProviders` (ou um subconjunto compatível).
+      7. Verifique que cada provider expõe `capabilities` (todos os 7 campos boolean), `configSchema` (zod), `defaultConfig`, `isConfigured`, `buildModel`, `staticModels` (ou `listModels`).
+      8. Tente chamar `getProvider("nao-existe")` mentalmente e confirme que lança erro descritivo com a lista de providers registrados.
+      9. Confira que o `biome.json` não foi modificado e que o código novo respeita o estilo (aspas duplas, vírgulas trailing, etc.).
+      10. Re-derive: rode `node -e "const r = require('./apps/web/src/lib/ai/models.ts')"` — não, melhor: faça um script de teste rápido em `apps/web/src/lib/ai/` que importa `AI_MODELS` e imprime `AI_MODELS.length` e os `id`s. Use `pnpm exec tsx` ou similar, e LIMPE o script depois.
+
+      Reporte PASS ou FAIL com evidência (output literal dos comandos, snippets de código, diffs).
+
+  - id: ai-provider-registry-tests
+    title: 'Adicionar testes co-localizados para registry, providers e models'
+    assigned_to: coder
+    verified_by: verifier
+    depends_on: [ai-provider-registry-impl]
+    timeout_ms: 1800000
+    prompt: |
+      ## Contexto
+
+      Você está continuando o trabalho da task `ai-provider-registry-impl`. O refactor introduziu:
+        - `apps/web/src/lib/ai/providers/types.ts` (`ProviderDefinition`, `ProviderCapabilities`, `ModelMetadata`, `Modality`).
+        - `apps/web/src/lib/ai/providers/anthropic.ts` (exporta `anthropicProvider`).
+        - `apps/web/src/lib/ai/providers/minimax.ts` (exporta `minimaxProvider`).
+        - `apps/web/src/lib/ai/providers/registry.ts` (exporta `providerRegistry`, `getProvider`, `resolveModel`, `listProviders`).
+        - `apps/web/src/lib/ai/models.ts` (agora deriva `AI_MODELS` do registry; mantém `AiProvider`, `AiModelDefinition`, `getModel`, `getAvailableModels`, `DEFAULT_MODEL_ID`).
+
+      Leia o `deliverable.md` em `C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6\.mavis\plans\ai-provider-registry\impl-deliverable.md` para entender decisões, e leia o código atual em `apps/web/src/lib/ai/` antes de escrever os testes.
+
+      ## Objetivo
+
+      Adicionar testes co-localizados (`*.test.ts`) cobrindo o novo registry, os providers migrados, e a fachada `models.ts`. Os testes devem cobrir caminhos felizes E caminhos de erro.
+
+      ## Mudanças
+
+      1. **`apps/web/src/lib/ai/providers/registry.test.ts`** — testes para `registry.ts`:
+         - `providerRegistry` contém exatamente 2 providers (`anthropic` e `minimax`) nessa ordem.
+         - `getProvider("anthropic")` retorna o `anthropicProvider`.
+         - `getProvider("minimax")` retorna o `minimaxProvider`.
+         - `getProvider("nao-existe")` lança `Error` cuja mensagem inclui o id errado e a lista de providers registrados.
+         - `listProviders()` retorna o mesmo array.
+         - `resolveModel({ providerId: "anthropic", modelId: "claude-sonnet-4-6" })` retorna `{ model, metadata }` onde `model` é truthy e `metadata.id === "claude-sonnet-4-6"`.
+
+      2. **`apps/web/src/lib/ai/providers/anthropic.test.ts`** — testes para o provider Anthropic:
+         - O provider tem `id === "anthropic"`, `name` truthy, e `capabilities.toolCalling === true`, `capabilities.vision === true`, `capabilities.streaming === true`, `capabilities.structuredOutput === true`, `capabilities.jsonMode === true`, `capabilities.systemPrompt === true`, `capabilities.parallelToolCalls === true`.
+         - `defaultConfig()` retorna `{ apiKey: process.env.ANTHROPIC_API_KEY ?? "", baseURL: process.env.ANTHROPIC_BASE_URL }`.
+         - `isConfigured({ apiKey: "sk-fake" })` retorna `true`.
+         - `isConfigured({ apiKey: "" })` retorna `false`.
+         - `configSchema.safeParse({ apiKey: "sk-fake" }).success === true`.
+         - `configSchema.safeParse({ apiKey: "" }).success === false`.
+         - `staticModels` contém `claude-sonnet-4-6` e `claude-haiku-4-5` com `contextWindow > 0`, `maxOutputTokens > 0`, `inputModalities` incluindo `"text"`.
+         - `buildModel("claude-sonnet-4-6", { apiKey: "sk-fake" })` retorna algo truthy (mocke `@ai-sdk/anthropic` se necessário — veja o padrão usado em outros testes do projeto).
+
+      3. **`apps/web/src/lib/ai/providers/minimax.test.ts`** — testes para o provider MiniMax:
+         - `isMinimaxAvailable()` retorna `true` quando `process.env.MINIMAX_API_KEY` está setado; `false` caso contrário. Use `vi.stubEnv` ou `vi.hoisted` + mutação direta.
+         - `defaultConfig().apiKey` reflete o env var.
+         - `buildModel` lança erro com mensagem amigável em PT quando `apiKey` é vazio.
+         - `staticModels` contém `MiniMax-M2.7` e `MiniMax-M2.7-highspeed`.
+         - `capabilities` é idêntico ao do Anthropic.
+
+      4. **`apps/web/src/lib/ai/models.test.ts`** — testes para a fachada:
+         - `AI_MODELS.length === 4` com os ids esperados: `claude-sonnet-4-6`, `claude-haiku-4-5`, `minimax-m2.7`, `minimax-m2.7-highspeed`.
+         - `AI_MODELS[0].provider === "anthropic"` e `AI_MODELS[2].provider === "minimax"`.
+         - `getModel("claude-sonnet-4-6")` retorna o modelo correto (use `vi.stubEnv("ANTHROPIC_API_KEY", "sk-fake")` antes).
+         - `getModel("nao-existe")` retorna o `DEFAULT_MODEL_ID` (fallback).
+         - `getModel(null)` retorna o `DEFAULT_MODEL_ID`.
+         - `getAvailableModels()` filtra por `isAvailable()` — com `ANTHROPIC_API_KEY` setado e `MINIMAX_API_KEY` vazio, retorna 2 modelos (os Anthropic). Vice-versa também.
+         - `DEFAULT_MODEL_ID === "claude-sonnet-4-6"`.
+
+      ## Restrições
+
+      - Co-localizado: cada `*.test.ts` ao lado do `*.ts` correspondente.
+      - Use o padrão do projeto: `vi.mock()` e `vi.hoisted()` do Vitest. Veja `apps/web/src/lib/ai/markdown-to-html.test.ts` ou outros testes existentes em `apps/web/src/app/api/notes/*.test.ts` para o estilo.
+      - O projeto usa `vitest` (veja `apps/web/vitest.config.ts`). O alias `@/*` está disponível.
+      - Use `vi.stubEnv()` (Vitest 1.x+) para setar/unsetar env vars de forma limpa. Restaure o env original com `vi.unstubAllEnvs()` no `afterEach` ou `beforeEach`.
+      - Para mockar `@ai-sdk/anthropic`, use `vi.mock("@ai-sdk/anthropic", () => ({ anthropic: vi.fn(), createAnthropic: vi.fn(() => () => "fake-model") }))` ou similar — confirme o que faz sentido testando apenas o que precisa (não precisa de chamadas reais à API).
+      - Sem dependências novas.
+      - Sem mudanças em código de produção. Só criar/editar `*.test.ts`.
+      - Não toque em `apps/collab` ou `packages/shared`.
+
+      ## Validação
+
+      1. `cd C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6 && pnpm test:run` — todos os testes passam (antigos + novos).
+      2. `cd C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6 && pnpm exec tsc --noEmit -p apps/web/tsconfig.json` — 0 erros.
+      3. `cd C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6 && pnpm lint` — 0 erros.
+      4. `git diff --stat` mostra apenas:
+         - novos `*.test.ts` em `apps/web/src/lib/ai/`,
+         - nenhuma mudança em `*.ts` (exceto se for inevitável pra testes — por exemplo, se o `models.ts` exportou algo novo que os testes usam).
+
+      ## Entrega
+
+      - Commit único com mensagem `test(ai): add registry, provider and models tests`. NÃO faça push.
+      - Escreva `deliverable.md` em `C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6\.mavis\plans\ai-provider-registry\tests-deliverable.md` com:
+        - Lista de arquivos criados.
+        - Hash do commit.
+        - Output literal do `pnpm test:run` (resumo).
+        - Cobertura por arquivo (1 linha por arquivo: o que está coberto).
+    verify_prompt: |
+      Você é o verifier adversarial. RE-derive as verificações.
+
+      Worktree: `C:\Dev\Personal\locus-refs\.worktrees\wt-5d6a56e6`
+
+      1. Rode você mesmo `pnpm test:run` no root. Todos os testes devem passar, incluindo os novos.
+      2. Rode `pnpm exec tsc --noEmit -p apps/web/tsconfig.json` — 0 erros.
+      3. Rode `pnpm lint` — 0 erros.
+      4. Confirme por `git status` que:
+         - Os 4 arquivos de teste novos existem: `apps/web/src/lib/ai/providers/registry.test.ts`, `apps/web/src/lib/ai/providers/anthropic.test.ts`, `apps/web/src/lib/ai/providers/minimax.test.ts`, `apps/web/src/lib/ai/models.test.ts`.
+         - Nenhum `*.ts` de produção foi alterado nessa task (`git diff --stat` mostra só `*.test.ts` + commit anterior).
+      5. Leia cada `*.test.ts` novo e confirme que cobre pelo menos:
+         - `registry.test.ts`: provider desconhecido (caminho de erro) + provider conhecido (caminho feliz).
+         - `anthropic.test.ts`: `isConfigured` com/sem apiKey (caminho de erro) + buildModel (caminho feliz).
+         - `minimax.test.ts`: `isMinimaxAvailable` com/sem env (caminho de erro) + buildModel (caminho feliz).
+         - `models.test.ts`: `getModel` com id válido E com id inválido (fallback).
+         Se algum arquivo não tiver caminho de erro explícito, FAIL.
+      6. Procure por `process.env.X =` (mutação direta) — se houver, prefira `vi.stubEnv` (`vi.hoisted` é aceitável). Se houver mutação direta sem cleanup, FAIL.
+      7. Confirme que mocks de `@ai-sdk/anthropic` não fazem chamadas reais — procure por `fetch(` ou `axios` no código de teste, ou por strings de URL absoluta.
+
+      Reporte PASS ou FAIL com evidência.
