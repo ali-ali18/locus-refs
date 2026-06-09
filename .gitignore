@@ -52,5 +52,6 @@ prisma/*.db-journal
 # Authentication tokens
 .npmrc
 
-# Mavis (mavis team plans, internal scratch — não versionar)
+# Tool runtime state (never commit)
 .mavis/
+.opencode/

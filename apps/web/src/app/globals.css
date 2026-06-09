@@ -404,3 +404,15 @@
     letter-spacing: var(--tracking-normal);
   }
 }
+
+/* Smooth collapse for the Plan card body (Base UI Collapsible.Panel).
+   Scoped to plan-content so other collapsibles (e.g. Reasoning) are untouched. */
+[data-slot="plan-content"] {
+  overflow: hidden;
+  height: var(--collapsible-panel-height);
+  transition: height 200ms ease-out;
+}
+[data-slot="plan-content"][data-starting-style],
+[data-slot="plan-content"][data-ending-style] {
+  height: 0;
+}

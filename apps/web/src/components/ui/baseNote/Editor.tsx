@@ -171,7 +171,16 @@ export function Editor({
         return { status: "error", reason: "Editor não inicializado." };
 
       const doc = markdownToDoc(op.input.content);
-      if (!doc?.content?.length) {
+      const content = doc?.content ?? [];
+      const isDeletion =
+        op.input.content.trim().length === 0 || content.length === 0;
+
+      // Tools de inserção exigem conteúdo; só os de "replace" podem apagar.
+      const requiresContent =
+        op.name === "appendToEnd" ||
+        op.name === "insertAfterBlock" ||
+        op.name === "insertBeforeBlock";
+      if (isDeletion && requiresContent) {
         return {
           status: "error",
           reason: "Conteúdo Markdown inválido ou vazio.",
@@ -181,16 +190,16 @@ export function Editor({
       try {
         if (op.name === "appendToEnd") {
           const end = editor.state.doc.content.size;
-          editor.chain().focus().insertContentAt(end, doc.content).run();
+          editor.chain().focus().insertContentAt(end, content).run();
           return { status: "applied" };
         }
 
         if (op.name === "replaceEntireNote") {
-          editor
-            .chain()
-            .focus()
-            .setContent({ type: "doc", content: doc.content })
-            .run();
+          if (isDeletion) {
+            editor.chain().focus().clearContent().run();
+          } else {
+            editor.chain().focus().setContent({ type: "doc", content }).run();
+          }
           return { status: "applied" };
         }
 
@@ -233,11 +242,11 @@ export function Editor({
             to = sel.to;
           }
 
-          editor
-            .chain()
-            .focus()
-            .insertContentAt({ from, to }, doc.content)
-            .run();
+          if (isDeletion) {
+            editor.chain().focus().deleteRange({ from, to }).run();
+          } else {
+            editor.chain().focus().insertContentAt({ from, to }, content).run();
+          }
           if (useChip) clearAttachedSelection();
           return { status: "applied" };
         }
@@ -252,26 +261,27 @@ export function Editor({
         }
 
         if (op.name === "insertAfterBlock") {
-          editor.chain().focus().insertContentAt(target.end, doc.content).run();
+          editor.chain().focus().insertContentAt(target.end, content).run();
           return { status: "applied" };
         }
         if (op.name === "insertBeforeBlock") {
-          editor
-            .chain()
-            .focus()
-            .insertContentAt(target.start, doc.content)
-            .run();
+          editor.chain().focus().insertContentAt(target.start, content).run();
           return { status: "applied" };
         }
         if (op.name === "replaceBlock") {
-          editor
-            .chain()
-            .focus()
-            .insertContentAt(
-              { from: target.start, to: target.end },
-              doc.content,
-            )
-            .run();
+          if (isDeletion) {
+            editor
+              .chain()
+              .focus()
+              .deleteRange({ from: target.start, to: target.end })
+              .run();
+          } else {
+            editor
+              .chain()
+              .focus()
+              .insertContentAt({ from: target.start, to: target.end }, content)
+              .run();
+          }
           return { status: "applied" };
         }
 

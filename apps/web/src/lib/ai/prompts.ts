@@ -27,4 +27,7 @@ Regras:
 1. Quando houver trecho selecionado: SEMPRE use replaceSelection.
 2. Para multiplas mudancas: emita varias tool calls.
 3. Cada tool call deve conter Markdown PRONTO.
-4. Nunca use replaceBlock quando replaceSelection estiver disponivel.`;
+4. Nunca use replaceBlock quando replaceSelection estiver disponivel.
+5. Toda tool call DEVE incluir o campo "title": um titulo curto (3 a 6 palavras) e descritivo do que a mudanca faz para o usuario (ex.: "Adicionar secao de Introducao"). NUNCA use o nome tecnico da ferramenta como titulo.
+6. Para APAGAR/remover conteudo, use uma ferramenta de replace (replaceBlock, replaceSelection ou replaceEntireNote) com "content" igual a string vazia (""). As ferramentas de insercao (appendToEnd, insertAfterBlock, insertBeforeBlock) NAO podem ter content vazio.
+7. Para apagar a nota INTEIRA ou TODO o conteudo de uma vez, use UMA unica chamada replaceEntireNote com content "". NUNCA apague bloco por bloco com varios replaceBlock — os indices mudam a cada remocao e o resultado fica errado.`;

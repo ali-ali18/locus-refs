@@ -1,8 +1,19 @@
 "use client";
 
 import { getToolName, type ToolUIPart } from "ai";
+import { Check, FileText, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+  Plan,
+  PlanAction,
+  PlanContent,
+  PlanDescription,
+  PlanFooter,
+  PlanHeader,
+  PlanTitle,
+  PlanTrigger,
+} from "@/components/ai-elements/plan";
 import { Button } from "@/components/ui/button";
 import { useNoteEditor } from "@/context/noteEditor";
 import { markdownToHtml } from "@/lib/ai/markdown-to-html";
@@ -15,7 +26,7 @@ import { cn } from "@/lib/utils";
 
 type NoteEditToolPart = ToolUIPart;
 
-interface ChatToolCardProps {
+interface ChatToolPlanCardProps {
   part: NoteEditToolPart;
   noteId: string;
   onResolve: (
@@ -51,14 +62,18 @@ function ContentPreview({ markdown }: { markdown: string }) {
   const html = markdownToHtml(markdown);
   return (
     <div
-      className="prose prose-sm mt-2 max-h-48 overflow-y-auto rounded-lg bg-background/60 p-2 text-xs text-foreground/90 [&_a]:underline [&_code]:rounded [&_code]:bg-black/10 [&_code]:px-1 [&_h1]:text-sm [&_h1]:font-semibold [&_h2]:text-sm [&_h2]:font-semibold [&_h3]:text-xs [&_h3]:font-medium [&_ol]:list-decimal [&_ol]:pl-4 [&_p+p]:mt-2 [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded [&_pre]:bg-black/10 [&_pre]:p-2 [&_ul]:list-disc [&_ul]:pl-4"
+      className="prose prose-sm max-h-64 max-w-none overflow-y-auto text-sm text-foreground/90 [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-sm [&_ol]:list-decimal [&_ol]:pl-4 [&_p+p]:mt-2 [&_pre]:overflow-x-auto [&_pre]:rounded [&_pre]:bg-muted [&_pre]:p-2 [&_ul]:list-disc [&_ul]:pl-4"
       // biome-ignore lint/security/noDangerouslySetInnerHtml: markdownToHtml escapes raw HTML.
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
 }
 
-export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
+export function ChatToolPlanCard({
+  part,
+  noteId,
+  onResolve,
+}: ChatToolPlanCardProps) {
   const { applyToolOperation, getEnumeratedBlocks } = useNoteEditor();
   const [busy, setBusy] = useState(false);
 
@@ -66,14 +81,7 @@ export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
   const known = isKnownToolName(toolName);
   const title = known ? TOOL_TITLES[toolName] : toolName;
 
-  if (part.state === "input-streaming") {
-    return (
-      <div className="mt-2 rounded-xl border border-sidebar-border bg-sidebar-accent/50 px-3 py-2 text-xs text-sidebar-foreground/70">
-        <span className="font-medium">{title}</span> — gerando…
-      </div>
-    );
-  }
-
+  // Estados terminais: aprovado, negado, erro — linha fina de status
   if (
     part.state === "output-available" ||
     part.state === "output-error" ||
@@ -116,7 +124,7 @@ export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
     );
   }
 
-  // input-available (or any other waiting state)
+  // Tool desconhecido: avisa
   if (!known) {
     return (
       <div className="mt-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
@@ -125,14 +133,29 @@ export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
     );
   }
 
+  // input-streaming: nada a renderizar ainda (input incompleto). O typing dot
+  // no ChatMessages cuida do feedback visual durante a stream.
+  if (part.state === "input-streaming") {
+    return null;
+  }
+
+  // input-available: este é o caso do "Aceitar ou recusar"
   const input = part.input as NoteEditToolInput["input"] | undefined;
   if (!input) return null;
 
   const blocks = getEnumeratedBlocks(noteId);
   const targetBlock =
     "blockIndex" in input ? blocks[input.blockIndex] : undefined;
+  const blocoLabel = "blockIndex" in input ? `bloco ${input.blockIndex}` : null;
+  const blockMissing = !targetBlock && blocoLabel !== null;
+  const aiTitle = input.title?.trim() || title;
+  const description = targetBlock
+    ? `${title} · ${targetBlock.preview || `(${targetBlock.type} vazio)`}`
+    : blockMissing
+      ? `${title} · ${blocoLabel} não existe nesta nota`
+      : title;
 
-  const handleApply = () => {
+  const handleAccept = () => {
     setBusy(true);
     const op = { name: toolName, input } as NoteEditToolInput;
     const result = applyToolOperation(noteId, op);
@@ -150,48 +173,45 @@ export function ChatToolCard({ part, noteId, onResolve }: ChatToolCardProps) {
   };
 
   return (
-    <div className="mt-2 rounded-xl border border-sidebar-border bg-background/40 p-3 text-xs text-sidebar-foreground">
-      <div className="flex items-center justify-between gap-2">
-        <span className="font-semibold">{title}</span>
-        {"blockIndex" in input ? (
-          <span className="rounded-full bg-sidebar-foreground/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-sidebar-foreground/70">
-            bloco {input.blockIndex}
-          </span>
-        ) : null}
-      </div>
-
-      {targetBlock ? (
-        <div className="mt-1 text-[11px] text-sidebar-foreground/60 line-clamp-2">
-          Alvo: {targetBlock.preview || `(${targetBlock.type} vazio)`}
+    <Plan defaultOpen className="mt-2 w-full">
+      <PlanHeader>
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2">
+            <FileText className="size-4 shrink-0 text-muted-foreground" />
+            <PlanTitle>{aiTitle}</PlanTitle>
+          </div>
+          <PlanDescription className={blockMissing ? "text-destructive" : ""}>
+            {description}
+          </PlanDescription>
         </div>
-      ) : "blockIndex" in input ? (
-        <div className="mt-1 text-[11px] text-destructive">
-          Bloco {input.blockIndex} não existe nesta nota.
-        </div>
-      ) : null}
-
-      <ContentPreview markdown={input.content} />
-
-      <div className="mt-2 flex justify-end gap-2">
-        <Button
-          variant="ghost"
-          size="xs"
-          rounded="xl"
-          onClick={handleDeny}
-          disabled={busy}
-        >
-          Descartar
-        </Button>
-        <Button
-          variant="default"
-          size="xs"
-          rounded="xl"
-          onClick={handleApply}
-          disabled={busy}
-        >
-          Aplicar
-        </Button>
-      </div>
-    </div>
+        <PlanTrigger />
+      </PlanHeader>
+      <PlanContent>
+        {input.content.trim() ? (
+          <ContentPreview markdown={input.content} />
+        ) : (
+          <p className="text-sm text-muted-foreground italic">
+            O conteúdo do alvo será removido.
+          </p>
+        )}
+      </PlanContent>
+      <PlanFooter className="justify-end">
+        <PlanAction className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDeny}
+            disabled={busy}
+          >
+            <X className="size-4" />
+            Recusar
+          </Button>
+          <Button size="sm" onClick={handleAccept} disabled={busy}>
+            <Check className="size-4" />
+            Aceitar
+          </Button>
+        </PlanAction>
+      </PlanFooter>
+    </Plan>
   );
 }
