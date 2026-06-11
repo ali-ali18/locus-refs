@@ -1,4 +1,4 @@
-import type { UpdateBoardSchema } from "@refstash/shared";
+import { updateBoardSchema } from "@refstash/shared";
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireWorkspaceAccess } from "@/server/requireSession";
@@ -36,16 +36,21 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const parsed = updateBoardSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid input", code: "INVALID_INPUT", details: parsed.error.flatten() },
+      { status: 400 },
+    );
+  }
+
   try {
-    const body = (await request.json()) as UpdateBoardSchema;
     const board = await prisma.board.update({
       where: { id, workspaceId, deletedAt: null },
       data: {
-        ...(body.title !== undefined && { title: body.title }),
-        ...(body.description !== undefined && {
-          description: body.description,
-        }),
-        ...(body.icon !== undefined && { icon: body.icon }),
+        ...(parsed.data.title !== undefined && { title: parsed.data.title }),
+        ...(parsed.data.description !== undefined && { description: parsed.data.description }),
+        ...(parsed.data.icon !== undefined && { icon: parsed.data.icon }),
       },
     });
     return NextResponse.json({ data: board });

@@ -1,4 +1,4 @@
-import type { CreateBoardSchema } from "@refstash/shared";
+import { createBoardSchema } from "@refstash/shared";
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireWorkspaceAccess } from "@/server/requireSession";
@@ -27,13 +27,20 @@ export async function POST(request: NextRequest) {
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
 
+  const parsed = createBoardSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid input", code: "INVALID_INPUT", details: parsed.error.flatten() },
+      { status: 400 },
+    );
+  }
+
   try {
-    const body = (await request.json()) as CreateBoardSchema;
     const board = await prisma.board.create({
       data: {
-        title: body.title,
-        description: body.description ?? null,
-        icon: body.icon ?? null,
+        title: parsed.data.title,
+        description: parsed.data.description ?? null,
+        icon: parsed.data.icon ?? null,
         workspaceId,
         createdById: session.user.id,
       },
