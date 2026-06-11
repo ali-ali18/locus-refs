@@ -1,7 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { type NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 import { s3Client } from "@/lib/storage";
+import { deleteObjects } from "@/server/upload";
 import { getSession } from "@/server/getSession";
 
 const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
@@ -75,6 +77,12 @@ export async function POST(request: NextRequest) {
   const safeName = file.name.replace(/\s+/g, "-").replace(/[^\w.-]/g, "");
   const key = `${session.user.id}/avatars/${randomUUID()}-${safeName}`;
 
+  // Busca o avatar atual antes de subir o novo
+  const currentUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { image: true },
+  });
+
   try {
     await s3Client.send(
       new PutObjectCommand({
@@ -89,6 +97,13 @@ export async function POST(request: NextRequest) {
       { error: "Erro ao fazer upload. Tente novamente." },
       { status: 500 },
     );
+  }
+
+  // Deleta o avatar antigo do bucket (fire-and-forget — não bloqueia a resposta)
+  const oldImage = currentUser?.image;
+  if (oldImage?.startsWith(`/storage/${session.user.id}/avatars/`)) {
+    const oldKey = oldImage.replace(/^\/storage\//, "");
+    deleteObjects([oldKey]).catch(() => {});
   }
 
   return NextResponse.json(

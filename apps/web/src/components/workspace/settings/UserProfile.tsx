@@ -1,15 +1,15 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Camera01Icon, Loading02Icon, UserIcon } from "@hugeicons/core-free-icons";
+import { Camera01Icon, FloppyDiskIcon, Loading02Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { FieldGroupApp } from "@/components/base";
 import { Icon } from "@/components/shared/Icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
@@ -34,9 +34,9 @@ export function UserProfile() {
 
   if (isPending) {
     return (
-      <div className="flex flex-col gap-4">
-        <Skeleton className="h-20 w-full rounded-xl" />
-        <Skeleton className="h-16 w-full rounded-xl" />
+      <div className="flex flex-col gap-3">
+        <Skeleton className="h-12 w-full rounded-xl" />
+        <Skeleton className="h-12 w-full rounded-xl" />
         <Skeleton className="h-9 w-24 self-end rounded-full" />
       </div>
     );
@@ -82,57 +82,57 @@ export function UserProfile() {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      {/* Avatar + info */}
-      <div className="flex items-center gap-4">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-1">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
+      {/* Row: Avatar */}
+      <SettingsRow label="Avatar">
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="group relative shrink-0"
+          className="group relative"
           aria-label="Alterar foto de perfil"
         >
-          <Avatar className="size-16 rounded-xl">
+          <Avatar className="size-9 rounded-full">
             <AvatarImage src={currentAvatar} alt={session?.user?.name ?? ""} />
             <AvatarFallback>
-              <Icon icon={UserIcon} className="size-5" />
+              <Icon icon={UserIcon} className="size-4" />
             </AvatarFallback>
           </Avatar>
-          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-            <Icon icon={Camera01Icon} className="size-4 text-white" />
+          <div className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+            <Icon icon={Camera01Icon} className="size-3 text-white" />
           </div>
         </button>
+      </SettingsRow>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="hidden"
-          onChange={handleFileChange}
+      <SettingsRow label="Nome">
+        <Input
+          {...form.register("name")}
+          placeholder="Seu nome"
+          className="h-8 rounded-lg text-sm"
+          aria-invalid={!!form.formState.errors.name}
         />
+        {form.formState.errors.name && (
+          <p className="text-destructive mt-1 text-xs">
+            {form.formState.errors.name.message}
+          </p>
+        )}
+      </SettingsRow>
 
-        <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-medium">{session?.user?.name}</span>
-          <span className="text-xs text-muted-foreground">{session?.user?.email}</span>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="mt-1 text-left text-xs text-primary underline-offset-4 hover:underline"
-          >
-            Alterar foto
-          </button>
-        </div>
-      </div>
+      {/* Row: Email (readonly) */}
+      <SettingsRow label="E-mail">
+        <span className="text-muted-foreground text-sm">
+          {session?.user?.email}
+        </span>
+      </SettingsRow>
 
-      {/* Name */}
-      <FieldGroupApp<ProfileSchema>
-        control={form.control}
-        name="name"
-        label="Nome"
-        placeholder="Seu nome"
-        className="rounded-xl"
-      />
-
-      <div className="flex justify-end">
+      <div className="mt-4 flex justify-end">
         <Button type="submit" rounded="full" disabled={isSaving}>
           {isSaving ? (
             <>
@@ -140,10 +140,28 @@ export function UserProfile() {
               <span>Salvando...</span>
             </>
           ) : (
-            "Salvar"
+            <>
+              <Icon icon={FloppyDiskIcon} className="size-4" />
+              <span>Salvar</span>
+            </>
           )}
         </Button>
       </div>
     </form>
+  );
+}
+
+function SettingsRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-h-12 items-center justify-between gap-4 border-b border-border py-3 last:border-0">
+      <span className="text-sm">{label}</span>
+      <div className="flex flex-col items-end">{children}</div>
+    </div>
   );
 }

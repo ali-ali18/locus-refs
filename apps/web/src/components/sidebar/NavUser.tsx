@@ -126,7 +126,6 @@ export function NavUser() {
               <HugeiconsIcon icon={Settings01Icon} strokeWidth={2} />
               Configurações
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive "
               onClick={handleSignOut}
