@@ -11,3 +11,6 @@ allowBuilds:
   "@parcel/watcher": true
   msw: true
   sharp: true
+  workerd: true
+  "@prisma/client": true
+
