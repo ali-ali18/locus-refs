@@ -27,8 +27,8 @@ export function DocsPageFooterNav() {
           nativeButton={false}
           render={<Link href={prev.href} />}
         >
-            <HugeiconsIcon icon={ArrowLeft01Icon} size={12} strokeWidth={2} />
-        {prev.label}
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={12} strokeWidth={2} />
+          {prev.label}
         </Button>
       ) : (
         <div className="flex-1" />
@@ -40,7 +40,7 @@ export function DocsPageFooterNav() {
           render={<Link href={next.href} />}
         >
           {next.label}
-            <HugeiconsIcon icon={ArrowRight01Icon} size={12} strokeWidth={2} />
+          <HugeiconsIcon icon={ArrowRight01Icon} size={12} strokeWidth={2} />
         </Button>
       ) : (
         <div className="flex-1" />

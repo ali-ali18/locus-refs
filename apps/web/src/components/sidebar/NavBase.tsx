@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  DashboardSquare01Icon,
   Folder01FreeIcons,
   Home01Icon,
   Note01FreeIcons,
@@ -23,22 +24,17 @@ export function NavBase() {
   const pathname = usePathname();
 
   const links = [
-    {
-      href: `/${workspaceSlug}`,
-      icon: Home01Icon,
-      label: "Inicio",
-    },
-    {
-      href: `/${workspaceSlug}/notes`,
-      icon: Note01FreeIcons,
-      label: "Notas",
-      className: "group-data-[collapsible=icon]:hidden",
-    },
+    { href: `/${workspaceSlug}`, icon: Home01Icon, label: "Inicio" },
+    { href: `/${workspaceSlug}/notes`, icon: Note01FreeIcons, label: "Notas" },
     {
       href: `/${workspaceSlug}/collections`,
       icon: Folder01FreeIcons,
       label: "Coleções",
-      className: "group-data-[collapsible=icon]:hidden",
+    },
+    {
+      href: `/${workspaceSlug}/boards`,
+      icon: DashboardSquare01Icon,
+      label: "Boards",
     },
   ];
 
@@ -48,7 +44,7 @@ export function NavBase() {
       <SidebarGroupContent>
         <SidebarMenu>
           {links.map((link) => (
-            <SidebarMenuItem key={link.href} className={link.className}>
+            <SidebarMenuItem key={link.href}>
               <SidebarMenuButton
                 suppressHydrationWarning
                 tooltip={link.label}

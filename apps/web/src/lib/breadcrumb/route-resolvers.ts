@@ -1,10 +1,5 @@
 export type BreadcrumbItem = {
   label: string;
   href: string;
+  icon?: string | null;
 };
-
-export type ResolverFn = (id: string) => Promise<string | null>;
-
-export type RouteResolvers = Record<string, ResolverFn>;
-
-export const routeResolvers: RouteResolvers = {};

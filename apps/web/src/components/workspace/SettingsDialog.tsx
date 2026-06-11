@@ -127,20 +127,20 @@ export function SettingsDialog() {
     <Dialog open={open} onOpenChange={(o) => !o && closeSettings()}>
       <DialogContent
         className="sm:max-w-2xl md:max-w-3xl p-0 gap-0 overflow-hidden"
-        style={{ maxHeight: "min(85vh, 800px)" }}
+        style={{ display: "flex", flexDirection: "column", height: "min(85vh, 800px)" }}
         showCloseButton
         closeButtonClassName="top-2 md:top-4"
       >
         <DialogTitle className="sr-only">Configurações</DialogTitle>
-        <div className="flex h-full min-h-0 min-w-0 flex-col">
+        <div className="flex flex-1 min-h-0 min-w-0 flex-col">
           <div className="flex h-12 items-center justify-between px-4 pr-12 md:hidden">
             <h2 className="text-base font-semibold">Configurações</h2>
           </div>
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col md:grid md:min-h-[600px] md:max-h-[600px] md:grid-cols-[200px_1fr]">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:grid md:grid-cols-[200px_1fr]">
             <nav
               ref={navRef}
               className={cn(
-                "flex min-h-0 min-w-0 flex-row gap-1 overflow-x-auto p-2 border-t md:flex-col md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:p-3",
+                "flex min-h-0 min-w-0 flex-row gap-1 overflow-x-auto p-2 border-t md:flex-col md:bg-sidebar md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:px-3 md:pb-3",
                 canScrollRight &&
                   "mask-[linear-gradient(to_right,black_calc(100%-2rem),transparent)]",
               )}

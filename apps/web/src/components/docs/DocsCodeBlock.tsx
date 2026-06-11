@@ -14,8 +14,12 @@ function getTextContent(node: ReactNode): string {
   return "";
 }
 
-function getCodeInfo(children: ReactNode): { text: string; language: BundledLanguage } {
-  if (!React.isValidElement(children)) return { text: String(children ?? ""), language: "typescript" };
+function getCodeInfo(children: ReactNode): {
+  text: string;
+  language: BundledLanguage;
+} {
+  if (!React.isValidElement(children))
+    return { text: String(children ?? ""), language: "typescript" };
   const props = children.props as { className?: string; children?: ReactNode };
   const raw = (props.className ?? "").replace("language-", "");
   const language = (raw || "typescript") as BundledLanguage;

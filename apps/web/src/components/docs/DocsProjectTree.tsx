@@ -43,11 +43,7 @@ function renderTree(items: TreeItem[], level = 0, parentPath: boolean[] = []) {
         </TreeNodeTrigger>
         {hasChildren && (
           <TreeNodeContent hasChildren>
-            {renderTree(
-              item.children!,
-              level + 1,
-              [...parentPath, isLast],
-            )}
+            {renderTree(item.children!, level + 1, [...parentPath, isLast])}
           </TreeNodeContent>
         )}
       </TreeNode>

@@ -1,4 +1,5 @@
 import {
+  DashboardSquare01Icon,
   Database02Icon,
   File,
   File01Icon,
@@ -29,18 +30,52 @@ export const docsNavGroups: DocsNavGroup[] = [
     label: "Introdução",
     items: [
       { href: "/docs", label: "Visão Geral", icon: Home01FreeIcons },
-      { href: "/docs/getting-started", label: "Getting Started", icon: Share06Icon },
+      {
+        href: "/docs/getting-started",
+        label: "Getting Started",
+        icon: Share06Icon,
+      },
+      {
+        href: "/docs/getting-started/env",
+        label: "Env de Produção",
+        icon: File01Icon,
+      },
       { href: "/docs/motivos", label: "Motivos", icon: Home01FreeIcons },
     ],
   },
   {
     label: "Estrutura",
     items: [
-      { href: "/docs/estrutura", label: "Visão Geral", icon: Folder01FreeIcons },
-      { href: "/docs/estrutura/app-router", label: "App Router", icon: File01Icon },
-      { href: "/docs/estrutura/componentes", label: "Componentes", icon: File01Icon },
-      { href: "/docs/estrutura/banco-de-dados", label: "Banco de Dados", icon: Database02Icon },
-      { href: "/docs/estrutura/collab", label: "Servidor Collab", icon: Share06Icon },
+      {
+        href: "/docs/estrutura",
+        label: "Visão Geral",
+        icon: Folder01FreeIcons,
+      },
+      {
+        href: "/docs/estrutura/app-router",
+        label: "App Router",
+        icon: File01Icon,
+      },
+      {
+        href: "/docs/estrutura/componentes",
+        label: "Componentes",
+        icon: File01Icon,
+      },
+      {
+        href: "/docs/estrutura/banco-de-dados",
+        label: "Banco de Dados",
+        icon: Database02Icon,
+      },
+      {
+        href: "/docs/estrutura/collab",
+        label: "Servidor Collab",
+        icon: Share06Icon,
+      },
+      {
+        href: "/docs/estrutura/boards",
+        label: "Boards (Cloudflare)",
+        icon: DashboardSquare01Icon,
+      },
     ],
   },
   {
@@ -54,6 +89,7 @@ export const docsNavGroups: DocsNavGroup[] = [
       { href: "/docs/upload", label: "Upload", icon: File01Icon },
       { href: "/docs/workspace", label: "Workspace", icon: Users },
       { href: "/docs/collab", label: "Colaboração", icon: Share06Icon },
+      { href: "/docs/boards", label: "Boards", icon: DashboardSquare01Icon },
       { href: "/docs/metadata", label: "Metadados", icon: File },
       { href: "/docs/auth", label: "Autenticação", icon: Mail },
     ],

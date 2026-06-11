@@ -1,0 +1,108 @@
+# Boards — Cloudflare Worker
+
+O `apps/tldraw-sync/` é um **Cloudflare Worker** que habilita a edição colaborativa em tempo real nos boards. Diferente das notas (que usam Hocuspocus + Y.js), o canvas usa o protocolo nativo do tldraw (**TLSync**) sobre WebSocket.
+
+## Como funciona
+
+Cada board tem sua própria instância de `TldrawDurableObject` — um Durable Object da Cloudflare que mantém o estado de sync em memória e persiste as shapes em SQLite embutido.
+
+```
+Navegador A ──┐
+              ├── WebSocket ── Cloudflare Worker ── TldrawDurableObject (SQLite)
+Navegador B ──┘
+                                    │
+                                    └── R2 Bucket (assets: imagens, mídia)
+```
+
+O Worker valida um JWT de board antes de fazer o upgrade de WebSocket, e então roteia para o DO via `idFromName("board-{boardId}")` — garantindo que clientes do mesmo board sempre chegam à mesma instância.
+
+## Estrutura de arquivos
+
+```
+apps/tldraw-sync/
+├── src/
+│   ├── worker.ts              # entry point — roteamento HTTP/WS e handlers de upload
+│   ├── TldrawDurableObject.ts # DO: TLSocketRoom + SQLiteSyncStorage
+│   ├── auth.ts                # verificação do JWT de board (jose)
+│   ├── env.ts                 # tipagem dos bindings Cloudflare
+│   └── schema.ts              # schema tldraw (tipos de shapes suportados)
+├── wrangler.toml              # bindings: DO, R2, vars, migrations
+├── package.json
+└── tsconfig.json
+```
+
+## Durable Object
+
+`TldrawDurableObject` é instanciado uma vez por board via `idFromName`. As shapes são persistidas no SQLite embutido do DO através de `SQLiteSyncStorage`. O `TLSocketRoom` gerencia o protocolo TLSync em memória e é descartado quando o último cliente desconecta — os dados continuam no SQLite.
+
+```typescript
+// apps/tldraw-sync/src/TldrawDurableObject.ts
+export class TldrawDurableObject extends DurableObject<Env> {
+  private room: TLSocketRoom<TLRecord, void> | null = null;
+
+  private getOrCreateRoom() {
+    return this.ctx.blockConcurrencyWhile(async () => {
+      const sql = new DurableObjectSqliteSyncWrapper(this.ctx.storage);
+      const storage = new SQLiteSyncStorage<TLRecord>({ sql });
+      this.room = new TLSocketRoom({ schema, storage, clientTimeout: Infinity });
+      return this.room;
+    });
+  }
+}
+```
+
+> **Sem WebSocket Hibernation API:** a versão `@tldraw/sync-core@4.5.12` não expõe API de resume de sessão pós-hibernação. O DO usa `server.accept()` — não hiberna enquanto há conexões abertas. Para boards ociosos, o Cloudflare evita o DO normalmente.
+
+## Autenticação
+
+O JWT é gerado pelo app web (`GET /api/collab/board-token`) e verificado pelo Worker em toda requisição autenticada:
+
+```typescript
+// apps/tldraw-sync/src/auth.ts
+export async function verifyBoardToken(token: string, secret: string) {
+  const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
+  return payload as BoardTokenPayload;
+}
+```
+
+O token vai como query string no WebSocket (`?token=...`) porque browsers não permitem headers customizados no `new WebSocket()`. Em uploads de assets vai no header `Authorization: Bearer`.
+
+## R2 — Assets do canvas
+
+Imagens arrastadas para o canvas são gravadas num R2 bucket (`locus-tldraw-assets`) separado do bucket principal. O upload é autenticado — o Worker valida que o `boardId` do caminho bate com o `boardId` do JWT antes de gravar. O serving é público com `Cache-Control: immutable`.
+
+## Relação com o app web
+
+O app web nunca toca no conteúdo do canvas — apenas gerencia metadados (título, ícone, descrição) no PostgreSQL via Prisma. O conteúdo das shapes vive exclusivamente no SQLite do Durable Object.
+
+<DocsTable>
+  <thead>
+    <tr><th>Dado</th><th>Onde fica</th><th>Quem gerencia</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Metadados do board</td><td>PostgreSQL</td><td>apps/web</td></tr>
+    <tr><td>Shapes do canvas</td><td>SQLite do DO</td><td>apps/tldraw-sync</td></tr>
+    <tr><td>Imagens/assets</td><td>R2</td><td>apps/tldraw-sync</td></tr>
+  </tbody>
+</DocsTable>
+
+## Variáveis de ambiente
+
+```bash
+# apps/web/.env
+NEXT_PUBLIC_TLDRAW_SYNC_WS_URL="ws://127.0.0.1:8787"  # dev
+COLLAB_JWT_SECRET="..."                                 # deve ser igual ao do Worker
+
+# apps/tldraw-sync — wrangler secret put
+COLLAB_JWT_SECRET="..."
+```
+
+## Desenvolvimento local
+
+```bash
+# Terminal 1 — Worker (porta 8787, R2 e DO simulados localmente)
+cd apps/tldraw-sync && pnpm dev
+
+# Terminal 2 — Web app
+cd apps/web && pnpm dev
+```

@@ -1,10 +1,37 @@
+import { isValidElement, type ReactNode } from "react";
 import type { MDXComponents } from "mdx/types";
 import { DocsCodeBlock } from "@/components/docs/DocsCodeBlock";
 import { DocsPageNavigation } from "@/components/docs/DocsPageNavigation";
 import { DocsProjectTree } from "@/components/docs/DocsProjectTree";
 import { DocsTable } from "@/components/docs/DocsTable";
 
+function toText(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(toText).join("");
+  if (isValidElement(node)) {
+    return toText((node.props as { children?: ReactNode }).children);
+  }
+  return "";
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-");
+}
+
 export function useMDXComponents(components: MDXComponents): MDXComponents {
+  const slugCount = new Map<string, number>();
+
+  function uniqueSlug(children: ReactNode): string {
+    const base = slugify(toText(children));
+    const count = slugCount.get(base) ?? 0;
+    slugCount.set(base, count + 1);
+    return count === 0 ? base : `${base}-${count}`;
+  }
+
   return {
     h1: ({ children }) => (
       <div className="flex items-center gap-3 mb-4 mt-8 first:mt-0">
@@ -14,18 +41,32 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         <DocsPageNavigation />
       </div>
     ),
-    h2: ({ children }) => (
-      <h2 className="text-xl font-semibold text-foreground mb-3 mt-8 wrap-break-word">
-        {children}
-      </h2>
-    ),
-    h3: ({ children }) => (
-      <h3 className="text-base font-semibold text-foreground mb-2 mt-6 wrap-break-word">
-        {children}
-      </h3>
-    ),
+    h2: ({ children }) => {
+      const id = uniqueSlug(children);
+      return (
+        <h2
+          id={id}
+          className="text-xl font-semibold text-foreground mb-3 mt-8 wrap-break-word scroll-mt-24"
+        >
+          {children}
+        </h2>
+      );
+    },
+    h3: ({ children }) => {
+      const id = uniqueSlug(children);
+      return (
+        <h3
+          id={id}
+          className="text-base font-semibold text-foreground mb-2 mt-6 wrap-break-word scroll-mt-24"
+        >
+          {children}
+        </h3>
+      );
+    },
     p: ({ children }) => (
-      <p className="text-muted-foreground leading-7 mb-4 wrap-break-word">{children}</p>
+      <p className="text-muted-foreground leading-7 mb-4 wrap-break-word">
+        {children}
+      </p>
     ),
     a: ({ href, children }) => (
       <a

@@ -9,7 +9,7 @@ export function DocsSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-52 shrink-0 py-8 sticky top-[57px] h-[calc(100vh-57px)] overflow-y-auto gap-6">
+    <aside className="scrollbar-thin hidden md:flex flex-col w-52 shrink-0 py-8 sticky top-[57px] h-[calc(100vh-57px)] overflow-y-auto gap-6">
       {docsNavGroups.map((group) => (
         <div key={group.label}>
           <p className="text-sm font-bold text-foreground mb-2 px-3">
@@ -17,8 +17,7 @@ export function DocsSidebar() {
           </p>
           <nav className="flex flex-col">
             {group.items.map(({ href, label }) => {
-              const isActive =
-                pathname === href;
+              const isActive = pathname === href;
               return (
                 <Link
                   key={href}

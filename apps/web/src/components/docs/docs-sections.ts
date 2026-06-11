@@ -9,7 +9,8 @@ export const docsSections: DocsSection[] = [
 ];
 
 export function getDocsSection(pathname: string): DocsSection | undefined {
-  return docsSections.find(({ pathPrefix }) =>
-    pathname === pathPrefix || pathname.startsWith(`${pathPrefix}/`),
+  return docsSections.find(
+    ({ pathPrefix }) =>
+      pathname === pathPrefix || pathname.startsWith(`${pathPrefix}/`),
   );
 }

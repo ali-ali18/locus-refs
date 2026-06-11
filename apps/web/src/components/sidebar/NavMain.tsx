@@ -47,7 +47,6 @@ import { useNavMain } from "./hook/useNavMain";
 
 export function NavMain() {
   const {
-    collections,
     resourceCollections,
     collectionSlice,
     isLoading,
