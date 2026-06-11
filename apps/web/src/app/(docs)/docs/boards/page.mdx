@@ -35,6 +35,21 @@ apps/tldraw-sync (Cloudflare Worker)
   </tbody>
 </DocsTable>
 
+**Onde cada dado mora:**
+
+<DocsTable>
+  <thead>
+    <tr><th>Dado</th><th>Onde fica</th><th>Quem gerencia</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Metadados do board (título, ícone, descrição, lastOpenedAt)</td><td>PostgreSQL</td><td>apps/web</td></tr>
+    <tr><td>Shapes do canvas (formas, sticky notes, setas, posições)</td><td>SQLite embutido do Durable Object</td><td>apps/tldraw-sync</td></tr>
+    <tr><td>Imagens e assets colados no canvas</td><td>R2 (bucket <code>locus-tldraw-assets</code>)</td><td>apps/tldraw-sync</td></tr>
+    <tr><td>Sessões WebSocket ativas (TLSocketRoom em memória)</td><td>Memória do DO</td><td>apps/tldraw-sync</td></tr>
+    <tr><td>JWT de board (sessão do usuário no canvas)</td><td>Cache do TanStack Query (cliente) + assinado pelo web</td><td>apps/web</td></tr>
+  </tbody>
+</DocsTable>
+
 ## Durable Object — 1 por board
 
 `TldrawDurableObject` é instanciado via `idFromName("board-{boardId}")`, garantindo que todos os clientes de um mesmo board sempre chegam à **mesma instância**.
