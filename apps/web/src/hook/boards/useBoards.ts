@@ -7,6 +7,7 @@ import type {
 } from "@refstash/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useWorkspace } from "@/context/workspace";
 import { boardKeys } from "./boardKeys";
 
 async function getBoards(): Promise<Board[]> {
@@ -20,16 +21,18 @@ async function getBoard(id: string): Promise<Board> {
 }
 
 export function useBoards() {
+  const { workspaceId } = useWorkspace();
   return useQuery({
-    queryKey: boardKeys.all("__any__"),
+    queryKey: boardKeys.all(workspaceId),
     queryFn: getBoards,
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useBoard(id: string) {
+  const { workspaceId } = useWorkspace();
   return useQuery<Board>({
-    queryKey: boardKeys.detail("__any__", id),
+    queryKey: boardKeys.detail(workspaceId, id),
     queryFn: () => getBoard(id),
     enabled: !!id && id !== "new",
     staleTime: 1000 * 60 * 5,
@@ -37,6 +40,7 @@ export function useBoard(id: string) {
 }
 
 export function useCreateBoard() {
+  const { workspaceId } = useWorkspace();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: CreateBoardSchema) => {
@@ -47,12 +51,13 @@ export function useCreateBoard() {
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["boards"] });
+      queryClient.invalidateQueries({ queryKey: boardKeys.all(workspaceId) });
     },
   });
 }
 
 export function useUpdateBoard(id: string) {
+  const { workspaceId } = useWorkspace();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: UpdateBoardSchema) => {
@@ -63,13 +68,14 @@ export function useUpdateBoard(id: string) {
       return data.data;
     },
     onSuccess: (board) => {
-      queryClient.setQueryData(boardKeys.detail("__any__", id), board);
-      queryClient.invalidateQueries({ queryKey: ["boards"] });
+      queryClient.setQueryData(boardKeys.detail(workspaceId, id), board);
+      queryClient.invalidateQueries({ queryKey: boardKeys.all(workspaceId) });
     },
   });
 }
 
 export function useDeleteBoard() {
+  const { workspaceId } = useWorkspace();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
@@ -77,7 +83,7 @@ export function useDeleteBoard() {
       return id;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["boards"] });
+      queryClient.invalidateQueries({ queryKey: boardKeys.all(workspaceId) });
     },
   });
 }
