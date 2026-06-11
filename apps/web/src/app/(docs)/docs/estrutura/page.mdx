@@ -67,11 +67,31 @@ O Refstash é um **monorepo** gerenciado com pnpm workspaces. Abaixo está a est
             {
               id: "collab",
               label: "collab/",
-              comment: "Hocuspocus — servidor WebSocket de colaboração",
+              comment: "Hocuspocus — servidor WebSocket de colaboração (notas)",
               children: [
                 { id: "collab-src", label: "src/", comment: "servidor Hocuspocus na porta 1234" },
                 { id: "collab-dockerfile", label: "Dockerfile" },
                 { id: "collab-tsconfig", label: "tsconfig.json" }
+              ]
+            },
+            {
+              id: "tldraw-sync",
+              label: "tldraw-sync/",
+              comment: "Cloudflare Worker — sync de canvas colaborativo (boards)",
+              children: [
+                {
+                  id: "tldraw-src",
+                  label: "src/",
+                  children: [
+                    { id: "tldraw-worker", label: "worker.ts", comment: "entry point — roteamento HTTP/WS e uploads R2" },
+                    { id: "tldraw-do", label: "TldrawDurableObject.ts", comment: "DO: TLSocketRoom + SQLite por board" },
+                    { id: "tldraw-auth", label: "auth.ts", comment: "verificação do JWT de board" },
+                    { id: "tldraw-env", label: "env.ts", comment: "tipagem dos bindings Cloudflare" },
+                    { id: "tldraw-schema", label: "schema.ts", comment: "schema tldraw (shapes suportados)" }
+                  ]
+                },
+                { id: "tldraw-wrangler", label: "wrangler.toml", comment: "bindings: DO, R2, vars, migrations" },
+                { id: "tldraw-pkg", label: "package.json" }
               ]
             }
           ]
@@ -79,7 +99,12 @@ O Refstash é um **monorepo** gerenciado com pnpm workspaces. Abaixo está a est
         {
           id: "docs",
           label: "docs/",
-          comment: "documentação interna (ia.md)"
+          comment: "documentação interna (ia.md, boards.md)",
+          children: [
+            { id: "docs-images", label: "images/", comment: "screenshots para a documentação" },
+            { id: "docs-ia", label: "ia.md", comment: "arquitetura do assistente de IA" },
+            { id: "docs-boards", label: "boards.md", comment: "infraestrutura dos boards (Cloudflare)" }
+          ]
         },
         {
           id: "packages",
@@ -145,7 +170,13 @@ A estrutura interna de `src/` segue uma divisão clara:
 
 ## apps/collab
 
-Servidor WebSocket construído com [Hocuspocus](https://tiptap.dev/docs/hocuspocus/introduction) para colaboração em tempo real nas notas. Roda na porta `1234` e se autentica via JWT gerado pela rota `/api/collab/token` do app web.
+Servidor WebSocket construído com [Hocuspocus](https://tiptap.dev/docs/hocuspocus/introduction) para colaboração em tempo real nas **notas**. Roda na porta `1234` e se autentica via JWT gerado pela rota `/api/collab/token` do app web.
+
+## apps/tldraw-sync
+
+**Cloudflare Worker** responsável pela sincronização em tempo real dos **boards** (canvas colaborativo). Usa o protocolo nativo do tldraw (TLSync) sobre WebSocket, com um Durable Object por board para manter o estado de sync em memória e persistir as shapes em SQLite embutido. Assets (imagens arrastadas para o canvas) são armazenados em um R2 bucket separado.
+
+O projeto roda completamente na infraestrutura da Cloudflare — sem servidor Node.js próprio para os boards. Detalhes em [Boards (Cloudflare)](/docs/estrutura/boards).
 
 ## prisma/
 

@@ -1,4 +1,5 @@
 import {
+  DashboardSquare01Icon,
   Database02Icon,
   File,
   File01Icon,
@@ -65,6 +66,11 @@ export const docsNavGroups: DocsNavGroup[] = [
         label: "Servidor Collab",
         icon: Share06Icon,
       },
+      {
+        href: "/docs/estrutura/boards",
+        label: "Boards (Cloudflare)",
+        icon: DashboardSquare01Icon,
+      },
     ],
   },
   {
@@ -78,6 +84,7 @@ export const docsNavGroups: DocsNavGroup[] = [
       { href: "/docs/upload", label: "Upload", icon: File01Icon },
       { href: "/docs/workspace", label: "Workspace", icon: Users },
       { href: "/docs/collab", label: "Colaboração", icon: Share06Icon },
+      { href: "/docs/boards", label: "Boards", icon: DashboardSquare01Icon },
       { href: "/docs/metadata", label: "Metadados", icon: File },
       { href: "/docs/auth", label: "Autenticação", icon: Mail },
     ],

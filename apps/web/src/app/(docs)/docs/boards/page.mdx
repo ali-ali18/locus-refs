@@ -1,0 +1,289 @@
+# Boards
+
+Canvas visual colaborativo por workspace. Cada board é um quadro infinito onde membros do time criam formas, sticky notes, setas e diagramas em tempo real, com cursores de colaboradores visíveis e sem conflitos de edição.
+
+![Lista de boards do workspace](/docs/images/boards-lista.png)
+
+## Infraestrutura
+
+O feature usa dois serviços: o web app (Next.js) para CRUD e autenticação, e um **Cloudflare Worker** dedicado à sincronização do canvas.
+
+```
+apps/web (Next.js)
+  - CRUD de boards no PostgreSQL
+  - Emite JWT de autenticação do board
+  - Não armazena conteúdo do canvas
+
+apps/tldraw-sync (Cloudflare Worker)
+  - Valida o JWT e roteia para o Durable Object
+  - 1 Durable Object por board (TldrawDurableObject)
+  - Canvas persistido em SQLite embutido no DO
+  - Assets (imagens) armazenados no R2
+```
+
+**Bindings Cloudflare do Worker:**
+
+<DocsTable>
+  <thead>
+    <tr><th>Binding</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>TLDRAW_DURABLE_OBJECT</code></td><td>Durable Object</td><td>1 instância por board</td></tr>
+    <tr><td><code>UPLOADS</code></td><td>R2 Bucket</td><td>Assets do canvas (imagens, mídia)</td></tr>
+    <tr><td><code>COLLAB_JWT_SECRET</code></td><td>Secret</td><td>Assina e verifica o JWT de board</td></tr>
+    <tr><td><code>ALLOWED_ORIGIN</code></td><td>Var</td><td>Origem permitida pelo CORS</td></tr>
+  </tbody>
+</DocsTable>
+
+## Durable Object — 1 por board
+
+`TldrawDurableObject` é instanciado via `idFromName("board-{boardId}")`, garantindo que todos os clientes de um mesmo board sempre chegam à **mesma instância**.
+
+As shapes são persistidas no **SQLite embutido do Durable Object** via `SQLiteSyncStorage` do `@tldraw/sync-core`. O `TLSocketRoom` gerencia o protocolo TLSync em memória e libera recursos quando o último cliente desconecta — os dados continuam no SQLite para a próxima abertura.
+
+```typescript
+// apps/tldraw-sync/src/TldrawDurableObject.ts
+const sql = new DurableObjectSqliteSyncWrapper(this.ctx.storage);
+const storage = new SQLiteSyncStorage<TLRecord>({ sql });
+
+this.room = new TLSocketRoom<TLRecord, void>({
+  schema,
+  storage,
+  clientTimeout: Infinity, // CF mantém keep-alive nos WS
+  onSessionRemoved: (_room, { numSessionsRemaining }) => {
+    if (numSessionsRemaining === 0) {
+      this.room?.close(); // libera memória; dados continuam no SQLite
+      this.room = null;
+    }
+  },
+});
+```
+
+> **Por que não usar WebSocket Hibernation API?** A versão `@tldraw/sync-core@4.5.12` não expõe API de "resume" de sessão pós-hibernação. O DO usa `server.accept()` e não hiberna enquanto há WebSockets abertos. Para boards sem clientes, o DO é evitado normalmente pelo Cloudflare.
+
+## Autenticação — JWT de board
+
+O web app emite um JWT antes de abrir o WebSocket. O Worker valida esse token em toda requisição autenticada.
+
+`GET /api/collab/board-token?boardId=...&workspaceId=...`
+
+Verifica membership, assina com `COLLAB_JWT_SECRET` (HS256, expiração 1h) e retorna:
+
+```typescript
+{
+  userId: string;
+  workspaceId: string;
+  boardId: string;
+  role: "owner" | "admin" | "member";
+  exp: number;
+}
+```
+
+O cliente armazena o token com `staleTime: 50min` no TanStack Query. O token é enviado como query string porque browsers não permitem headers customizados no `new WebSocket()`:
+
+```
+wss://tldraw-sync.*.workers.dev/api/boards/:boardId/connect?token=eyJ...
+```
+
+Para uploads de assets, o token vai no header `Authorization: Bearer <token>`.
+
+## Rotas do Worker
+
+<DocsTable>
+  <thead>
+    <tr><th>Método</th><th>Caminho</th><th>Auth</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>GET</code></td><td><code>/health</code></td><td>—</td><td>Health check</td></tr>
+    <tr><td><code>GET (WS)</code></td><td><code>/api/boards/:id/connect</code></td><td>JWT query</td><td>Upgrade WebSocket → DO</td></tr>
+    <tr><td><code>PUT</code></td><td><code>/api/uploads/:boardId/:assetId</code></td><td>JWT header</td><td>Grava asset no R2</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/uploads/:boardId/:assetId</code></td><td>—</td><td>Serve asset do R2</td></tr>
+  </tbody>
+</DocsTable>
+
+O upload valida que o `boardId` no caminho bate com o do token — um cliente não consegue gravar assets de outros boards. Assets servidos via `GET` são públicos (URL opaca, UUID aleatório) com `Cache-Control: immutable`.
+
+Imagens coladas ou arrastadas para o canvas são armazenadas num **R2 bucket separado** (`locus-tldraw-assets`). Em `wrangler dev`, o R2 é simulado localmente sem precisar criar nada.
+
+## Criando um board
+
+![Dialog de criação de board](/docs/images/boards-criar.png)
+
+Qualquer membro pode criar um board. O formulário aceita título (obrigatório, 1–120 chars), ícone e descrição (opcionais).
+
+## Canvas
+
+![Editor tldraw aberto em um board](/docs/images/boards-canvas.png)
+
+O editor tldraw suporta formas livres, sticky notes, setas com curva, texto, imagens e conexões. Usuários aparecem com cursores e cores distintas.
+
+## Controle de acesso
+
+<DocsTable>
+  <thead>
+    <tr><th>Ação</th><th>Membro</th><th>Admin / Owner</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Visualizar boards</td><td>Sim</td><td>Sim</td></tr>
+    <tr><td>Criar board</td><td>Sim</td><td>Sim</td></tr>
+    <tr><td>Editar metadados</td><td>Não</td><td>Sim</td></tr>
+    <tr><td>Deletar board</td><td>Não</td><td>Sim</td></tr>
+    <tr><td>Editar no canvas</td><td>Sim</td><td>Sim</td></tr>
+  </tbody>
+</DocsTable>
+
+O `role` também é incluído no JWT para uso futuro (ex: canvas read-only para membros).
+
+## `GET /api/workspace/boards`
+
+Lista os boards do workspace ordenados por `lastOpenedAt DESC`.
+
+```typescript
+Board[]
+
+// Board
+{
+  id: string;
+  title: string;
+  description: string | null;
+  icon: string | null;
+  workspaceId: string;
+  createdById: string;
+  createdAt: string;
+  updatedAt: string;
+  lastOpenedAt: string | null;
+}
+```
+
+## `POST /api/workspace/boards`
+
+Cria um novo board. Retorna `201`.
+
+```typescript
+// Body
+{ title: string; icon?: string; description?: string }
+
+// Resposta
+{ data: Board }
+```
+
+## `PATCH /api/workspace/boards/[id]`
+
+Atualiza título, ícone ou descrição. Restrito a Admin/Owner.
+
+```typescript
+// Body (todos opcionais)
+{ title?: string; icon?: string; description?: string }
+
+// Resposta
+{ data: Board }
+```
+
+## `DELETE /api/workspace/boards/[id]`
+
+Soft-delete: define `deletedAt` sem remover do banco. O conteúdo do canvas no Durable Object não é deletado imediatamente — o DO é evitado pelo Cloudflare quando ocioso. Restrito a Admin/Owner.
+
+## `GET /api/collab/board-token`
+
+Emite o JWT para a sessão WebSocket do canvas.
+
+### Query params
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>boardId*</code></td><td><code>string</code></td><td>ID do board</td></tr>
+    <tr><td><code>workspaceId*</code></td><td><code>string</code></td><td>ID do workspace</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+```typescript
+{ token: string } // JWT com expiração de 1 hora
+```
+
+## Fluxo completo
+
+```
+Usuário acessa /<workspace>/boards
+  → useBoards() → GET /api/workspace/boards (PostgreSQL)
+    → lista de boards renderizada
+
+Usuário abre um board
+  → useBoardCollabToken() → GET /api/collab/board-token
+    → BoardCanvas conecta: wss://tldraw-sync.*/api/boards/:id/connect?token=...
+      → Worker valida JWT → rota para TldrawDurableObject
+        → DO aceita WebSocket, TLSocketRoom registra sessão
+          → canvas sincronizado em tempo real
+
+Outro usuário abre o mesmo board
+  → mesmo DO (mesmo boardId) → TLSocketRoom propaga operações entre sessões
+
+Usuário cola uma imagem
+  → PUT /api/uploads/:boardId/:assetId (Authorization: Bearer token)
+    → Worker valida JWT + verifica boardId → grava no R2
+      → tldraw usa GET /api/uploads/... para exibir (público, imutável)
+
+Usuário fecha o board (última aba)
+  → WebSocket fecha → onSessionRemoved (numSessionsRemaining === 0)
+    → TLSocketRoom liberado da memória
+      → shapes permanecem no SQLite para a próxima abertura
+```
+
+## Variáveis de ambiente
+
+### `apps/web`
+
+<DocsTable>
+  <thead>
+    <tr><th>Variável</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>NEXT_PUBLIC_TLDRAW_SYNC_WS_URL</code></td><td>Base URL WebSocket do Worker (ex: <code>wss://locus-tldraw-sync.*.workers.dev</code>)</td></tr>
+    <tr><td><code>COLLAB_JWT_SECRET</code></td><td>Secret compartilhado para assinar/verificar JWTs de board</td></tr>
+  </tbody>
+</DocsTable>
+
+### `apps/tldraw-sync`
+
+<DocsTable>
+  <thead>
+    <tr><th>Nome</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>COLLAB_JWT_SECRET</code></td><td>Secret</td><td>Mesmo valor que o web app — setar com <code>wrangler secret put</code></td></tr>
+    <tr><td><code>ALLOWED_ORIGIN</code></td><td>Var (wrangler.toml)</td><td>Origem permitida pelo CORS em produção</td></tr>
+  </tbody>
+</DocsTable>
+
+## Deploy
+
+```bash
+cd apps/tldraw-sync
+
+# 1. Criar R2 bucket (só na primeira vez)
+pnpm exec wrangler r2 bucket create locus-tldraw-assets
+
+# 2. Setar o secret
+pnpm wrangler secret put COLLAB_JWT_SECRET
+
+# 3. Deploy
+pnpm exec wrangler deploy
+```
+
+Copiar a URL gerada para `NEXT_PUBLIC_TLDRAW_SYNC_WS_URL` no `.env` do web app.
+
+## Desenvolvimento local
+
+```bash
+# Terminal 1 — Worker (porta 8787)
+cd apps/tldraw-sync && pnpm dev
+
+# Terminal 2 — Web app (porta 3000)
+cd apps/web && pnpm dev
+```
+
+O `wrangler dev` simula Durable Objects e R2 localmente. O `.env` já aponta para `ws://127.0.0.1:8787` por padrão.
