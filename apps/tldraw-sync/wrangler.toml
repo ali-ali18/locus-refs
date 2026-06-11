@@ -3,6 +3,10 @@ main = "src/worker.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
+routes = [
+  { pattern = "tldraw.organization.kodea.com.br/*", zone_name = "kodea.com.br" }
+]
+
 # === Durable Object: 1 instância por board ===
 [[durable_objects.bindings]]
 name = "TLDRAW_DURABLE_OBJECT"
