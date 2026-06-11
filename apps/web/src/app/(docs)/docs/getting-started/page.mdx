@@ -47,7 +47,17 @@ ANTHROPIC_API_KEY="sk-ant-..."
 pnpm db:migrate
 ```
 
-### 5. Inicie o servidor de desenvolvimento
+### 5. (Opcional) Configure o tldraw-sync local
+
+O canvas de boards precisa de um Worker rodando. Em outro terminal:
+
+```bash
+pnpm --filter tldraw-sync dev   # sobe o Worker na porta 8787
+```
+
+A URL já está apontada em `NEXT_PUBLIC_TLDRAW_SYNC_WS_URL` no `.env.example`.
+
+### 6. Inicie o servidor de desenvolvimento
 
 ```bash
 pnpm dev
@@ -55,6 +65,11 @@ pnpm dev
 
 A aplicação estará disponível em `http://localhost:3000`.
 O servidor de colaboração sobe separadamente via `pnpm collab:dev` na porta `1234`.
+
+## Próximos passos
+
+- [Variáveis de ambiente de produção](/docs/getting-started/env) — checklist completo do que precisa estar configurado em cada serviço
+- [Deploy dos boards (Cloudflare Worker)](/docs/estrutura/boards) — passos específicos para o tldraw-sync
 
 ## VPS com Docker
 

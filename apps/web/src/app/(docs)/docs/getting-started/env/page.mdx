@@ -1,0 +1,190 @@
+# Variáveis de Ambiente (Produção)
+
+Lista completa das variáveis de ambiente necessárias em produção para cada serviço do monorepo. Use como checklist antes de subir o ambiente.
+
+> As variáveis `NEXT_PUBLIC_*` do `apps/web` são embutidas **em build** pelo Next.js. Se você muda em runtime, o valor antigo continua no bundle. Garanta que estão corretas no `args` do `docker-compose.yml` (ou nas envs do provedor de build) **antes** do build.
+
+---
+
+## apps/web (Next.js)
+
+Container principal. Serve o frontend e a API REST.
+
+### Banco e Auth
+
+<DocsTable>
+  <thead>
+    <tr><th>Variável</th><th>Tipo</th><th>Obrigatório</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>DATABASE_URL</code></td><td>runtime</td><td>sim</td><td>PostgreSQL (ex: <code>postgresql://user:password@host:5432/refstash</code>)</td></tr>
+    <tr><td><code>BETTER_AUTH_SECRET</code></td><td>runtime</td><td>sim</td><td>Chave de sessão. Gere com <code>openssl rand -base64 32</code></td></tr>
+    <tr><td><code>BETTER_AUTH_URL</code></td><td>runtime</td><td>sim</td><td>URL pública do app (ex: <code>https://organization.kodea.com.br</code>)</td></tr>
+    <tr><td><code>NEXT_PUBLIC_APP_URL</code></td><td>build</td><td>sim</td><td>Mesma URL — usada em e-mails de convite. <strong>Injetada em build</strong></td></tr>
+    <tr><td><code>CLOUDFLARE_URL</code></td><td>runtime</td><td>se usar Cloudflare Access</td><td>Domínio protegido pela Cloudflare</td></tr>
+  </tbody>
+</DocsTable>
+
+### Storage (S3 / R2)
+
+<DocsTable>
+  <thead>
+    <tr><th>Variável</th><th>Tipo</th><th>Obrigatório</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>STORAGE_ENDPOINT</code></td><td>runtime</td><td>sim</td><td>Endpoint S3-compatible (R2, MinIO, etc.)</td></tr>
+    <tr><td><code>STORAGE_BUCKET</code></td><td>runtime</td><td>sim</td><td>Nome do bucket de uploads (avatar, logo, anexos)</td></tr>
+    <tr><td><code>STORAGE_ACCESS_KEY</code></td><td>runtime</td><td>sim</td><td>Access key S3</td></tr>
+    <tr><td><code>STORAGE_SECRET_KEY</code></td><td>runtime</td><td>sim</td><td>Secret key S3</td></tr>
+    <tr><td><code>STORAGE_REGION</code></td><td>runtime</td><td>sim</td><td>Região (default: <code>us-east-1</code>)</td></tr>
+  </tbody>
+</DocsTable>
+
+### Colaboração (notas — Tiptap + Hocuspocus)
+
+<DocsTable>
+  <thead>
+    <tr><th>Variável</th><th>Tipo</th><th>Obrigatório</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>NEXT_PUBLIC_COLLAB_WS_URL</code></td><td>build</td><td>sim</td><td><code>wss://collab.seudominio.com</code> — URL do serviço Hocuspocus. <strong>Injetada em build</strong></td></tr>
+    <tr><td><code>COLLAB_JWT_SECRET</code></td><td>runtime</td><td>sim</td><td>Secret para assinar JWTs de sessão. <strong>Deve ser o mesmo</strong> em <code>apps/collab</code> e <code>apps/tldraw-sync</code></td></tr>
+  </tbody>
+</DocsTable>
+
+### Boards (tldraw — Cloudflare Worker)
+
+<DocsTable>
+  <thead>
+    <tr><th>Variável</th><th>Tipo</th><th>Obrigatório</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>NEXT_PUBLIC_TLDRAW_SYNC_WS_URL</code></td><td>build</td><td>sim</td><td><code>wss://locus-tldraw-sync.seudominio.com</code> — URL do Worker. <strong>Injetada em build</strong></td></tr>
+    <tr><td><code>NEXT_PUBLIC_TLDRAW_LICENSE_KEY</code></td><td>build</td><td>sim</td><td>Chave de licença tldraw (validação server-side)</td></tr>
+  </tbody>
+</DocsTable>
+
+### E-mail (Resend)
+
+<DocsTable>
+  <thead>
+    <tr><th>Variável</th><th>Tipo</th><th>Obrigatório</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>RESEND_API_KEY</code></td><td>runtime</td><td>sim (se envia e-mail)</td><td>API key do Resend</td></tr>
+    <tr><td><code>RESEND_FROM_EMAIL</code></td><td>runtime</td><td>sim (se envia e-mail)</td><td>Remetente verificado (ex: <code>Locus &lt;no-reply@seudominio.com&gt;</code>)</td></tr>
+  </tbody>
+</DocsTable>
+
+### IA
+
+Pelo menos **uma** das chaves é obrigatória. As URLs base são opcionais (úteis para proxies).
+
+<DocsTable>
+  <thead>
+    <tr><th>Variável</th><th>Tipo</th><th>Obrigatório</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>ANTHROPIC_API_KEY</code></td><td>runtime</td><td>ao menos 1</td><td>Chave Anthropic (Claude)</td></tr>
+    <tr><td><code>ANTHROPIC_BASE_URL</code></td><td>runtime</td><td>não</td><td>Proxy / gateway alternativo</td></tr>
+    <tr><td><code>MINIMAX_API_KEY</code></td><td>runtime</td><td>ao menos 1</td><td>Chave MiniMax M2</td></tr>
+    <tr><td><code>MINIMAX_BASE_URL</code></td><td>runtime</td><td>não</td><td>Proxy / gateway alternativo</td></tr>
+  </tbody>
+</DocsTable>
+
+### Opcionais
+
+<DocsTable>
+  <thead>
+    <tr><th>Variável</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>NEXT_PUBLIC_API_URL</code></td><td>build</td><td>Base da API consumida pelo cliente (default = próprio host). <strong>Injetada em build</strong></td></tr>
+    <tr><td><code>NEXT_PUBLIC_TIPTAP_COLLAB_DOC_PREFIX</code></td><td>build</td><td>Prefixo de doc do Tiptap Cloud (legado)</td></tr>
+    <tr><td><code>NEXT_PUBLIC_TIPTAP_COLLAB_APP_ID</code></td><td>build</td><td>App ID do Tiptap Cloud (legado)</td></tr>
+    <tr><td><code>NEXT_PUBLIC_TIPTAP_COLLAB_TOKEN</code></td><td>build</td><td>Token do Tiptap Cloud (legado)</td></tr>
+    <tr><td><code>NEXT_PUBLIC_TIPTAP_AI_APP_ID</code></td><td>build</td><td>App ID do Tiptap AI</td></tr>
+    <tr><td><code>NEXT_PUBLIC_TIPTAP_AI_TOKEN</code></td><td>build</td><td>Token do Tiptap AI</td></tr>
+    <tr><td><code>NEXT_PUBLIC_USE_JWT_TOKEN_API_ENDPOINT</code></td><td>build</td><td>Flag de uso de endpoint JWT do Tiptap</td></tr>
+  </tbody>
+</DocsTable>
+
+---
+
+## apps/collab (Hocuspocus — servidor de colaboração de notas)
+
+<DocsTable>
+  <thead>
+    <tr><th>Variável</th><th>Obrigatório</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>DATABASE_URL</code></td><td>sim</td><td>Mesma do <code>apps/web</code></td></tr>
+    <tr><td><code>COLLAB_JWT_SECRET</code></td><td>sim</td><td><strong>Mesmo valor</strong> do <code>apps/web</code> e do <code>apps/tldraw-sync</code></td></tr>
+    <tr><td><code>PORT</code></td><td>não</td><td>Porta do servidor (default <code>1234</code>)</td></tr>
+  </tbody>
+</DocsTable>
+
+---
+
+## apps/tldraw-sync (Cloudflare Worker)
+
+Este serviço **não usa `.env`** — as configs vão no `wrangler.toml` e os secrets são setados via CLI.
+
+### 1. Variáveis no `wrangler.toml` (já configurado)
+
+```toml
+[vars]
+ALLOWED_ORIGIN = "https://seudominio.com"  # editar para seu domínio
+```
+
+### 2. Bindings (já configurados no `wrangler.toml`)
+
+- `TLDRAW_DURABLE_OBJECT` — namespace do Durable Object `TldrawDurableObject`
+- `UPLOADS` — R2 bucket `locus-tldraw-assets` (criar antes do primeiro deploy)
+
+### 3. Secrets (setar com `wrangler`)
+
+```bash
+cd apps/tldraw-sync
+
+# Mesmo COLLAB_JWT_SECRET do apps/web e apps/collab
+pnpm exec wrangler secret put COLLAB_JWT_SECRET
+```
+
+### Checklist de deploy
+
+```bash
+# 1. Criar o bucket R2 (só na primeira vez)
+pnpm exec wrangler r2 bucket create locus-tldraw-assets
+
+# 2. Setar o secret compartilhado
+pnpm exec wrangler secret put COLLAB_JWT_SECRET
+
+# 3. Atualizar ALLOWED_ORIGIN no wrangler.toml para o domínio real
+
+# 4. Deploy
+pnpm exec wrangler deploy
+```
+
+A URL gerada (`*.workers.dev` ou domínio customizado) deve ser colocada em `NEXT_PUBLIC_TLDRAW_SYNC_WS_URL` no `apps/web` **antes do próximo build** (lembre: é build-time).
+
+---
+
+## Resumo: secrets compartilhados
+
+Três serviços precisam compartilhar o **`COLLAB_JWT_SECRET`** (HS256). Gere **uma única vez** e replique:
+
+```bash
+openssl rand -base64 32
+```
+
+<DocsTable>
+  <thead>
+    <tr><th>Serviço</th><th>Como setar</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>apps/web</code></td><td>env de runtime do container</td></tr>
+    <tr><td><code>apps/collab</code></td><td>env de runtime do container</td></tr>
+    <tr><td><code>apps/tldraw-sync</code></td><td><code>wrangler secret put COLLAB_JWT_SECRET</code></td></tr>
+  </tbody>
+</DocsTable>

@@ -35,6 +35,11 @@ export const docsNavGroups: DocsNavGroup[] = [
         label: "Getting Started",
         icon: Share06Icon,
       },
+      {
+        href: "/docs/getting-started/env",
+        label: "Env de Produção",
+        icon: File01Icon,
+      },
       { href: "/docs/motivos", label: "Motivos", icon: Home01FreeIcons },
     ],
   },
