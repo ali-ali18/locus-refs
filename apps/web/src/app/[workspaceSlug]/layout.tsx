@@ -1,15 +1,14 @@
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { ChatPanel } from "@/components/chat/ChatPanel";
-import { DashboardLayoutHeader } from "@/components/dashboard/DashboardLayoutHeader";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
-import { AppSidebar } from "@/components/sidebar/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SettingsDialog } from "@/components/workspace/SettingsDialog";
-import { WorkspaceNavigationMenu } from "@/components/workspace/WorkspaceNavigationMenu";
+import { WorkspaceShell } from "@/components/workspace/WorkspaceShell";
 import { ChatPanelProvider } from "@/context/chatPanel";
 import { NoteEditorProvider } from "@/context/noteEditor";
 import { SettingsDialogProvider } from "@/context/settingsDialog";
+import { SidebarTabProvider } from "@/context/sidebarTab";
 import { WorkspaceProvider } from "@/context/workspace";
 import prisma from "@/lib/prisma";
 import { requireSession } from "@/server/requireSession";
@@ -51,16 +50,13 @@ export default async function WorkspaceLayout({ children, params }: Props) {
         <NoteEditorProvider>
           <ChatPanelProvider>
             <SettingsDialogProvider>
-              <SidebarProvider>
-                <AppSidebar />
-                <div className="flex flex-1 flex-col">
-                  <DashboardLayoutHeader />
-                  {children}
-                </div>
-                <ChatPanel />
-                <WorkspaceNavigationMenu />
-                <SettingsDialog />
-              </SidebarProvider>
+              <SidebarTabProvider>
+                <SidebarProvider>
+                  <WorkspaceShell>{children}</WorkspaceShell>
+                  <ChatPanel />
+                  <SettingsDialog />
+                </SidebarProvider>
+              </SidebarTabProvider>
             </SettingsDialogProvider>
           </ChatPanelProvider>
         </NoteEditorProvider>

@@ -17,8 +17,7 @@ export function DocsSidebar() {
           </p>
           <nav className="flex flex-col">
             {group.items.map(({ href, label }) => {
-              const isActive =
-                pathname === href;
+              const isActive = pathname === href;
               return (
                 <Link
                   key={href}

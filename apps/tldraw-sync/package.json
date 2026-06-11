@@ -4,14 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --local",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tldraw/sync-core": "^4.0.0",
-    "@tldraw/tlschema": "^4.0.0",
+    "@tldraw/sync-core": "^4.5.12",
+    "@tldraw/tlschema": "^4.5.12",
     "jose": "^5.9.0"
   },
   "devDependencies": {

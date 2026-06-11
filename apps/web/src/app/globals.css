@@ -416,3 +416,17 @@
 [data-slot="plan-content"][data-ending-style] {
   height: 0;
 }
+
+/* Alinha o canvas do tldraw com os design tokens do app (claro/escuro).
+   O colorScheme do tldraw é sincronizado com o next-themes em BoardCanvas,
+   então estes overrides resolvem para o tema ativo. A dupla-classe eleva a
+   especificidade acima de .tl-theme__light/dark, cobrindo tanto o canvas
+   quanto os menus que o tldraw renderiza em portal. */
+.tl-theme__light.tl-theme__light,
+.tl-theme__dark.tl-theme__dark {
+  --tl-color-background: var(--background);
+  --tl-color-panel: var(--popover);
+  --tl-color-panel-contrast: var(--card);
+  --tl-color-text: var(--foreground);
+  --tl-color-grid: var(--muted-foreground);
+}

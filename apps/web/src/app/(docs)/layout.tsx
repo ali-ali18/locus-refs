@@ -15,7 +15,11 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
       <ContainerHeader />
       <DocsMobileNav />
       <LandingWrapper containerClassName="border-b">
-        <LandingContent as="div" contentClassName="flex gap-8" className="min-w-0">
+        <LandingContent
+          as="div"
+          contentClassName="flex gap-8"
+          className="min-w-0"
+        >
           <DocsSidebar />
           <article className="flex-1 min-w-0 py-8 max-w-3xl">
             <DocsContentHeader />

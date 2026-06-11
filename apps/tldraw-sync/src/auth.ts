@@ -2,7 +2,6 @@ import { jwtVerify } from "jose";
 
 /**
  * Payload assinado pelo web app (apps/web) ao abrir um board.
- * Mesmo formato do CollabContext que o Hocuspocus usa em apps/collab.
  */
 export interface BoardTokenPayload {
   userId: string;
@@ -13,15 +12,16 @@ export interface BoardTokenPayload {
 }
 
 /**
- * Valida o JWT que o cliente envia no header `Authorization: Bearer <token>`.
+ * Valida o JWT que o cliente envia no header `Authorization: Bearer <token>`
+ * ou na query `?token=...` (tldraw useSync não permite custom headers no WS).
+ *
  * Retorna o payload se válido, `null` se inválido/expirado.
  *
- * O secret é o mesmo `COLLAB_JWT_SECRET` que o Hocuspocus usa — auth unificada
- * entre os dois backends de collab.
+ * O secret é o mesmo `COLLAB_JWT_SECRET` que o resto do app usa.
  */
 export async function verifyBoardToken(
   token: string,
-  secret: string
+  secret: string,
 ): Promise<BoardTokenPayload | null> {
   try {
     const secretKey = new TextEncoder().encode(secret);

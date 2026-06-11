@@ -25,7 +25,9 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       </h3>
     ),
     p: ({ children }) => (
-      <p className="text-muted-foreground leading-7 mb-4 wrap-break-word">{children}</p>
+      <p className="text-muted-foreground leading-7 mb-4 wrap-break-word">
+        {children}
+      </p>
     ),
     a: ({ href, children }) => (
       <a

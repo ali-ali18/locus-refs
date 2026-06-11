@@ -34,7 +34,12 @@ export function HeroContent() {
 
       <div className="w-full flex flex-col h-full items-center justify-center gap-4 relative z-10">
         <div className="flex flex-col gap-2 text-center">
-          <h1 className={cn("text-3xl font-semibold tracking-wide", geistMono.className)}>
+          <h1
+            className={cn(
+              "text-3xl font-semibold tracking-wide",
+              geistMono.className,
+            )}
+          >
             Compartilhe o que sua equipe constrói.
           </h1>
           <p className="text-muted-foreground text-lg">

@@ -227,6 +227,7 @@ model Board {
   id          String       @id @default(uuid())
   title       String
   description String?
+  icon        String?
   workspaceId String
   workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   createdById String

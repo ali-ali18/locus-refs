@@ -29,18 +29,42 @@ export const docsNavGroups: DocsNavGroup[] = [
     label: "Introdução",
     items: [
       { href: "/docs", label: "Visão Geral", icon: Home01FreeIcons },
-      { href: "/docs/getting-started", label: "Getting Started", icon: Share06Icon },
+      {
+        href: "/docs/getting-started",
+        label: "Getting Started",
+        icon: Share06Icon,
+      },
       { href: "/docs/motivos", label: "Motivos", icon: Home01FreeIcons },
     ],
   },
   {
     label: "Estrutura",
     items: [
-      { href: "/docs/estrutura", label: "Visão Geral", icon: Folder01FreeIcons },
-      { href: "/docs/estrutura/app-router", label: "App Router", icon: File01Icon },
-      { href: "/docs/estrutura/componentes", label: "Componentes", icon: File01Icon },
-      { href: "/docs/estrutura/banco-de-dados", label: "Banco de Dados", icon: Database02Icon },
-      { href: "/docs/estrutura/collab", label: "Servidor Collab", icon: Share06Icon },
+      {
+        href: "/docs/estrutura",
+        label: "Visão Geral",
+        icon: Folder01FreeIcons,
+      },
+      {
+        href: "/docs/estrutura/app-router",
+        label: "App Router",
+        icon: File01Icon,
+      },
+      {
+        href: "/docs/estrutura/componentes",
+        label: "Componentes",
+        icon: File01Icon,
+      },
+      {
+        href: "/docs/estrutura/banco-de-dados",
+        label: "Banco de Dados",
+        icon: Database02Icon,
+      },
+      {
+        href: "/docs/estrutura/collab",
+        label: "Servidor Collab",
+        icon: Share06Icon,
+      },
     ],
   },
   {

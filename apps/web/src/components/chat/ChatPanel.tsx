@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useChatPanel } from "@/context/chatPanel";
 import { useIsMobile } from "@/hook/use-mobile";
 import { cn } from "@/lib/utils";
@@ -39,6 +39,12 @@ export function ChatPanel() {
   const { open, setOpen } = useChatPanel();
   const isMobile = useIsMobile();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  // Painel puramente client-interativo (dados do TanStack Query, sem valor de
+  // SSR). Renderiza null no SSR e na 1ª hidratação pra evitar mismatch de
+  // hidratação no id auto-gerado do Base UI (Dialog do seletor de modelo).
+  useEffect(() => setMounted(true), []);
 
   const noteIdMatch = pathname.match(/\/notes\/([^/]+)$/);
   const noteId = noteIdMatch?.[1];
@@ -50,6 +56,8 @@ export function ChatPanel() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, setOpen]);
+
+  if (!mounted) return null;
 
   if (isMobile) {
     return (

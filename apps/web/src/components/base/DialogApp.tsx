@@ -1,3 +1,5 @@
+"use client";
+
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import {

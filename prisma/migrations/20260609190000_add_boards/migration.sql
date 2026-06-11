@@ -3,6 +3,7 @@ CREATE TABLE "Board" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
+    "icon" TEXT,
     "workspaceId" TEXT NOT NULL,
     "createdById" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

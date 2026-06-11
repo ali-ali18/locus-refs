@@ -16,7 +16,10 @@ const PREDEFINED_COLORS = [
   "#6b7280", // gray
 ];
 
-export type ColorPickerPredefinedProps = Omit<ComponentProps<"div">, "onChange"> & {
+export type ColorPickerPredefinedProps = Omit<
+  ComponentProps<"div">,
+  "onChange"
+> & {
   value?: string;
   onChange?: (color: string) => void;
 };

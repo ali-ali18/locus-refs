@@ -5,6 +5,8 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   BETTER_AUTH_SECRET: z.string().min(1),
   NEXT_PUBLIC_COLLAB_WS_URL: z.string().optional(),
+  NEXT_PUBLIC_TLDRAW_SYNC_WS_URL: z.string().optional(),
+  NEXT_PUBLIC_TLDRAW_LICENSE_KEY: z.string().optional(),
   STORAGE_ENDPOINT: z.string().optional(),
   STORAGE_BUCKET: z.string().optional(),
   STORAGE_ACCESS_KEY: z.string().optional(),
