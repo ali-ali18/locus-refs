@@ -2,6 +2,7 @@
 
 import { Doc01FreeIcons, GithubIcon } from "@hugeicons/core-free-icons";
 import { Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";
@@ -47,13 +48,26 @@ export function HeroContent() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full items-center justify-center">
-          <Button size="lg" className="text-sm font-medium w-full sm:w-auto">
+          <Button
+            size="lg"
+            className="text-sm font-medium w-full sm:w-auto"
+            nativeButton={false}
+            render={
+              <Link
+                href="https://github.com/ali-ali18/locus-refs"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
+          >
             <Icon icon={GithubIcon} className="size-4" /> Repositório
           </Button>
           <Button
             size="lg"
             variant="secondary"
             className="text-sm font-medium w-full sm:w-auto"
+            nativeButton={false}
+            render={<Link href="/docs" />}
           >
             <Icon icon={Doc01FreeIcons} className="size-4" /> Documentação
           </Button>

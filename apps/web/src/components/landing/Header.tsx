@@ -89,21 +89,36 @@ export function ContentHeader() {
             <nav className="flex flex-col gap-0.5 p-4 md:gap-1.5 md:text-left">
               <ul className="w-full">
                 <li>
-                  <Button variant={"ghost"} className="w-full">
+                  <Button
+                    variant={"ghost"}
+                    className="w-full"
+                    render={<Link href={"/"} />}
+                    nativeButton={false}
+                  >
                     <Icon icon={Home01FreeIcons} />
-                    <Link href={"/"}>Home</Link>
+                    Home
                   </Button>
                 </li>
                 <li>
-                  <Button variant={"ghost"} className="w-full">
+                  <Button
+                    variant={"ghost"}
+                    className="w-full"
+                    render={<Link href={"/"} />}
+                    nativeButton={false}
+                  >
                     <Icon icon={Information} />
-                    <Link href={"/about"}>Sobre</Link>
+                    Sobre
                   </Button>
                 </li>
                 <li>
-                  <Button variant={"ghost"} className="w-full">
+                  <Button
+                    variant={"ghost"}
+                    className="w-full"
+                    render={<Link href={"/docs"} />}
+                    nativeButton={false}
+                  >
                     <Icon icon={File} />
-                    <Link href={"/docs"}>Documentação</Link>
+                    Documentação
                   </Button>
                 </li>
               </ul>

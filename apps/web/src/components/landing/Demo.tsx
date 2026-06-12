@@ -7,6 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Icon } from "../shared/Icon";
@@ -113,6 +114,8 @@ export function DemoContent() {
             variant="secondary"
             className="w-full lg:w-fit lg:justify-self-end"
             size="lg"
+            nativeButton={false}
+            render={<Link href="/docs" />}
           >
             Documentação
           </Button>
