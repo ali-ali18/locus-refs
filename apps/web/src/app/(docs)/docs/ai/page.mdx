@@ -1,0 +1,100 @@
+# IA
+
+Rotas para o assistente de IA integrado às notas. O assistente classifica a intenção do usuário em `chat`, `plan` ou `suggestion` e adapta o comportamento automaticamente.
+
+
+## `GET /api/ai/models`
+
+Lista os modelos de IA disponíveis.
+
+### Resposta `200`
+
+```typescript
+{
+  models: {
+    id: string;
+    provider: string;
+    label: string;
+    description: string;
+  }[];
+}
+```
+
+
+## `GET /api/ai/settings`
+
+Retorna as configurações de IA do workspace.
+
+### Resposta `200`
+
+```typescript
+{
+  settings: {
+    workspaceId: string;
+    defaultModelId: string;
+    systemPrompt: string | null;
+  };
+}
+```
+
+
+## `PATCH /api/ai/settings`
+
+Atualiza as configurações de IA do workspace.
+
+### Corpo da requisição
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>defaultModelId</code></td><td><code>string</code></td><td>ID do modelo padrão (deve estar na lista de modelos)</td></tr>
+    <tr><td><code>systemPrompt</code></td><td><code>string</code></td><td>Prompt de sistema customizado</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+Retorna as configurações atualizadas.
+
+
+## `POST /api/ai/chat`
+
+Envia uma mensagem ao assistente. Retorna uma **stream** de resposta.
+
+### Corpo da requisição
+
+```typescript
+{
+  messages: {
+    role?: string;
+    parts?: { type?: string; text?: string }[];
+  }[];
+  noteId?: string;         // ID da nota para contexto
+  modelId?: string;        // Sobrescreve o modelo padrão do workspace
+  selectionContext?: {
+    hasSelection?: boolean;
+    text?: string;         // Texto selecionado na nota
+  };
+}
+```
+
+### Comportamento por intenção
+
+<DocsTable>
+  <thead>
+    <tr><th>Intenção</th><th>Comportamento</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>chat</code></td><td>Conversa livre com contexto da nota</td></tr>
+    <tr><td><code>plan</code></td><td>Gera um plano estruturado</td></tr>
+    <tr><td><code>suggestion</code></td><td>Acessa ferramentas de edição da nota (<code>replace</code>, <code>insert</code>)</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta
+
+Stream `text/event-stream` com os chunks da mensagem e metadados (intenção classificada).
+
+> **Nota:** O modelo é escolhido na ordem: `modelId` da requisição → `defaultModelId` do workspace → modelo padrão do sistema.

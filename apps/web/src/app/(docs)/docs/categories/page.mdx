@@ -1,0 +1,115 @@
+# Categorias
+
+Categorias são tags reutilizáveis que podem ser associadas a recursos dentro de um workspace.
+
+
+## `GET /api/categories`
+
+Retorna todas as categorias do workspace autenticado.
+
+### Resposta `200`
+
+```typescript
+{
+  id: string;
+  name: string;
+  slug: string;
+  userId: string;
+  workspaceId: string;
+  _count: { resources: number };
+}[]
+```
+
+
+## `POST /api/categories`
+
+Cria uma nova categoria.
+
+### Corpo da requisição
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>name*</code></td><td><code>string</code></td><td>Nome da categoria</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `201`
+
+```typescript
+{
+  message: "Category created successfully";
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+    userId: string;
+    workspaceId: string;
+  };
+}
+```
+
+
+## `PATCH /api/categories/[id]`
+
+Atualiza o nome de uma categoria existente.
+
+### Parâmetros de rota
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>id</code></td><td><code>string</code></td><td>ID da categoria</td></tr>
+  </tbody>
+</DocsTable>
+
+### Corpo da requisição
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>name*</code></td><td><code>string</code></td><td>Novo nome da categoria</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+```typescript
+{
+  message: "Category updated successfully";
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+    updatedAt: string;
+  };
+}
+```
+
+
+## `DELETE /api/categories/[id]`
+
+Remove uma categoria.
+
+### Parâmetros de rota
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>id</code></td><td><code>string</code></td><td>ID da categoria</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+```typescript
+{ message: "Category deleted successfully" }
+```

@@ -15,31 +15,31 @@ export function ChatHeader({ onClear, hasMessages }: ChatHeaderProps) {
 
   return (
     <header className="flex items-center justify-between border-b border-sidebar-border px-3 py-2.5">
-        <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          Assistente IA
-        </span>
-        <div className="flex items-center gap-1">
-          {hasMessages && (
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              rounded="xl"
-              onClick={onClear}
-              aria-label="Limpar conversa"
-            >
-              <Icon icon={Delete02Icon} />
-            </Button>
-          )}
+      <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+        Assistente IA
+      </span>
+      <div className="flex items-center gap-1">
+        {hasMessages && (
           <Button
             variant="ghost"
             size="icon-sm"
             rounded="xl"
-            onClick={() => setOpen(false)}
-            aria-label="Fechar assistente"
+            onClick={onClear}
+            aria-label="Limpar conversa"
           >
-            <Icon icon={Cancel01Icon} />
+            <Icon icon={Delete02Icon} />
           </Button>
-        </div>
+        )}
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          rounded="xl"
+          onClick={() => setOpen(false)}
+          aria-label="Fechar assistente"
+        >
+          <Icon icon={Cancel01Icon} />
+        </Button>
+      </div>
     </header>
   );
 }

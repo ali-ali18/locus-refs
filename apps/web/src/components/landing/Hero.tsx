@@ -1,11 +1,15 @@
 "use client";
 
 import { Doc01FreeIcons, GithubIcon } from "@hugeicons/core-free-icons";
+import { Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";
 import { DotPattern } from "../ui/dot-pattern";
 import { LandingContent, LandingWrapper } from "./structure/LandingLayout";
+
+const geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export function HeroContainer() {
   return (
@@ -31,7 +35,12 @@ export function HeroContent() {
 
       <div className="w-full flex flex-col h-full items-center justify-center gap-4 relative z-10">
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-3xl font-bold">
+          <h1
+            className={cn(
+              "text-3xl font-semibold tracking-wide",
+              geistMono.className,
+            )}
+          >
             Compartilhe o que sua equipe constrói.
           </h1>
           <p className="text-muted-foreground text-lg">
@@ -42,6 +51,14 @@ export function HeroContent() {
           <Button
             size="lg"
             className="text-sm font-medium w-full sm:w-auto"
+            nativeButton={false}
+            render={
+              <Link
+                href="https://github.com/ali-ali18/locus-refs"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
           >
             <Icon icon={GithubIcon} className="size-4" /> Repositório
           </Button>
@@ -49,6 +66,8 @@ export function HeroContent() {
             size="lg"
             variant="secondary"
             className="text-sm font-medium w-full sm:w-auto"
+            nativeButton={false}
+            render={<Link href="/docs" />}
           >
             <Icon icon={Doc01FreeIcons} className="size-4" /> Documentação
           </Button>

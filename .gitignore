@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# wrangler local secrets
+.dev.vars
+**/.dev.vars
+
 # vercel
 .vercel
 
@@ -51,3 +55,7 @@ prisma/*.db-journal
 
 # Authentication tokens
 .npmrc
+
+# Tool runtime state (never commit)
+.mavis/
+.opencode/

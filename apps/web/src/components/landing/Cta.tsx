@@ -1,4 +1,5 @@
 import { DocFreeIcons, Github } from "@hugeicons/core-free-icons";
+import Link from "next/link";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";
 import { Safari } from "../ui/safari";
@@ -14,7 +15,7 @@ export function CtaContainer() {
 
 export function CtaContent() {
   return (
-    <LandingContent >
+    <LandingContent>
       <div className="-mr-3 -ml-3 min-h-[calc(40vh)] relative flex flex-col items-center justify-center py-6">
         <div className="flex flex-col gap-6 text-center max-w-2xl mx-auto px-4 mt-8 mb-4">
           <div className="space-y-2">
@@ -27,13 +28,26 @@ export function CtaContent() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button size={"lg"} className="w-full sm:w-auto">
+            <Button
+              size={"lg"}
+              className="w-full sm:w-auto"
+              nativeButton={false}
+              render={
+                <Link
+                  href="https://github.com/ali-ali18/locus-refs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              }
+            >
               <Icon icon={Github} /> Ver no GitHub
             </Button>
             <Button
               size={"lg"}
               variant={"secondary"}
               className="w-full sm:w-auto"
+              nativeButton={false}
+              render={<Link href="/docs" />}
             >
               <Icon icon={DocFreeIcons} /> Ler Documentação
             </Button>

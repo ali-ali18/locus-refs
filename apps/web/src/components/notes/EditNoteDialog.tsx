@@ -16,7 +16,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { type UpdateHeaderNoteSchema, updateHeaderNoteSchema } from "@refstash/shared";
+import {
+  type UpdateHeaderNoteSchema,
+  updateHeaderNoteSchema,
+} from "@refstash/shared";
 import { useNoteMutations } from "@/hook/notes/useNote";
 import { IconPicker } from "./IconPicker";
 
@@ -50,7 +53,11 @@ export function EditNoteDialog({
 
   const onSubmit = async (data: UpdateHeaderNoteSchema) => {
     try {
-      await updateNote({ id: noteId, title: data.title, icon: data.icon || undefined });
+      await updateNote({
+        id: noteId,
+        title: data.title,
+        icon: data.icon || undefined,
+      });
       toast.success("Nota atualizada!");
       onOpenChange(false);
     } catch {
@@ -65,7 +72,9 @@ export function EditNoteDialog({
           <DialogTitle className="text-lg font-semibold">
             Editar nota
           </DialogTitle>
-          <DialogDescription>Altere o título e o ícone da nota.</DialogDescription>
+          <DialogDescription>
+            Altere o título e o ícone da nota.
+          </DialogDescription>
         </DialogHeader>
 
         <form
@@ -87,7 +96,9 @@ export function EditNoteDialog({
             name="icon"
             render={({ field }) => (
               <div className="space-y-1">
-                <span className="text-sm font-medium text-foreground">Ícone</span>
+                <span className="text-sm font-medium text-foreground">
+                  Ícone
+                </span>
                 <IconPicker
                   value={field.value || null}
                   onChange={(name) => field.onChange(name ?? "")}

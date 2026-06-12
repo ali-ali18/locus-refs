@@ -1,0 +1,86 @@
+# Upload
+
+Rotas para envio de arquivos ao S3. Suportam imagens para notas e logo do workspace.
+
+## Formatos aceitos
+
+`jpg`, `jpeg`, `png`, `webp`, `gif` — validados por magic bytes (não apenas extensão).
+
+**Tamanho máximo:** 5 MB por arquivo.
+
+
+## `POST /api/upload/notes`
+
+Faz upload de uma imagem para uso em notas (inserida via editor Tiptap).
+
+### Corpo da requisição
+
+`Content-Type: multipart/form-data`
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>file*</code></td><td><code>File</code></td><td>Imagem a ser enviada</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `201`
+
+```typescript
+{
+  message: "Imagem enviada com sucesso";
+  data: {
+    publicUrl: string; // ex: "/storage/{workspaceId}/notes/{uuid}-{filename}"
+  };
+}
+```
+
+> A URL retornada pode ser usada diretamente como `src` no editor de notas.
+
+
+## `POST /api/upload/workspace-logo`
+
+Faz upload da logo do workspace.
+
+### Corpo da requisição
+
+`Content-Type: multipart/form-data`
+
+<DocsTable>
+  <thead>
+    <tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>file*</code></td><td><code>File</code></td><td>Imagem da logo</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `201`
+
+```typescript
+{
+  message: "Logo enviada com sucesso";
+  data: {
+    publicUrl: string; // ex: "/storage/{workspaceId}/workspaceLogo/{uuid}-{filename}"
+  };
+}
+```
+
+
+## `DELETE /api/upload/workspace-logo`
+
+Remove a logo antiga do workspace no S3.
+
+### Corpo da requisição
+
+```typescript
+{ oldUrl: string } // URL retornada em um upload anterior
+```
+
+### Resposta `200`
+
+```typescript
+{ message: "Logo antiga removida" }
+```

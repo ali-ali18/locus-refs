@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useChatPanel } from "@/context/chatPanel";
 import { useIsMobile } from "@/hook/use-mobile";
 import { cn } from "@/lib/utils";
@@ -18,22 +18,19 @@ import { ChatMessages } from "./ChatMessages";
 import { useAiChat } from "./hook/useAiChat";
 
 function ChatPanelContent({ noteId }: { noteId?: string }) {
-  const { messages, isStreaming, send, clear, stop } = useAiChat({ noteId });
+  const { messages, isStreaming, status, send, clear, stop, addToolOutput } =
+    useAiChat({ noteId });
 
   return (
-    <div className="flex w-full flex-1 flex-col bg-sidebar text-sidebar-foreground">
+    <div className="flex min-h-0 w-full flex-1 flex-col bg-sidebar text-sidebar-foreground">
       <ChatHeader onClear={clear} hasMessages={messages.length > 0} />
       <ChatMessages
         messages={messages}
         isStreaming={isStreaming}
         noteId={noteId}
+        addToolOutput={addToolOutput}
       />
-      <ChatInput
-        onSend={send}
-        onStop={stop}
-        isStreaming={isStreaming}
-        noteId={noteId}
-      />
+      <ChatInput onSend={send} onStop={stop} status={status} noteId={noteId} />
     </div>
   );
 }
@@ -42,6 +39,12 @@ export function ChatPanel() {
   const { open, setOpen } = useChatPanel();
   const isMobile = useIsMobile();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  // Painel puramente client-interativo (dados do TanStack Query, sem valor de
+  // SSR). Renderiza null no SSR e na 1ª hidratação pra evitar mismatch de
+  // hidratação no id auto-gerado do Base UI (Dialog do seletor de modelo).
+  useEffect(() => setMounted(true), []);
 
   const noteIdMatch = pathname.match(/\/notes\/([^/]+)$/);
   const noteId = noteIdMatch?.[1];
@@ -53,6 +56,8 @@ export function ChatPanel() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, setOpen]);
+
+  if (!mounted) return null;
 
   if (isMobile) {
     return (
@@ -76,13 +81,13 @@ export function ChatPanel() {
   return (
     <aside
       className={cn(
-        "sticky top-0 hidden h-svh shrink-0 flex-col self-start border-l border-sidebar-border bg-sidebar",
-        "overflow-hidden transition-[width] duration-200 ease-linear md:flex",
+        "sticky top-0 hidden h-svh shrink-0 flex-col self-start border-l border-sidebar-border bg-sidebar overflow-hidden",
+        "transition-[width] duration-200 ease-linear md:flex",
         open ? "w-96" : "w-0",
       )}
       aria-hidden={!open}
     >
-      <div className="flex w-96 flex-1 flex-col">
+      <div className="flex h-full w-96 flex-col">
         <ChatPanelContent noteId={noteId} />
       </div>
     </aside>

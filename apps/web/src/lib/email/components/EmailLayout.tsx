@@ -50,7 +50,13 @@ const darkModeStyles = `
   }
 `;
 
-export function EmailLayout({ preview, orgName, orgLogo, children, footer }: EmailLayoutProps) {
+export function EmailLayout({
+  preview,
+  orgName,
+  orgLogo,
+  children,
+  footer,
+}: EmailLayoutProps) {
   const hasLogo = isLogoUrl(orgLogo);
 
   return (
@@ -93,7 +99,12 @@ export function EmailLayout({ preview, orgName, orgLogo, children, footer }: Ema
               <Column style={{ paddingLeft: hasLogo ? 10 : 0 }}>
                 <Text
                   className="em-org-name"
-                  style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "#1c1a16" }}
+                  style={{
+                    margin: 0,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "#1c1a16",
+                  }}
                 >
                   {orgName}
                 </Text>
@@ -104,7 +115,11 @@ export function EmailLayout({ preview, orgName, orgLogo, children, footer }: Ema
           {/* Content */}
           <Section
             className="em-content"
-            style={{ maxWidth: 512, margin: "0 auto", padding: "40px 32px 32px" }}
+            style={{
+              maxWidth: 512,
+              margin: "0 auto",
+              padding: "40px 32px 32px",
+            }}
           >
             {children}
           </Section>

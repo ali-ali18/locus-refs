@@ -47,7 +47,7 @@ import { useNavMain } from "./hook/useNavMain";
 
 export function NavMain() {
   const {
-    collections,
+    resourceCollections,
     collectionSlice,
     isLoading,
     activeCategorySlug,
@@ -115,6 +115,8 @@ export function NavMain() {
                     setCollectionToEdit({
                       id: collection.id,
                       name: collection.name,
+                      description: collection.description ?? undefined,
+                      color: collection.color ?? undefined,
                     })
                   }
                   onDeleteClick={() => handleDelete(collection.id)}
@@ -122,7 +124,7 @@ export function NavMain() {
               </SidebarMenuItem>
             ))}
 
-            {collections.length > 3 && (
+            {resourceCollections.length > 3 && (
               <SidebarMenuButton
                 onClick={() => setIsAllCollections(!isAllCollections)}
                 tooltip={isAllCollections ? "Ver menos" : "Ver mais"}
@@ -154,6 +156,8 @@ export function NavMain() {
         onOpenChange={(open) => !open && setCollectionToEdit(null)}
         collectionId={collectionToEdit?.id ?? ""}
         currentName={collectionToEdit?.name ?? ""}
+        currentDescription={collectionToEdit?.description}
+        currentColor={collectionToEdit?.color}
       />
     </>
   );
@@ -197,7 +201,7 @@ function CollectionCategories({
             />
           }
         >
-          <Icon icon={MoreHorizontalCircle01Icon}/>
+          <Icon icon={MoreHorizontalCircle01Icon} />
           <span className="sr-only">Mais opções</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -227,7 +231,15 @@ function CollectionCategories({
           className="group/collapsible"
         >
           <CollapsibleTrigger
-            render={<SidebarMenuAction className={isActive ? "text-sidebar-primary-foreground hover:text-sidebar-primary-foreground " : "text-sidebar-foreground hover:text-sidebar-foreground "} />}
+            render={
+              <SidebarMenuAction
+                className={
+                  isActive
+                    ? "text-sidebar-primary-foreground hover:text-sidebar-primary-foreground "
+                    : "text-sidebar-foreground hover:text-sidebar-foreground "
+                }
+              />
+            }
           >
             <Icon
               icon={ChevronDown}
@@ -249,7 +261,7 @@ function CollectionCategories({
                         onCategoryClick(collectionId, category.slug)
                       }
                     >
-                      <Icon icon={Folder02Icon}/>
+                      <Icon icon={Folder02Icon} />
                       <span>{category.name}</span>
                       <span className="ml-auto text-xs text-muted-foreground">
                         {category._count.resources}

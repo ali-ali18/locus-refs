@@ -4,11 +4,19 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const pathname = request.nextUrl.pathname;
-  const publicRoutes = ["/", "/login", "/register"];
-  const isInvitePage = pathname.startsWith("/invite/");
-  const isAuthApi = pathname.startsWith("/api/auth");
+  const publicExactRoutes = ["/", "/login", "/register"];
+  const publicPrefixRoutes = ["/docs"];
 
-  if (!publicRoutes.includes(pathname) && !isAuthApi && !isInvitePage && !sessionCookie) {
+  const isPublicRoute =
+    publicExactRoutes.includes(pathname) ||
+    publicPrefixRoutes.some(
+      (route) => pathname === route || pathname.startsWith(`${route}/`),
+    );
+  const isInvitePage = pathname.startsWith("/invite/");
+  const isAuthApi =
+    pathname.startsWith("/api/auth/") || pathname === "/api/auth";
+
+  if (!isPublicRoute && !isAuthApi && !isInvitePage && !sessionCookie) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

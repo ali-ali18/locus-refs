@@ -479,7 +479,8 @@ const sidebarMenuButtonVariants = cva(
   {
     variants: {
       variant: {
-        default: "not-data-active:hover:bg-sidebar-accent not-data-active:hover:text-sidebar-accent-foreground",
+        default:
+          "not-data-active:hover:bg-sidebar-accent not-data-active:hover:text-sidebar-accent-foreground",
         outline:
           "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
@@ -608,10 +609,12 @@ function SidebarMenuSkeleton({
 }: React.ComponentProps<"div"> & {
   showIcon?: boolean;
 }) {
-  // Random width between 50 to 90%.
-  const [width] = React.useState(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  });
+  // Largura determinística (estável entre SSR e client) derivada do useId,
+  // pra variar visualmente os skeletons sem causar mismatch de hidratação.
+  const id = React.useId();
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  const width = `${(Math.abs(hash) % 40) + 50}%`;
 
   return (
     <div

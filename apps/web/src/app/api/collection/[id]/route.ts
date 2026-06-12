@@ -23,12 +23,16 @@ export async function PATCH(
     );
   }
 
-  const { name } = await request.json();
+  const { name, description, color } = await request.json();
 
   try {
     const updatedCollection = await prisma.collection.update({
       where: { id },
-      data: { name },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(description !== undefined && { description }),
+        ...(color !== undefined && { color }),
+      },
     });
     return NextResponse.json(
       {

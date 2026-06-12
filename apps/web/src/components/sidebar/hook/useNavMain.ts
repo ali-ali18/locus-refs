@@ -17,14 +17,17 @@ export function useNavMain() {
   const [collectionToEdit, setCollectionToEdit] = useState<{
     id: string;
     name: string;
+    description?: string;
+    color?: string;
   } | null>(null);
   const [openCollections, setOpenCollections] = useState<Set<string>>(
     new Set(),
   );
 
+  const resourceCollections = collections.filter((c) => !c.isNoteCollection);
   const collectionSlice = isAllCollections
-    ? collections
-    : collections.slice(0, 3);
+    ? resourceCollections
+    : resourceCollections.slice(0, 3);
 
   const activeCategorySlug = searchParams.get("category");
 
@@ -57,6 +60,7 @@ export function useNavMain() {
 
   return {
     collections,
+    resourceCollections,
     collectionSlice,
     isLoading,
     activeCategorySlug,

@@ -1,4 +1,5 @@
 import {
+  BubbleChatAddIcon,
   Heading01Icon,
   Heading02Icon,
   Heading03Icon,
@@ -24,6 +25,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useChatPanel } from "@/context/chatPanel";
 import { Button } from "../../button";
 import {
   BUBBLE_MENU_GROUPS,
@@ -35,13 +37,24 @@ import { LinkPopover } from "../link/LinkPopover";
 
 interface Props {
   editor: Editor;
+  noteId?: string;
 }
 
-export function DropdownNote({ editor }: Props) {
+export function DropdownNote({ editor, noteId }: Props) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
   const [imagePopoverOpen, setImagePopoverOpen] = useState(false);
   const { uploadImage } = useImageUpload();
+  const { attachSelection } = useChatPanel();
+
+  const handleAddToChat = () => {
+    if (!noteId) return;
+    const { from, to, empty } = editor.state.selection;
+    if (empty) return;
+    const text = editor.state.doc.textBetween(from, to, "\n").trim();
+    if (!text) return;
+    attachSelection({ noteId, from, to, text });
+  };
   const activeMarks = useEditorState({
     editor,
     selector: ({ editor }) => ({
@@ -112,6 +125,23 @@ export function DropdownNote({ editor }: Props) {
           onOpenChange={setImagePopoverOpen}
           uploadImage={uploadImage}
         />
+
+        {noteId && (
+          <Button
+            variant="ghost"
+            size="icon"
+            rounded="xl"
+            nativeButton={false}
+            aria-label="Adicionar ao chat"
+            title="Adicionar ao chat"
+            onClick={handleAddToChat}
+            render={
+              <span>
+                <Icon icon={BubbleChatAddIcon} />
+              </span>
+            }
+          />
+        )}
 
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger>

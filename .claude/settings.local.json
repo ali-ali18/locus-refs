@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm prisma *)",
+      "Bash(Get-Content .env.local)",
+      "Bash(Select-String \"DATABASE_URL\")",
+      "Bash(pnpm exec *)",
+      "Bash(echo \"tsc=$?\")",
+      "Bash(echo \"biome=$?\")",
+      "Bash(pnpm --filter @refstash/web exec tsc --noEmit)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm --filter @refstash/web build)",
+      "Bash(Select-Object Name)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+    ]
+  }
+}

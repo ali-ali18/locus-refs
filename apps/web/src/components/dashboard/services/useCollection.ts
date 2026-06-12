@@ -1,15 +1,19 @@
 import { api } from "@/lib/api";
-import type { Collection } from "@refstash/shared";
+import type {
+  Collection,
+  CreateCollectionSchema,
+  UpdateCollectionSchema,
+} from "@refstash/shared";
 
 export async function getCollections() {
   const { data } = await api.get<Collection[]>("/api/collection");
   return data;
 }
 
-export async function createCollection(name: string) {
+export async function createCollection(payload: CreateCollectionSchema) {
   const { data } = await api.post<{ message: string; collection: Collection }>(
     "/api/collection",
-    { name },
+    payload,
   );
   return data;
 }
@@ -21,10 +25,13 @@ export async function deleteCollection(id: string) {
   return data;
 }
 
-export async function updateCollection(id: string, name: string) {
+export async function updateCollection(
+  id: string,
+  payload: UpdateCollectionSchema,
+) {
   const { data } = await api.patch<{ message: string; collection: Collection }>(
     `/api/collection/${id}`,
-    { name },
+    payload,
   );
   return data;
 }

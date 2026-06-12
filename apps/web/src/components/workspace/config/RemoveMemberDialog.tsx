@@ -98,7 +98,13 @@ export function RemoveMemberDialog({
             onClick={handleConfirm}
             disabled={!isConfirmed || isRemoving}
           >
-            {isRemoving ? <><Spinner /> Removendo...</> : "Remover"}
+            {isRemoving ? (
+              <>
+                <Spinner /> Removendo...
+              </>
+            ) : (
+              "Remover"
+            )}
           </Button>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
         </AlertDialogFooter>

@@ -25,12 +25,19 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSettingsDialog } from "@/context/settingsDialog";
 import { authClient } from "@/lib/auth-client";
 
 export function NavUser() {
   const { data: session, isPending } = authClient.useSession();
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
+  const { openSettings } = useSettingsDialog();
   const router = useRouter();
+
+  const openSettingsAndCloseSidebar = () => {
+    if (isMobile) setOpenMobile(false);
+    openSettings();
+  };
 
   const handleSignOut = async () => {
     await authClient.signOut({
@@ -115,15 +122,10 @@ export function NavUser() {
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push("/perfil")}>
-              <HugeiconsIcon icon={UserIcon} strokeWidth={2} />
-              Perfil
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push("/settings")}>
+            <DropdownMenuItem onClick={openSettingsAndCloseSidebar}>
               <HugeiconsIcon icon={Settings01Icon} strokeWidth={2} />
               Configurações
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive "
               onClick={handleSignOut}

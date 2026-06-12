@@ -7,6 +7,8 @@ export {
 export {
   type CreateCollectionSchema,
   createCollectionSchema,
+  type UpdateCollectionSchema,
+  updateCollectionSchema,
 } from "./schemas/collection.schema";
 
 export {
@@ -16,6 +18,12 @@ export {
   type UpdateHeaderNoteSchema,
   updateHeaderNoteSchema,
 } from "./schemas/note.schema";
+export {
+  type CreateBoardSchema,
+  createBoardSchema,
+  type UpdateBoardSchema,
+  updateBoardSchema,
+} from "./schemas/board.schema";
 export {
   type CreateWorkspaceSchema,
   createWorkspaceSchema,
@@ -28,6 +36,7 @@ export type { Category } from "./types/categories.type";
 export type { Collection } from "./types/collection.type";
 export type { Note, NoteContent } from "./types/note.type";
 export { EMPTY_NOTE_CONTENT } from "./types/note.type";
+export type { Board } from "./types/board.type";
 export type {
   Workspace,
   WorkspaceInvitation,

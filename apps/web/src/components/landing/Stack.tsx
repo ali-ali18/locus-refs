@@ -1,6 +1,7 @@
 "use client";
 
 import { Database02Icon, Github } from "@hugeicons/core-free-icons";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -138,7 +139,7 @@ function NoiseOverlay() {
 const stackItems: StackItem[] = [
   {
     name: "Next.js",
-    role: "App Router e rendering",
+    role: "App Router e renderização",
     preview: "N",
     icon: <NextJsMark />,
     panelClassName:
@@ -146,7 +147,7 @@ const stackItems: StackItem[] = [
   },
   {
     name: "PostgreSQL",
-    role: "Persistencia relacional",
+    role: "Persistência relacional",
     preview: "DB",
     icon: <Icon icon={Database02Icon} className="size-16 text-white" />,
     panelClassName:
@@ -154,7 +155,7 @@ const stackItems: StackItem[] = [
   },
   {
     name: "TypeScript",
-    role: "Contratos e manutencao",
+    role: "Contratos e manutenção",
     preview: "TS",
     icon: <TypeScriptMark />,
     panelClassName:
@@ -162,7 +163,7 @@ const stackItems: StackItem[] = [
   },
   {
     name: "React Query",
-    role: "Cache e sincronizacao",
+    role: "Cache e sincronização",
     preview: "RQ",
     icon: <ReactQueryMark />,
     panelClassName:
@@ -170,7 +171,7 @@ const stackItems: StackItem[] = [
   },
   {
     name: "Better Auth",
-    role: "Sessao e controle de acesso",
+    role: "Sessão e controle de acesso",
     preview: "Key",
     icon: <BetterAuthMark />,
     panelClassName:
@@ -194,23 +195,45 @@ function StackContent() {
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-3">
               <h3 className="max-w-lg text-xl font-semibold tracking-tight text-balance">
-                Base moderna para manter o produto rapido de evoluir.
+                Base moderna para manter o produto rápido de evoluir.
               </h3>
-              <Button size="lg" className="hidden sm:w-fit sm:flex">
-                Ver repositorio
+              <Button
+                size="lg"
+                className="hidden sm:w-fit sm:flex"
+                nativeButton={false}
+                render={
+                  <Link
+                    href="https://github.com/ali-ali18/locus-refs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                }
+              >
+                Ver repositório
                 <Icon icon={Github} data-icon="inline-end" />
               </Button>
             </div>
           </div>
 
           <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-            A implementacao combina Next.js, TypeScript, PostgreSQL, Better Auth
-            e outras pecas que fazem sentido para uma plataforma de referencias
-            colaborativas. O objetivo aqui nao e empilhar modismo, e sim manter
+            A implementação combina Next.js, TypeScript, PostgreSQL, Better Auth
+            e outras peças que fazem sentido para uma plataforma de referências
+            colaborativas. O objetivo aqui não é empilhar modismo, é sim manter
             uma base clara para operar, testar e continuar expandindo.
           </p>
-          <Button size="lg" className="w-full sm:hidden">
-            Ver repositorio
+          <Button
+            size="lg"
+            className="w-full sm:hidden"
+            nativeButton={false}
+            render={
+              <Link
+                href="https://github.com/ali-ali18/locus-refs"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
+          >
+            Ver repositório
             <Icon icon={Github} data-icon="inline-end" />
           </Button>
         </div>

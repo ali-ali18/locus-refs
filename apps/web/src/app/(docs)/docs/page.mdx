@@ -1,0 +1,72 @@
+# Introdução
+
+O **Refstash** é uma plataforma de gerenciamento de notas e coleções de recursos. Esta documentação cobre a API REST interna que alimenta a aplicação.
+
+A API segue convenções REST padrão — todas as respostas são JSON, os status HTTP refletem o resultado da operação, e o acesso é protegido por sessão autenticada.
+
+## Conceitos fundamentais
+
+### Workspace
+
+Toda operação ocorre dentro de um **workspace**. Um usuário pode pertencer a múltiplos workspaces, mas cada requisição opera no contexto de um workspace ativo. O servidor resolve esse contexto automaticamente a partir da sessão — você não precisa passar o workspace ID na maioria das rotas.
+
+### Sessão
+
+A autenticação é baseada em sessão via [Better Auth](https://www.better-auth.com/). Após o login, a sessão é persistida em cookie e enviada automaticamente em todas as requisições. Não há tokens Bearer — a sessão é o mecanismo de autenticação.
+
+### Recursos
+
+Os principais recursos da API são:
+
+- **Categorias** — tags reutilizáveis associadas a recursos
+- **Coleções** — grupos temáticos para organizar notas ou recursos
+- **Notas** — documentos rich-text editados com Tiptap
+- **Recursos** — links externos com metadados (título, descrição, imagem OG)
+- **Boards** — canvas visual colaborativo via Cloudflare Workers + Durable Objects
+
+## Respostas
+
+### Sucesso
+
+```json
+{
+  "message": "Descrição da operação",
+  "data": { }
+}
+```
+
+### Erro
+
+```json
+{
+  "error": "Mensagem amigável ao usuário",
+  "code": "ERROR_CODE"
+}
+```
+
+## Códigos de status
+
+<DocsTable>
+  <thead>
+    <tr><th>Status</th><th>Significado</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>200</code></td><td>Sucesso</td></tr>
+    <tr><td><code>201</code></td><td>Recurso criado</td></tr>
+    <tr><td><code>400</code></td><td>Dados inválidos na requisição</td></tr>
+    <tr><td><code>401</code></td><td>Não autenticado</td></tr>
+    <tr><td><code>403</code></td><td>Sem permissão</td></tr>
+    <tr><td><code>404</code></td><td>Recurso não encontrado</td></tr>
+    <tr><td><code>500</code></td><td>Erro interno do servidor</td></tr>
+  </tbody>
+</DocsTable>
+
+## Base URL
+
+```
+/api
+```
+
+## Motivos
+
+O Refstash é 100% gratuito e open source. Saiba mais sobre a motivação por trás do projeto na página [Motivos](/docs/motivos).

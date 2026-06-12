@@ -4,6 +4,11 @@ interface IconProps extends HugeiconsIconProps {}
 
 export function Icon({ ...props }: IconProps) {
   return (
-    <HugeiconsIcon className="size-4" {...props} suppressHydrationWarning strokeWidth={2} />
+    <HugeiconsIcon
+      className="size-4"
+      {...props}
+      suppressHydrationWarning
+      strokeWidth={2}
+    />
   );
 }

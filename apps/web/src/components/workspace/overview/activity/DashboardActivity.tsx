@@ -34,7 +34,10 @@ export function DashboardActivity() {
       updatedAt: c.updatedAt,
     })),
   ]
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    )
     .slice(0, 8);
 
   return (
@@ -51,10 +54,16 @@ export function DashboardActivity() {
             <Skeleton key={i} className="h-9 w-full rounded-xl" />
           ))
         ) : recent.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhuma atividade ainda.</p>
+          <p className="text-sm text-muted-foreground">
+            Nenhuma atividade ainda.
+          </p>
         ) : (
           recent.map((item) => (
-            <ActivityListItem key={`${item.type}-${item.id}`} {...item} workspaceSlug={workspaceSlug} />
+            <ActivityListItem
+              key={`${item.type}-${item.id}`}
+              {...item}
+              workspaceSlug={workspaceSlug}
+            />
           ))
         )}
       </CardContent>

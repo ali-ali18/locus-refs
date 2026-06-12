@@ -83,27 +83,31 @@ export function ContentHeader() {
             <DrawerHeader className="font-medium text-lg">
               <DrawerTitle>Para onde vamos agora?</DrawerTitle>
               <DrawerDescription>
-                Selecione seu destino, e veja a magica acontecer...
+                Selecione seu destino, e veja a mágica acontecer...
               </DrawerDescription>
             </DrawerHeader>
             <nav className="flex flex-col gap-0.5 p-4 md:gap-1.5 md:text-left">
               <ul className="w-full">
                 <li>
-                  <Button variant={"ghost"} className="w-full">
+                  <Button
+                    variant={"ghost"}
+                    className="w-full"
+                    render={<Link href={"/"} />}
+                    nativeButton={false}
+                  >
                     <Icon icon={Home01FreeIcons} />
-                    <Link href={"/"}>Home</Link>
+                    Home
                   </Button>
                 </li>
                 <li>
-                  <Button variant={"ghost"} className="w-full">
-                    <Icon icon={Information} />
-                    <Link href={"/about"}>Sobre</Link>
-                  </Button>
-                </li>
-                <li>
-                  <Button variant={"ghost"} className="w-full">
+                  <Button
+                    variant={"ghost"}
+                    className="w-full"
+                    render={<Link href={"/docs"} />}
+                    nativeButton={false}
+                  >
                     <Icon icon={File} />
-                    <Link href={"/contact"}>Documentação</Link>
+                    Documentação
                   </Button>
                 </li>
               </ul>

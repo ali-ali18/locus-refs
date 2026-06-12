@@ -1,0 +1,32 @@
+name = "locus-tldraw-sync"
+main = "src/worker.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+routes = [
+  { pattern = "tldraw.organization.kodea.com.br/*", zone_name = "kodea.com.br" }
+]
+
+# === Durable Object: 1 instância por board ===
+[[durable_objects.bindings]]
+name = "TLDRAW_DURABLE_OBJECT"
+class_name = "TldrawDurableObject"
+
+# === Migration: cria a classe DO com SQLite (vem grátis no Workers Paid) ===
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["TldrawDurableObject"]
+
+# === R2: storage de assets (imagens/mídia coladas no board) ===
+# Em `wrangler dev` o bucket é simulado localmente (não precisa criar nada).
+# Pra deploy: `pnpm exec wrangler r2 bucket create locus-tldraw-assets`
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "locus-tldraw-assets"
+
+# === Vars públicas (não-secretas) ===
+[vars]
+ALLOWED_ORIGIN = "https://organization.kodea.com.br"
+
+# === Secrets (setar com `pnpm wrangler secret put NOME` antes do deploy) ===
+# COLLAB_JWT_SECRET — mesmo secret do apps/web (token de board).

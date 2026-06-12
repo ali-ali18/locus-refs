@@ -27,6 +27,7 @@ model User {
   notes         Note[]
   members       Member[]
   invitations   Invitation[]
+  boards        Board[]
 
   @@unique([email])
   @@map("user")
@@ -82,17 +83,20 @@ model Verification {
 }
 
 model Collection {
-  id             String       @id @default(uuid())
-  name           String
-  slug           String
-  userId         String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspaceId    String
-  workspace      Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  resources      Resource[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  notes          Note[]
+  id               String       @id @default(uuid())
+  name             String
+  slug             String
+  userId           String
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId      String
+  workspace        Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  resources        Resource[]
+  color            String?
+  description      String?
+  isNoteCollection Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  notes            Note[]
 
   @@unique([workspaceId, slug])
 }
@@ -159,18 +163,19 @@ model NoteLink {
 }
 
 model Organization {
-  id            String                @id
-  name          String
-  slug          String
-  logo          String?
-  createdAt     DateTime
-  metadata      String?
-  members       Member[]
-  invitations   Invitation[]
-  collections   Collection[]
-  categories    Category[]
-  notes         Note[]
-  aiSettings    WorkspaceAiSettings?
+  id          String               @id
+  name        String
+  slug        String
+  logo        String?
+  createdAt   DateTime
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
+  collections Collection[]
+  categories  Category[]
+  notes       Note[]
+  boards      Board[]
+  aiSettings  WorkspaceAiSettings?
 
   @@unique([slug])
   @@map("organization")
@@ -216,4 +221,24 @@ model Invitation {
   @@index([organizationId])
   @@index([email])
   @@map("invitation")
+}
+
+model Board {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  icon        String?
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  lastOpenedAt DateTime?
+
+  @@index([workspaceId])
+  @@index([createdById])
+  @@index([lastOpenedAt])
 }

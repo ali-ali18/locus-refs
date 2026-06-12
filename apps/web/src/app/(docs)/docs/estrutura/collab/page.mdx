@@ -1,0 +1,83 @@
+# Servidor de Colaboração
+
+O `apps/collab/` é um servidor Node.js independente que habilita a **edição colaborativa em tempo real** nas notas. É construído com [Hocuspocus](https://tiptap.dev/docs/hocuspocus/introduction) — o backend oficial do Tiptap para colaboração via Y.js.
+
+## Como funciona
+
+O Hocuspocus funciona como um servidor WebSocket. Quando um usuário abre uma nota, o editor Tiptap no navegador conecta ao servidor de colaboração via WebSocket. O servidor sincroniza as mudanças entre todos os clientes conectados ao mesmo documento e persiste o estado no banco de dados.
+
+```
+Navegador A ──┐
+              ├── WebSocket ── Hocuspocus (porta 1234) ── PostgreSQL
+Navegador B ──┘
+```
+
+## Configuração
+
+```typescript
+// apps/collab/src/index.ts
+
+Server.configure({
+  port: process.env.PORT ?? 1234,
+  debounce: 2000,      // aguarda 2s antes de persistir
+  maxDebounce: 10000,  // persiste no máximo a cada 10s
+  timeout: 30000,
+})
+```
+
+## Autenticação
+
+Quando o editor tenta conectar, o servidor valida um **JWT** gerado pela rota `/api/collab/token` do app web.
+
+```typescript
+onAuthenticate({ token, documentName }) {
+  const payload = jwt.verify(token, COLLAB_JWT_SECRET)
+  // payload: { userId, workspaceId, noteId }
+
+  if (payload.noteId !== documentName) {
+    throw new Error("Forbidden")
+  }
+
+  return payload // disponível nos outros hooks como context
+}
+```
+
+O token tem validade de 1 hora e vincula o usuário a uma nota específica — não é possível usar o mesmo token para acessar outro documento.
+
+## Persistência
+
+O estado Y.js de cada nota é armazenado na coluna `ydoc` (campo `Bytes`) da tabela `Note`. O servidor usa a extensão `@hocuspocus/extension-database` para isso:
+
+```typescript
+// Ao abrir um documento — carrega o estado salvo
+async fetch({ documentName }) {
+  const note = await prisma.note.findUnique({
+    where: { id: documentName },
+    select: { ydoc: true }
+  })
+  return note?.ydoc ?? null
+}
+
+// Após mudanças — persiste o novo estado
+async store({ documentName, state }) {
+  await prisma.note.update({
+    where: { id: documentName },
+    data: { ydoc: state }
+  })
+}
+```
+
+## Relação com o app web
+
+O `documentName` no Hocuspocus é o **ID da nota** — é o mesmo `id` usado nas rotas `/api/notes/[id]`. O conteúdo Tiptap (JSON) e o estado Y.js (binário) são dois formatos do mesmo conteúdo, mantidos em sincronia:
+
+- **`content`** (JSON) — atualizado pelo app web via `PATCH /api/notes/[id]`
+- **`ydoc`** (Bytes) — atualizado pelo servidor de colaboração via Hocuspocus
+
+## Variáveis de ambiente necessárias
+
+```bash
+DATABASE_URL="postgresql://..."   # mesmo banco do app web
+COLLAB_JWT_SECRET="..."           # deve ser igual ao do app web
+PORT=1234                         # opcional, padrão: 1234
+```

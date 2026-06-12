@@ -1,6 +1,10 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type {
+  CreateCollectionSchema,
+  UpdateCollectionSchema,
+} from "@refstash/shared";
 import { useWorkspace } from "@/context/workspace";
 import {
   createCollection,
@@ -24,15 +28,15 @@ export function useCollections() {
   });
 
   const createMutation = useMutation({
-    mutationFn: createCollection,
+    mutationFn: (payload: CreateCollectionSchema) => createCollection(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collections", workspaceId] });
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, name }: { id: string; name: string }) =>
-      updateCollection(id, name),
+    mutationFn: ({ id, ...payload }: { id: string } & UpdateCollectionSchema) =>
+      updateCollection(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collections", workspaceId] });
     },

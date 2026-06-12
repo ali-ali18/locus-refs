@@ -1,0 +1,45 @@
+# Colaboração
+
+Geração de tokens JWT para o servidor de colaboração em tempo real (Tiptap Collaboration / Hocuspocus).
+
+
+## `GET /api/collab/token`
+
+Gera um token JWT para autenticar a conexão WebSocket de colaboração em uma nota.
+
+### Query params
+
+<DocsTable>
+  <thead>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>noteId*</code></td><td><code>string</code></td><td>ID da nota</td></tr>
+    <tr><td><code>workspaceId*</code></td><td><code>string</code></td><td>ID do workspace</td></tr>
+  </tbody>
+</DocsTable>
+
+### Resposta `200`
+
+```typescript
+{ token: string } // JWT com expiração de 1 hora
+```
+
+### Payload do token
+
+```typescript
+{
+  userId: string;
+  workspaceId: string;
+  noteId: string;
+  exp: number; // Unix timestamp (+1h)
+}
+```
+
+### Validações
+
+- Sessão de usuário obrigatória
+- Usuário deve ser membro do workspace informado
+- Nota deve existir e pertencer ao workspace
+
+> **Variável de ambiente necessária:** `COLLAB_JWT_SECRET`
