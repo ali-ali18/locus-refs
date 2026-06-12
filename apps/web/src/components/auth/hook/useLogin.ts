@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { popInviteRedirectCookie } from "@/lib/invite-cookie";
 import { authClient } from "@/lib/auth-client";
+import { popInviteRedirectCookie } from "@/lib/invite-cookie";
+import { getSafeRedirectPath } from "@/lib/safe-redirect";
 import { type FormSchema, formSchema } from "@/types/schema/auth.schema";
 
 export function useLogin() {
@@ -58,13 +59,13 @@ export function useLogin() {
 
     if (nextUserName) {
       toast.success(`Bem-vindo de volta, ${nextUserName}`);
-      const redirect = popInviteRedirectCookie();
-      if (redirect) {
-        router.push(redirect);
+      const invite = popInviteRedirectCookie();
+      if (invite) {
+        router.push(getSafeRedirectPath(invite));
       } else {
         const { data: orgs } = await authClient.organization.list();
         const firstSlug = orgs?.[0]?.slug;
-        router.push(firstSlug ? `/${firstSlug}` : "/");
+        router.push(firstSlug ? `/${firstSlug}` : "/onboarding/workspace/new");
       }
     }
 
