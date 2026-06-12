@@ -34,9 +34,9 @@ const demoItems: DemoItem[] = [
     id: "capture",
     title: "Captura por link",
     description:
-      "Adicione novas referencias a partir de URLs e concentre o material relevante sem depender de processos manuais.",
+      "Adicione novas referências a partir de URLs e concentre o material relevante sem depender de processos manuais.",
     image: "/landing/novo-recurso-base-ui.png",
-    imageAlt: "Modal de novo recurso com link e preview automatico",
+    imageAlt: "Modal de novo recurso com link e preview automático",
     icon: Share07Icon,
     previewLabel: "Coleta automática",
   },

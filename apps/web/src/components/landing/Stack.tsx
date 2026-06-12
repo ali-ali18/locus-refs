@@ -170,7 +170,7 @@ const stackItems: StackItem[] = [
   },
   {
     name: "Better Auth",
-    role: "Sessao e controle de acesso",
+    role: "Sessão e controle de acesso",
     preview: "Key",
     icon: <BetterAuthMark />,
     panelClassName:
