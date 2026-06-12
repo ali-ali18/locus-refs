@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const metadata = {
       title:
         $('meta[property="og:title"]').attr("content") ||
-        $("title").text() ||
+        $("head > title").first().text().trim() ||
         null,
       description:
         $('meta[property="og:description"]').attr("content") ||
