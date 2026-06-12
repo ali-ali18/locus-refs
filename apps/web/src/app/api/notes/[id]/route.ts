@@ -72,6 +72,18 @@ export async function PATCH(
   try {
     const { title, icon, content, collectionId } = await request.json();
 
+    if (collectionId !== undefined && collectionId !== null) {
+      const collection = await prisma.collection.findUnique({
+        where: { id: collectionId, workspaceId },
+      });
+      if (!collection) {
+        return NextResponse.json(
+          { error: "Collection not found" },
+          { status: 404 },
+        );
+      }
+    }
+
     let orphanedKeys: string[] = [];
     if (content !== undefined) {
       const existing = await prisma.note.findUnique({

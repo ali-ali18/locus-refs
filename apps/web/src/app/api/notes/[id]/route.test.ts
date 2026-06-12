@@ -2,15 +2,19 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DELETE, GET, PATCH } from "./route";
 
-const { mockFindUnique, mockUpdateManyAndReturn, mockDelete } = vi.hoisted(
-  () => {
-    return {
-      mockFindUnique: vi.fn(),
-      mockUpdateManyAndReturn: vi.fn(),
-      mockDelete: vi.fn(),
-    };
-  },
-);
+const {
+  mockFindUnique,
+  mockUpdateManyAndReturn,
+  mockDelete,
+  mockCollectionFindUnique,
+} = vi.hoisted(() => {
+  return {
+    mockFindUnique: vi.fn(),
+    mockUpdateManyAndReturn: vi.fn(),
+    mockDelete: vi.fn(),
+    mockCollectionFindUnique: vi.fn(),
+  };
+});
 
 vi.mock("server-only", () => ({}));
 
@@ -31,6 +35,9 @@ vi.mock("@/lib/prisma", () => ({
       findUnique: mockFindUnique,
       updateManyAndReturn: mockUpdateManyAndReturn,
       delete: mockDelete,
+    },
+    collection: {
+      findUnique: mockCollectionFindUnique,
     },
   },
 }));
@@ -116,6 +123,7 @@ describe("API Note [id]", () => {
       };
 
       mockFindUnique.mockResolvedValue({ content: null });
+      mockCollectionFindUnique.mockResolvedValue({ id: "col-2", workspaceId: "ws-1" });
       mockUpdateManyAndReturn.mockResolvedValue([updatedNote]);
 
       const req = new NextRequest(`http://localhost/api/notes/${noteId}`, {
@@ -145,6 +153,26 @@ describe("API Note [id]", () => {
           collectionId: "col-2",
         },
       });
+    });
+
+    it("returns 404 when collectionId belongs to a different workspace (IDOR)", async () => {
+      mockFindUnique.mockResolvedValue({ content: null });
+      mockCollectionFindUnique.mockResolvedValue(null);
+
+      const req = new NextRequest(`http://localhost/api/notes/${noteId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ collectionId: "col-other-workspace" }),
+      });
+
+      const response = await PATCH(req, { params: createParams() });
+      const data = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(data).toEqual({ error: "Collection not found" });
+      expect(mockCollectionFindUnique).toHaveBeenCalledWith({
+        where: { id: "col-other-workspace", workspaceId: "ws-1" },
+      });
+      expect(mockUpdateManyAndReturn).not.toHaveBeenCalled();
     });
 
     it("returns 404 when note is not found during update", async () => {
