@@ -15,7 +15,7 @@ export default async function AuthLayout({ children }: Props) {
   const requestHeaders = await headers();
   const [session, orgs] = await Promise.all([
     getSession(),
-    auth.api.listOrganizations({ headers: requestHeaders }),
+    auth.api.listOrganizations({ headers: requestHeaders }).catch(() => []),
   ]);
 
   if (session) {
