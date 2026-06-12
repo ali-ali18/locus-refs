@@ -4,12 +4,13 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const pathname = request.nextUrl.pathname;
-  const publicRoutePrefixes = ["/", "/login", "/register", "/docs"];
-  const isPublicRoute = publicRoutePrefixes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`),
-  );
+  const isPublicRoute =
+    publicExactRoutes.includes(pathname) ||
+    publicPrefixRoutes.some(
+      (route) => pathname === route || pathname.startsWith(`${route}/`),
+    );
   const isInvitePage = pathname.startsWith("/invite/");
-  const isAuthApi = pathname.startsWith("/api/auth");
+  const isAuthApi = pathname.startsWith("/api/auth/") || pathname === "/api/auth";
 
   if (
     !isPublicRoute &&
@@ -22,6 +23,9 @@ export async function proxy(request: NextRequest) {
 
   return NextResponse.next();
 }
+
+const publicExactRoutes = ["/", "/login", "/register"];
+const publicPrefixRoutes = ["/docs"];
 
 export const config = {
   matcher: [
