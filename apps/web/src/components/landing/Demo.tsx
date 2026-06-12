@@ -36,7 +36,7 @@ const demoItems: DemoItem[] = [
     title: "Captura por link",
     description:
       "Adicione novas referências a partir de URLs e concentre o material relevante sem depender de processos manuais.",
-    image: "/landing/novo-recurso-base-ui.png",
+    image: "/landing/novo-recurso-base-ui.webp",
     imageAlt: "Modal de novo recurso com link e preview automático",
     icon: Share07Icon,
     previewLabel: "Coleta automática",
@@ -46,7 +46,7 @@ const demoItems: DemoItem[] = [
     title: "Notas em formato de workspace",
     description:
       "Organize conhecimento em paginas editaveis, conecte contexto da equipe e mantenha tudo acessivel em um unico lugar.",
-    image: "/landing/ex-notes-in-app.png",
+    image: "/landing/ex-notes-in-app.webp",
     imageAlt: "Workspace de notas dentro do aplicativo",
     icon: NoteIcon,
     previewLabel: "Workspace de notas",
@@ -56,7 +56,7 @@ const demoItems: DemoItem[] = [
     title: "Mantenha fluxos visíveis",
     description:
       "Transforme referências e notas em uma base pronta para consulta, documentação interna e evolução contínua do time.",
-    image: "/landing/ex-board-fluxo-opt.png",
+    image: "/landing/ex-board-fluxo-opt.webp",
     imageAlt: "Board de fluxo OPT com etapas do Looker até o Teams",
     icon: SearchList01Icon,
     previewLabel: "Fluxo visível",
