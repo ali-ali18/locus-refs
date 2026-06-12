@@ -103,17 +103,6 @@ export function ContentHeader() {
                   <Button
                     variant={"ghost"}
                     className="w-full"
-                    render={<Link href={"/"} />}
-                    nativeButton={false}
-                  >
-                    <Icon icon={Information} />
-                    Sobre
-                  </Button>
-                </li>
-                <li>
-                  <Button
-                    variant={"ghost"}
-                    className="w-full"
                     render={<Link href={"/docs"} />}
                     nativeButton={false}
                   >
