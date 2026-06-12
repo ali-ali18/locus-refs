@@ -2,33 +2,38 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET, POST } from "./route";
 
-const { mockFindUnique, mockCreate, mockFindMany, mockResources } = vi.hoisted(
-  () => {
-    const resources = [
-      {
-        id: "res-1",
-        title: "Resource 1",
-        url: "https://res1.com",
-        collectionId: "col-1",
-        categories: [{ id: "cat-1", name: "Cat 1", slug: "cat-1" }],
-      },
-      {
-        id: "res-2",
-        title: "Resource 2",
-        url: "https://res2.com",
-        collectionId: "col-1",
-        categories: [],
-      },
-    ];
+const {
+  mockFindUnique,
+  mockCreate,
+  mockFindMany,
+  mockCategoryFindMany,
+  mockResources,
+} = vi.hoisted(() => {
+  const resources = [
+    {
+      id: "res-1",
+      title: "Resource 1",
+      url: "https://res1.com",
+      collectionId: "col-1",
+      categories: [{ id: "cat-1", name: "Cat 1", slug: "cat-1" }],
+    },
+    {
+      id: "res-2",
+      title: "Resource 2",
+      url: "https://res2.com",
+      collectionId: "col-1",
+      categories: [],
+    },
+  ];
 
-    return {
-      mockFindUnique: vi.fn(),
-      mockCreate: vi.fn(),
-      mockFindMany: vi.fn().mockResolvedValue(resources),
-      mockResources: resources,
-    };
-  },
-);
+  return {
+    mockFindUnique: vi.fn(),
+    mockCreate: vi.fn(),
+    mockFindMany: vi.fn().mockResolvedValue(resources),
+    mockCategoryFindMany: vi.fn(),
+    mockResources: resources,
+  };
+});
 
 vi.mock("server-only", () => ({}));
 
@@ -43,6 +48,9 @@ vi.mock("@/lib/prisma", () => ({
   default: {
     collection: {
       findUnique: mockFindUnique,
+    },
+    category: {
+      findMany: mockCategoryFindMany,
     },
     resource: {
       create: mockCreate,
@@ -87,6 +95,7 @@ describe("API Resources", () => {
       };
 
       mockFindUnique.mockResolvedValue({ id: "col-1", userId: "user-1" });
+      mockCategoryFindMany.mockResolvedValue([{ id: "cat-1" }, { id: "cat-2" }]);
 
       mockCreate.mockResolvedValue({
         id: "res-new",
@@ -178,6 +187,34 @@ describe("API Resources", () => {
       expect(mockCreate).not.toHaveBeenCalled();
     });
 
+    it("returns 400 when categoryIds belong to a different workspace (IDOR)", async () => {
+      const payload = {
+        title: "Resource",
+        url: "https://example.com",
+        collectionId: "col-1",
+        categoryIds: ["cat-other-ws", "cat-another-ws"],
+      };
+
+      mockFindUnique.mockResolvedValue({ id: "col-1", userId: "user-1" });
+      mockCategoryFindMany.mockResolvedValue([{ id: "cat-other-ws" }]);
+
+      const req = new NextRequest("http://localhost/api/resources", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+
+      const response = await POST(req);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data).toEqual({ error: "Invalid category" });
+      expect(mockCategoryFindMany).toHaveBeenCalledWith({
+        where: { id: { in: ["cat-other-ws", "cat-another-ws"] }, workspaceId: "ws-1" },
+        select: { id: true },
+      });
+      expect(mockCreate).not.toHaveBeenCalled();
+    });
+
     it("returns 500 when resource creation fails", async () => {
       const payload = {
         title: "Resource",
@@ -187,6 +224,7 @@ describe("API Resources", () => {
       };
 
       mockFindUnique.mockResolvedValue({ id: "col-1", userId: "user-1" });
+      mockCategoryFindMany.mockResolvedValue([{ id: "cat-1" }]);
       mockCreate.mockRejectedValue(new Error("DB Error"));
 
       const req = new NextRequest("http://localhost/api/resources", {
