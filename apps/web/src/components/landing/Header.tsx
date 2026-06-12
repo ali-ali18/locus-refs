@@ -83,7 +83,7 @@ export function ContentHeader() {
             <DrawerHeader className="font-medium text-lg">
               <DrawerTitle>Para onde vamos agora?</DrawerTitle>
               <DrawerDescription>
-                Selecione seu destino, e veja a magica acontecer...
+                Selecione seu destino, e veja a mágica acontecer...
               </DrawerDescription>
             </DrawerHeader>
             <nav className="flex flex-col gap-0.5 p-4 md:gap-1.5 md:text-left">
