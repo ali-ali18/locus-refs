@@ -52,13 +52,13 @@ const demoItems: DemoItem[] = [
   },
   {
     id: "search",
-    title: "Mantenha fluxos visiveis",
+    title: "Mantenha fluxos visíveis",
     description:
-      "Transforme referencias e notas em uma base pronta para consulta, documentacao interna e evolucao continua do time.",
+      "Transforme referências e notas em uma base pronta para consulta, documentação interna e evolução contínua do time.",
     image: "/landing/ex-board-fluxo-opt.png",
-    imageAlt: "Board de fluxo OPT com etapas do Looker ate o Teams",
+    imageAlt: "Board de fluxo OPT com etapas do Looker até o Teams",
     icon: SearchList01Icon,
-    previewLabel: "Fluxo visivel",
+    previewLabel: "Fluxo visível",
   },
 ];
 
