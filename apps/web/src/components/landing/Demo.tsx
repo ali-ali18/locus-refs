@@ -35,9 +35,8 @@ const demoItems: DemoItem[] = [
     title: "Captura por link",
     description:
       "Adicione novas referencias a partir de URLs e concentre o material relevante sem depender de processos manuais.",
-    image:
-      "https://images.unsplash.com/photo-1759222196651-cac4bb9da047?w=1200&auto=format&fit=crop&q=80",
-    imageAlt: "Preview da captura automatica de referencias",
+    image: "/landing/novo-recurso-base-ui.png",
+    imageAlt: "Modal de novo recurso com link e preview automatico",
     icon: Share07Icon,
     previewLabel: "Coleta automatica",
   },
@@ -46,22 +45,20 @@ const demoItems: DemoItem[] = [
     title: "Notas em formato de workspace",
     description:
       "Organize conhecimento em paginas editaveis, conecte contexto da equipe e mantenha tudo acessivel em um unico lugar.",
-    image:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&auto=format&fit=crop&q=80",
-    imageAlt: "Preview do workspace de notas",
+    image: "/landing/ex-notes-in-app.png",
+    imageAlt: "Workspace de notas dentro do aplicativo",
     icon: NoteIcon,
     previewLabel: "Workspace de notas",
   },
   {
     id: "search",
-    title: "Consulta e reutilizacao rapida",
+    title: "Mantenha fluxos visiveis",
     description:
       "Transforme referencias e notas em uma base pronta para consulta, documentacao interna e evolucao continua do time.",
-    image:
-      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&auto=format&fit=crop&q=80",
-    imageAlt: "Preview da consulta de conhecimento",
+    image: "/landing/ex-board-fluxo-opt.png",
+    imageAlt: "Board de fluxo OPT com etapas do Looker ate o Teams",
     icon: SearchList01Icon,
-    previewLabel: "Base consultavel",
+    previewLabel: "Fluxo visivel",
   },
 ];
 
