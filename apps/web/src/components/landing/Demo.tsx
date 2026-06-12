@@ -7,6 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Icon } from "../shared/Icon";
@@ -34,9 +35,9 @@ const demoItems: DemoItem[] = [
     id: "capture",
     title: "Captura por link",
     description:
-      "Adicione novas referencias a partir de URLs e concentre o material relevante sem depender de processos manuais.",
-    image: "/landing/novo-recurso-base-ui.png",
-    imageAlt: "Modal de novo recurso com link e preview automatico",
+      "Adicione novas referências a partir de URLs e concentre o material relevante sem depender de processos manuais.",
+    image: "/landing/novo-recurso-base-ui.webp",
+    imageAlt: "Modal de novo recurso com link e preview automático",
     icon: Share07Icon,
     previewLabel: "Coleta automática",
   },
@@ -45,20 +46,20 @@ const demoItems: DemoItem[] = [
     title: "Notas em formato de workspace",
     description:
       "Organize conhecimento em paginas editaveis, conecte contexto da equipe e mantenha tudo acessivel em um unico lugar.",
-    image: "/landing/ex-notes-in-app.png",
+    image: "/landing/ex-notes-in-app.webp",
     imageAlt: "Workspace de notas dentro do aplicativo",
     icon: NoteIcon,
     previewLabel: "Workspace de notas",
   },
   {
     id: "search",
-    title: "Mantenha fluxos visiveis",
+    title: "Mantenha fluxos visíveis",
     description:
-      "Transforme referencias e notas em uma base pronta para consulta, documentacao interna e evolucao continua do time.",
-    image: "/landing/ex-board-fluxo-opt.png",
-    imageAlt: "Board de fluxo OPT com etapas do Looker ate o Teams",
+      "Transforme referências e notas em uma base pronta para consulta, documentação interna e evolução contínua do time.",
+    image: "/landing/ex-board-fluxo-opt.webp",
+    imageAlt: "Board de fluxo OPT com etapas do Looker até o Teams",
     icon: SearchList01Icon,
-    previewLabel: "Fluxo visivel",
+    previewLabel: "Fluxo visível",
   },
 ];
 
@@ -113,6 +114,8 @@ export function DemoContent() {
             variant="secondary"
             className="w-full lg:w-fit lg:justify-self-end"
             size="lg"
+            nativeButton={false}
+            render={<Link href="/docs" />}
           >
             Documentação
           </Button>

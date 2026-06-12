@@ -1,12 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WorkspaceLogo } from "@/components/sidebar/WorkspaceLogo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import { setInviteRedirectCookie } from "@/lib/invite-cookie";
+import {
+  popInviteRedirectCookie,
+  setInviteRedirectCookie,
+} from "@/lib/invite-cookie";
 
 interface InviteData {
   id: string;
@@ -38,6 +41,12 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
     invitation.status === "rejected" ||
     isExpired;
 
+  useEffect(() => {
+    if (isInvalid) {
+      popInviteRedirectCookie();
+    }
+  }, [isInvalid]);
+
   const emailMismatch =
     !isInvalid &&
     !!sessionEmail &&
@@ -55,6 +64,7 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
 
   async function handleAccept() {
     setIsPending(true);
+    popInviteRedirectCookie();
     const { error: err } = await authClient.organization.acceptInvitation({
       invitationId: invitation.id,
     });
@@ -68,6 +78,7 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
 
   async function handleReject() {
     setIsPending(true);
+    popInviteRedirectCookie();
     await authClient.organization.rejectInvitation({
       invitationId: invitation.id,
     });

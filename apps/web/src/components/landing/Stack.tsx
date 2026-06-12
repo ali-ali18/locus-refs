@@ -1,6 +1,7 @@
 "use client";
 
 import { Database02Icon, Github } from "@hugeicons/core-free-icons";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -170,7 +171,7 @@ const stackItems: StackItem[] = [
   },
   {
     name: "Better Auth",
-    role: "Sessao e controle de acesso",
+    role: "Sessão e controle de acesso",
     preview: "Key",
     icon: <BetterAuthMark />,
     panelClassName:
@@ -196,7 +197,18 @@ function StackContent() {
               <h3 className="max-w-lg text-xl font-semibold tracking-tight text-balance">
                 Base moderna para manter o produto rápido de evoluir.
               </h3>
-              <Button size="lg" className="hidden sm:w-fit sm:flex">
+              <Button
+                size="lg"
+                className="hidden sm:w-fit sm:flex"
+                nativeButton={false}
+                render={
+                  <Link
+                    href="https://github.com/ali-ali18/locus-refs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                }
+              >
                 Ver repositório
                 <Icon icon={Github} data-icon="inline-end" />
               </Button>
@@ -209,7 +221,18 @@ function StackContent() {
             colaborativas. O objetivo aqui não é empilhar modismo, é sim manter
             uma base clara para operar, testar e continuar expandindo.
           </p>
-          <Button size="lg" className="w-full sm:hidden">
+          <Button
+            size="lg"
+            className="w-full sm:hidden"
+            nativeButton={false}
+            render={
+              <Link
+                href="https://github.com/ali-ali18/locus-refs"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
+          >
             Ver repositório
             <Icon icon={Github} data-icon="inline-end" />
           </Button>
