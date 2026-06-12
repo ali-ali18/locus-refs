@@ -38,7 +38,7 @@ const demoItems: DemoItem[] = [
     image: "/landing/novo-recurso-base-ui.png",
     imageAlt: "Modal de novo recurso com link e preview automatico",
     icon: Share07Icon,
-    previewLabel: "Coleta automatica",
+    previewLabel: "Coleta automática",
   },
   {
     id: "notes",
@@ -101,11 +101,12 @@ export function DemoContent() {
         <div className="grid grid-cols-1 items-center gap-4 px-5 md:grid-cols-[minmax(0,1fr)_auto]">
           <div className="max-w-xl space-y-1.5">
             <h2 className="text-lg font-semibold tracking-tight">
-              Capture referencias, organize notas e mantenha o contexto vivo
+              Capture referências, organize notas e mantenha o contexto vivo
             </h2>
             <p className="text-sm leading-6 text-muted-foreground">
-              Una scraping automatico, notas em formato de workspace e uma base
-              pronta para o time registrar, consultar e evoluir conhecimento.
+              Combine o scraping automático, notas em formato de workspace e
+              uma base pronta para o time registrar, consultar e evoluir
+              conhecimento.
             </p>
           </div>
           <Button
@@ -113,7 +114,7 @@ export function DemoContent() {
             className="w-full lg:w-fit lg:justify-self-end"
             size="lg"
           >
-            Documentacao
+            Documentação
           </Button>
         </div>
       </div>
