@@ -45,7 +45,8 @@ export async function PATCH(
       where: { id: { in: body.categoryIds }, workspaceId },
       select: { id: true },
     });
-    if (validCategories.length !== body.categoryIds.length) {
+    const validIds = new Set(validCategories.map((c) => c.id));
+    if (body.categoryIds.some((id) => !validIds.has(id))) {
       return NextResponse.json(
         { error: "Invalid category" },
         { status: 400 },
