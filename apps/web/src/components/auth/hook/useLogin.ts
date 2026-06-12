@@ -63,8 +63,15 @@ export function useLogin() {
       if (invite) {
         router.push(getSafeRedirectPath(invite));
       } else {
-        const { data: orgs } = await authClient.organization.list();
-        const firstSlug = orgs?.[0]?.slug;
+        const [{ data: sessionData }, { data: orgs }] = await Promise.all([
+          authClient.getSession(),
+          authClient.organization.list(),
+        ]);
+        const activeOrgId = sessionData?.session.activeOrganizationId;
+        const activeOrg = activeOrgId
+          ? orgs?.find((org) => org.id === activeOrgId)
+          : undefined;
+        const firstSlug = activeOrg?.slug ?? orgs?.[0]?.slug;
         router.push(firstSlug ? `/${firstSlug}` : "/onboarding/workspace/new");
       }
     }

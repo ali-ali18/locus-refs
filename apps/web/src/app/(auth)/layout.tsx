@@ -5,11 +5,11 @@ import { auth } from "@/lib/auth";
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
 import { getSession } from "@/server/getSession";
 
-interface AuthLayoutProps {
+interface Props {
   children: ReactNode;
 }
 
-export default async function AuthLayout({ children }: AuthLayoutProps) {
+export default async function AuthLayout({ children }: Props) {
   const cookieStore = await cookies();
   const inviteRedirect = cookieStore.get("invite_redirect");
   const requestHeaders = await headers();
@@ -27,7 +27,11 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
       redirect("/onboarding/workspace/new");
     }
 
-    const firstOrg = orgs[0].slug;
+    const activeOrgId = session.session.activeOrganizationId;
+    const activeOrg = activeOrgId
+      ? orgs.find((org) => org.id === activeOrgId)
+      : undefined;
+    const firstOrg = activeOrg?.slug ?? orgs[0].slug;
 
     if (firstOrg) redirect(`/${firstOrg}`);
   }
