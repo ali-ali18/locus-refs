@@ -59,6 +59,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (categoryIds?.length) {
+    const validCategories = await prisma.category.findMany({
+      where: { id: { in: categoryIds }, workspaceId },
+      select: { id: true },
+    });
+    if (validCategories.length !== categoryIds.length) {
+      return NextResponse.json(
+        { error: "Invalid category" },
+        { status: 400 },
+      );
+    }
+  }
+
   try {
     const resource = await prisma.resource.create({
       data: {
