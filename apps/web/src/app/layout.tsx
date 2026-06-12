@@ -11,7 +11,7 @@ const nunito = Nunito({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   title: "Locus",
   description:
-    "Refstash é um projeto de referência para o desenvolvimento de aplicativos web modernos.",
+    "Locus é um projeto de referência para o desenvolvimento de aplicativos web modernos.",
 };
 
 export default function RootLayout({
