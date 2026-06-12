@@ -2,16 +2,21 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DELETE, PATCH } from "./route";
 
-const { mockFindFirst, mockFindUnique, mockUpdate, mockDelete } = vi.hoisted(
-  () => {
-    return {
-      mockFindFirst: vi.fn(),
-      mockFindUnique: vi.fn(),
-      mockUpdate: vi.fn(),
-      mockDelete: vi.fn(),
-    };
-  },
-);
+const {
+  mockFindFirst,
+  mockFindUnique,
+  mockCategoryFindMany,
+  mockUpdate,
+  mockDelete,
+} = vi.hoisted(() => {
+  return {
+    mockFindFirst: vi.fn(),
+    mockFindUnique: vi.fn(),
+    mockCategoryFindMany: vi.fn(),
+    mockUpdate: vi.fn(),
+    mockDelete: vi.fn(),
+  };
+});
 
 vi.mock("server-only", () => ({}));
 
@@ -31,6 +36,9 @@ vi.mock("@/lib/prisma", () => ({
     },
     collection: {
       findUnique: mockFindUnique,
+    },
+    category: {
+      findMany: mockCategoryFindMany,
     },
   },
 }));
@@ -166,6 +174,35 @@ describe("API Resource [id]", () => {
 
       expect(response.status).toBe(404);
       expect(data).toEqual({ error: "Collection not found" });
+      expect(mockUpdate).not.toHaveBeenCalled();
+    });
+
+    it("returns 400 when categoryIds belong to a different workspace (IDOR)", async () => {
+      mockFindFirst.mockResolvedValue({ id: resourceId, collectionId: "col-1" });
+      mockCategoryFindMany.mockResolvedValue([{ id: "cat-other-ws" }]);
+
+      const req = new NextRequest(
+        `http://localhost/api/resources/${resourceId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            categoryIds: ["cat-other-ws", "cat-another-ws"],
+          }),
+        },
+      );
+
+      const response = await PATCH(req, { params: createParams() });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data).toEqual({ error: "Invalid category" });
+      expect(mockCategoryFindMany).toHaveBeenCalledWith({
+        where: {
+          id: { in: ["cat-other-ws", "cat-another-ws"] },
+          workspaceId: "ws-1",
+        },
+        select: { id: true },
+      });
       expect(mockUpdate).not.toHaveBeenCalled();
     });
 

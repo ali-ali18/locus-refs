@@ -40,6 +40,19 @@ export async function PATCH(
     }
   }
 
+  if (body.categoryIds !== undefined && body.categoryIds.length > 0) {
+    const validCategories = await prisma.category.findMany({
+      where: { id: { in: body.categoryIds }, workspaceId },
+      select: { id: true },
+    });
+    if (validCategories.length !== body.categoryIds.length) {
+      return NextResponse.json(
+        { error: "Invalid category" },
+        { status: 400 },
+      );
+    }
+  }
+
   const updateData: Prisma.ResourceUncheckedUpdateInput = {};
   if (body.title !== undefined) updateData.title = body.title;
   if (body.description !== undefined) updateData.description = body.description;
