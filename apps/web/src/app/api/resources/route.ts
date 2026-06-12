@@ -64,7 +64,8 @@ export async function POST(request: NextRequest) {
       where: { id: { in: categoryIds }, workspaceId },
       select: { id: true },
     });
-    if (validCategories.length !== categoryIds.length) {
+    const validIds = new Set(validCategories.map((c) => c.id));
+    if (categoryIds.some((id: string) => !validIds.has(id))) {
       return NextResponse.json(
         { error: "Invalid category" },
         { status: 400 },
