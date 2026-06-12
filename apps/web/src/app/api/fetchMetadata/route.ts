@@ -2,6 +2,18 @@ import * as cheerio from "cheerio";
 import { type NextRequest, NextResponse } from "next/server";
 import { requireSessionApiOrThrow } from "@/server/requireSession";
 
+function isBlockedUrl(url: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return true;
+  }
+  if (!["http:", "https:"].includes(parsed.protocol)) return true;
+  const h = parsed.hostname.toLowerCase();
+  return /^(localhost|0\.0\.0\.0|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|::1$|\[::)/.test(h);
+}
+
 export async function POST(request: NextRequest) {
   await requireSessionApiOrThrow();
 
@@ -9,6 +21,10 @@ export async function POST(request: NextRequest) {
 
   if (!url) {
     return NextResponse.json({ error: "URL is required" }, { status: 400 });
+  }
+
+  if (isBlockedUrl(url)) {
+    return NextResponse.json({ error: "URL inválida" }, { status: 400 });
   }
 
   try {
@@ -27,7 +43,7 @@ export async function POST(request: NextRequest) {
     const metadata = {
       title:
         $('meta[property="og:title"]').attr("content") ||
-        $("title").text() ||
+        $("head > title").first().text().trim() ||
         null,
       description:
         $('meta[property="og:description"]').attr("content") ||
