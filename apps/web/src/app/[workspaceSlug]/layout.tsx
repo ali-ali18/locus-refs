@@ -4,6 +4,7 @@ import { ChatPanel } from "@/components/chat/ChatPanel";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SettingsDialog } from "@/components/workspace/SettingsDialog";
+import { SessionGuard } from "@/components/workspace/SessionGuard";
 import { WorkspaceShell } from "@/components/workspace/WorkspaceShell";
 import { ChatPanelProvider } from "@/context/chatPanel";
 import { NoteEditorProvider } from "@/context/noteEditor";
@@ -52,6 +53,7 @@ export default async function WorkspaceLayout({ children, params }: Props) {
             <SettingsDialogProvider>
               <SidebarTabProvider>
                 <SidebarProvider>
+                  <SessionGuard />
                   <WorkspaceShell>{children}</WorkspaceShell>
                   <ChatPanel />
                   <SettingsDialog />
