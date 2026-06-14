@@ -46,11 +46,9 @@ export interface NotesEditorExtensionsOptions {
 }
 
 function renderCaretLabel(user: CollabUser): HTMLElement {
-  // Cursor line — position:relative so the label can float above via position:absolute
   const cursor = document.createElement("span");
   cursor.style.cssText = `border-left:2px solid ${user.color};margin-left:-1px;pointer-events:none;position:relative;word-break:normal;`;
 
-  // Floating bubble label — bottom:100% places it above the cursor without affecting text flow
   const label = document.createElement("span");
   label.style.cssText = `position:absolute;bottom:100%;left:-1px;display:inline-flex;align-items:center;gap:4px;border-radius:12px 12px 12px 0;padding:2px 8px 2px 4px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,0.2);z-index:50;animation:collab-caret-fade-in 0.2s ease-out;background-color:${user.color};`;
 
@@ -169,6 +167,6 @@ export function getNotesEditorExtensions(
 export const NOTES_EDITOR_PROPS = {
   attributes: {
     class:
-      "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 overflow-x-hidden overflow-y-hidden",
+      "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 ",
   },
 };

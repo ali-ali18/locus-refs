@@ -6,9 +6,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../../tooltip";
 import { AddItemPopover } from "./AddItemPopover";
 import { CalendarTab } from "./CalendarTab";
 import { GanttTab } from "./GanttTab";
+import { useRoadmapBlock } from "./hook/useRoadmapBlock";
 import { KanbanTab } from "./KanbanTab";
 import { ListTab } from "./ListTab";
-import { useRoadmapBlock } from "./hook/useRoadmapBlock";
 
 export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
   const {
@@ -24,7 +24,7 @@ export function RoadmapBlockView({ node, updateAttributes }: NodeViewProps) {
   } = useRoadmapBlock({ node, updateAttributes });
 
   return (
-    <NodeViewWrapper contentEditable={false} className="my-4">
+    <NodeViewWrapper contentEditable={false} className="my-4 w-full">
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <Tabs defaultValue="gantt" className={"gap-0"}>
           <div className="flex items-center justify-between border-b px-3 py-1">
