@@ -257,6 +257,11 @@
   --shadow-2xl: var(--shadow-2xl);
 }
 
+
+.tiptap {
+  overflow-wrap: anywhere;
+}
+
 .tiptap p.is-empty::before,
 .tiptap h1.is-empty::before,
 .tiptap h2.is-empty::before,

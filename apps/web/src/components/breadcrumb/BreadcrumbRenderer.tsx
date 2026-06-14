@@ -92,7 +92,7 @@ export function BreadcrumbRenderer({ items }: BreadcrumbRendererProps) {
           <>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage className="flex max-w-48 items-center gap-1.5 truncate">
+              <BreadcrumbPage className="flex max-w-28 items-center gap-1.5 truncate sm:max-w-48">
                 <ItemIcon icon={last.icon} />
                 <span className="truncate">{last.label}</span>
               </BreadcrumbPage>
