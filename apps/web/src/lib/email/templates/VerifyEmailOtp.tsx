@@ -27,11 +27,55 @@ export function VerifyEmailOtp({
   );
 
   return (
-    <EmailLayout
-      preview={`${firstName}, confirme seu email no Locus`}
-      orgName="Locus"
-      footer={footer}
-    >
+    <EmailLayout preview={`${firstName}, confirme seu email no Locus`} orgName="Locus" footer={footer}>
+      {/* Logo */}
+      <Section style={{ textAlign: "center", marginBottom: 24 }}>
+        <svg
+          width="56"
+          height="63"
+          viewBox="0 0 48 54"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ display: "inline-block" }}
+        >
+          <title>Locus</title>
+          <path
+            opacity="0.8"
+            d="M22.8781 0L0 15.1091L0 15.1376L17.6909 26.8148L22.8781 23.3828V0Z"
+            fill="#3d3a2e"
+            fillOpacity="0.82"
+          />
+          <path
+            opacity="0.8"
+            d="M0 38.5346L22.8781 53.6293V30.2466L17.6909 26.8147L0 38.4918L0 38.5346Z"
+            fill="#3d3a2e"
+            fillOpacity="0.82"
+          />
+          <path
+            opacity="0.8"
+            d="M47.9994 15.4797L25.1216 0.370544V23.7533L30.3231 27.1852L47.9994 15.5081V15.4797Z"
+            fill="#3d3a2e"
+            fillOpacity="0.82"
+          />
+          <path
+            opacity="0.8"
+            d="M25.1216 54L47.9994 38.8907V38.8622L30.3231 27.1851L25.1216 30.617V54Z"
+            fill="#3d3a2e"
+            fillOpacity="0.82"
+          />
+          <path
+            opacity="0.8"
+            d="M0 15.1376L0 38.4919L17.6909 26.8148L0 15.1376Z"
+            fill="#3d3a2e"
+          />
+          <path
+            opacity="0.8"
+            d="M47.9999 38.8623V15.508L30.323 27.1852L47.9999 38.8623Z"
+            fill="#3d3a2e"
+          />
+        </svg>
+      </Section>
+
       {/* Heading */}
       <Heading
         as="h1"
