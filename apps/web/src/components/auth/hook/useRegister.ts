@@ -72,7 +72,11 @@ export function useRegister() {
     if (nextUserName) {
       toast.success(`Seja bem-vindo, ${nextUserName}`);
       const invite = popInviteRedirectCookie();
-      router.push(getSafeRedirectPath(invite));
+      // If user came from an invite, redirect back to the invite after verifying.
+      const inviteId = invite ? invite.split("/").pop() ?? null : null;
+      const params = new URLSearchParams({ email: data.email });
+      if (inviteId) params.set("callbackURL", `/invite/${inviteId}`);
+      router.push(`/verify-email?${params.toString()}`);
     }
   };
 

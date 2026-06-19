@@ -1,8 +1,9 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { organization } from "better-auth/plugins";
+import { emailOTP, organization } from "better-auth/plugins";
 import { sendEmail } from "./email/email";
 import { InvitationEmail } from "./email/templates/InvitationEmail";
+import { VerifyEmailOtp } from "./email/templates/VerifyEmailOtp";
 import prisma from "./prisma";
 
 export const auth = betterAuth({
@@ -24,6 +25,23 @@ export const auth = betterAuth({
   //     },
   //   },
   plugins: [
+    emailOTP({
+      otpLength: 6,
+      expiresIn: 600, // 10 minutes
+      sendVerificationOnSignUp: true,
+      sendVerificationOTP: async ({ email, otp, type }) => {
+        if (type !== "email-verification") return;
+        await sendEmail({
+          to: email,
+          subject: "Confirme seu email no Locus",
+          react: VerifyEmailOtp({
+            name: email.split("@")[0] ?? "usuário",
+            otp,
+            expiresInMinutes: 10,
+          }),
+        });
+      },
+    }),
     organization({
       allowUserToCreateOrganization: true,
       organizationLimit: 10,

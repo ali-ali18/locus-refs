@@ -28,9 +28,14 @@ interface InviteData {
 interface Props {
   invitation: InviteData;
   sessionEmail: string | null;
+  emailVerified: boolean;
 }
 
-export function InvitePageClient({ invitation, sessionEmail }: Props) {
+export function InvitePageClient({
+  invitation,
+  sessionEmail,
+  emailVerified,
+}: Props) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +59,7 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
 
   const isReady =
     !isInvalid &&
+    emailVerified &&
     sessionEmail?.toLowerCase() === invitation.email.toLowerCase() &&
     invitation.status === "pending";
 
@@ -62,6 +68,12 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
     sessionEmail?.toLowerCase() === invitation.email.toLowerCase() &&
     invitation.status === "accepted";
 
+  const needsEmailVerification =
+    !isInvalid &&
+    !!sessionEmail &&
+    sessionEmail.toLowerCase() === invitation.email.toLowerCase() &&
+    !emailVerified;
+
   async function handleAccept() {
     setIsPending(true);
     popInviteRedirectCookie();
@@ -69,7 +81,18 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
       invitationId: invitation.id,
     });
     if (err) {
-      setError(err.message ?? "Erro ao aceitar convite");
+      // If the server complains about email verification, redirect there.
+      const msg = err.message ?? "";
+      if (
+        msg.toLowerCase().includes("email verification") ||
+        msg.toLowerCase().includes("verify your email")
+      ) {
+        router.replace(
+          `/verify-email?email=${encodeURIComponent(sessionEmail ?? "")}&callbackURL=${encodeURIComponent(`/invite/${invitation.id}`)}`,
+        );
+        return;
+      }
+      setError(msg || "Erro ao aceitar convite");
       setIsPending(false);
       return;
     }
@@ -85,6 +108,12 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
     router.push("/");
   }
 
+  async function handleVerifyEmail() {
+    router.replace(
+      `/verify-email?email=${encodeURIComponent(sessionEmail ?? "")}&callbackURL=${encodeURIComponent(`/invite/${invitation.id}`)}`,
+    );
+  }
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-linear-to-br from-background via-muted to-accent/30 p-4">
       <div className="w-full max-w-sm flex flex-col items-center gap-6 rounded-2xl border border-border bg-card shadow-xl px-8 py-10">
@@ -98,7 +127,7 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
           <p className="text-xs text-muted-foreground">
             <span className="font-medium text-foreground">
               {invitation.inviterName}
-            </span>
+            </span>{" "}
             convidou você para se juntar
           </p>
         </div>
@@ -139,6 +168,33 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
             >
               Voltar ao início
             </Button>
+          </div>
+        )}
+
+        {needsEmailVerification && (
+          <div className="w-full flex flex-col items-center gap-4">
+            <p className="text-sm text-destructive text-center">
+              Você precisa verificar seu email{" "}
+              <strong>{sessionEmail}</strong> antes de aceitar o convite.
+            </p>
+            {error && (
+              <p className="text-xs text-destructive text-center">{error}</p>
+            )}
+            <Button
+              rounded="xl"
+              className="w-full"
+              onClick={handleVerifyEmail}
+            >
+              Verificar email
+            </Button>
+            <button
+              type="button"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center w-full disabled:opacity-50"
+              disabled={isPending}
+              onClick={handleReject}
+            >
+              Recusar convite
+            </button>
           </div>
         )}
 

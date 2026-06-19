@@ -49,6 +49,7 @@ export default async function InvitePage({ params }: Props) {
         memberCount,
       }}
       sessionEmail={session?.user.email ?? null}
+      emailVerified={session?.user.emailVerified === true}
     />
   );
 }
