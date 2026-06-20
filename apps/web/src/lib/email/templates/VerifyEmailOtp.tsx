@@ -152,7 +152,7 @@ export function VerifyEmailOtp({
             <Button
               href="https://locus.com.br"
               style={{
-                backgroundColor: "#3644f5",
+                backgroundColor: "#1e3df0",
                 color: "#faf9f7",
                 borderRadius: 10,
                 padding: "12px 28px",
