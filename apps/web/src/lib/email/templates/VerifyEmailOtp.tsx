@@ -9,6 +9,13 @@ interface VerifyEmailOtpProps {
   expiresInMinutes?: number;
 }
 
+function formatOtp(otp: string): string {
+  if (otp.length === EMAIL_OTP_LENGTH) {
+    return `${otp.slice(0, EMAIL_OTP_LENGTH / 2)}-${otp.slice(EMAIL_OTP_LENGTH / 2)}`;
+  }
+  return otp;
+}
+
 export function VerifyEmailOtp({
   name,
   otp,
@@ -16,7 +23,7 @@ export function VerifyEmailOtp({
   expiresInMinutes = 10,
 }: VerifyEmailOtpProps) {
   const firstName = name.split(" ")[0] || "Olá";
-  const formattedOtp = `${otp.slice(0, EMAIL_OTP_LENGTH / 2)}-${otp.slice(EMAIL_OTP_LENGTH / 2)}`;
+  const formattedOtp = formatOtp(otp);
   const homeUrl = appUrl ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://locus.com.br";
 
   const footer = (

@@ -37,8 +37,9 @@ export function useVerifyEmail({
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [cooldown, setCooldown] = useState(EMAIL_OTP_RESEND_COOLDOWN_SECONDS);
+  const [cooldown, setCooldown] = useState(0);
   const hasSentInitial = useRef(false);
+  const lastSubmitted = useRef("");
 
   const handleSend = useCallback(async () => {
     setIsSending(true);
@@ -58,6 +59,8 @@ export function useVerifyEmail({
 
   const handleVerify = useCallback(async () => {
     if (otp.length !== EMAIL_OTP_LENGTH) return;
+    if (lastSubmitted.current === otp) return;
+    lastSubmitted.current = otp;
     setIsVerifying(true);
     setError(null);
     const { error: verifyErr } = await authClient.emailOtp.verifyEmail({
@@ -67,6 +70,7 @@ export function useVerifyEmail({
     if (verifyErr) {
       setIsVerifying(false);
       setOtp("");
+      lastSubmitted.current = "";
       setError(verifyErr.message ?? "Código inválido ou expirado");
       return;
     }

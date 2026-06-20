@@ -59,6 +59,7 @@ prisma/*.db-journal
 # Tool runtime state (never commit)
 .mavis/
 .opencode/
+.mimocode/
 
 # Git worktrees (never commit the nested checkout itself)
 .worktrees/

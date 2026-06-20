@@ -193,7 +193,10 @@ export const InputOTPSlot = forwardRef<HTMLInputElement, InputOTPSlotProps>(
         arr[index + i] = digits[i]!;
       }
       setValue(arr.join(""));
-      const lastWritten = Math.min(index + digits.length, slots.length - 1);
+      const lastWritten = Math.min(
+        index + digits.length - 1,
+        slots.length - 1,
+      );
       setActiveIndex(lastWritten);
       focusIndex(lastWritten);
     };
