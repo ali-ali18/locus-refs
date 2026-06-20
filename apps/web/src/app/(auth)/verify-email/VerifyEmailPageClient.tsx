@@ -1,18 +1,16 @@
 "use client";
 
 import { Loading02Icon, Mail01Icon } from "@hugeicons/core-free-icons";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import { AuthLayout } from "@/components/auth/AuthLayout";
-import { Icon } from "@/components/shared/Icon";
-import { Button } from "@/components/ui/button";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { authClient } from "@/lib/auth-client";
+import { Icon } from "@/components/shared/Icon";
+import { Button } from "@/components/ui/button";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+import { useVerifyEmail } from "@/components/auth/hook/useVerifyEmail";
+import { EMAIL_OTP_LENGTH } from "@/lib/email/constants";
 
 interface Props {
   email: string;
@@ -20,98 +18,28 @@ interface Props {
   callbackURL: string | null;
 }
 
-const RESEND_COOLDOWN_SECONDS = 60;
-
 export function VerifyEmailPageClient({
   email,
   alreadyVerified,
   callbackURL,
 }: Props) {
-  const router = useRouter();
-  const [otp, setOtp] = useState("");
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS);
-  const hasSentInitial = useRef(false);
-
-  // Auto-send the first OTP on mount if not already verified
-  useEffect(() => {
-    if (alreadyVerified) return;
-    if (hasSentInitial.current) return;
-    hasSentInitial.current = true;
-    void handleSend();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Cooldown ticker
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [cooldown]);
-
-  // If already verified, redirect automatically
-  useEffect(() => {
-    if (alreadyVerified) {
-      const target = callbackURL ?? "/dashboard";
-      router.replace(target);
-    }
-  }, [alreadyVerified, callbackURL, router]);
-
-  // Auto-submit when OTP is complete
-  useEffect(() => {
-    if (otp.length === 6 && !isVerifying) {
-      void handleVerify();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [otp]);
-
-  async function handleSend() {
-    setIsSending(true);
-    setError(null);
-    const { error: sendErr } = await authClient.emailOtp.sendVerificationOtp({
-      email,
-      type: "email-verification",
-    });
-    setIsSending(false);
-    if (sendErr) {
-      setError(sendErr.message ?? "Erro ao enviar código");
-      return;
-    }
-    toast.success("Código enviado para o seu email");
-    setCooldown(RESEND_COOLDOWN_SECONDS);
-  }
-
-  async function handleVerify() {
-    setIsVerifying(true);
-    setError(null);
-    const { error: verifyErr } = await authClient.emailOtp.verifyEmail({
-      email,
-      otp,
-    });
-    if (verifyErr) {
-      setIsVerifying(false);
-      setOtp("");
-      setError(verifyErr.message ?? "Código inválido ou expirado");
-      return;
-    }
-    toast.success("Email confirmado!");
-    const target = callbackURL ?? "/dashboard";
-    // Force refresh so server components re-read emailVerified
-    router.replace(target);
-    router.refresh();
-  }
+  const {
+    otp,
+    setOtp,
+    isVerifying,
+    isSending,
+    error,
+    cooldown,
+    handleResend,
+  } = useVerifyEmail({ email, alreadyVerified, callbackURL });
 
   return (
     <AuthLayout
       title="Confirme seu email"
-      description={`Digite o código de 6 dígitos enviado para ${email}`}
+      description={`Digite o código de ${EMAIL_OTP_LENGTH} dígitos enviado para ${email}`}
       footer={
         callbackURL ? (
-          <>
-            Após confirmar, você será redirecionado para concluir a ação.
-          </>
+          <>Após confirmar, você será redirecionado para concluir a ação.</>
         ) : (
           <>Não tem mais acesso a este email? Fale com o suporte.</>
         )
@@ -125,26 +53,28 @@ export function VerifyEmailPageClient({
         </div>
 
         {error && (
-          <p className="text-sm text-destructive text-center" role="alert">
+          <p
+            className="text-sm text-destructive text-center"
+            role="alert"
+            aria-live="polite"
+          >
             {error}
           </p>
         )}
 
         <div className="flex justify-center">
           <InputOTP
-            maxLength={6}
+            maxLength={EMAIL_OTP_LENGTH}
             value={otp}
             onChange={setOtp}
             disabled={isVerifying}
             aria-invalid={!!error}
+            aria-label={`Código de verificação de ${EMAIL_OTP_LENGTH} dígitos`}
           >
             <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
+              {Array.from({ length: EMAIL_OTP_LENGTH }).map((_, i) => (
+                <InputOTPSlot key={i} index={i} />
+              ))}
             </InputOTPGroup>
           </InputOTP>
         </div>
@@ -153,7 +83,7 @@ export function VerifyEmailPageClient({
           type="button"
           variant="ghost"
           className="w-full"
-          onClick={handleSend}
+          onClick={handleResend}
           disabled={isSending || cooldown > 0}
         >
           {isSending ? (

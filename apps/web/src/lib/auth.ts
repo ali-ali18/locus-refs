@@ -1,6 +1,12 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP, organization } from "better-auth/plugins";
+import {
+  EMAIL_OTP_LENGTH,
+  EMAIL_OTP_TTL_MINUTES,
+  EMAIL_OTP_TTL_SECONDS,
+  EMAIL_SUBJECTS,
+} from "./email/constants";
 import { sendEmail } from "./email/email";
 import { InvitationEmail } from "./email/templates/InvitationEmail";
 import { VerifyEmailOtp } from "./email/templates/VerifyEmailOtp";
@@ -26,18 +32,23 @@ export const auth = betterAuth({
   //   },
   plugins: [
     emailOTP({
-      otpLength: 6,
-      expiresIn: 600, // 10 minutes
+      otpLength: EMAIL_OTP_LENGTH,
+      expiresIn: EMAIL_OTP_TTL_SECONDS,
       sendVerificationOnSignUp: true,
       sendVerificationOTP: async ({ email, otp, type }) => {
-        if (type !== "email-verification") return;
+        if (type !== "email-verification") {
+          // Only verification flows are wired right now. Add branches for
+          // "sign-in" / "forgot-password" / "change-email" when those flows ship.
+          throw new Error(`Unsupported OTP type: ${type}`);
+        }
         await sendEmail({
           to: email,
-          subject: "Confirme seu email no Locus",
+          subject: EMAIL_SUBJECTS[type],
           react: VerifyEmailOtp({
             name: email.split("@")[0] ?? "usuário",
             otp,
-            expiresInMinutes: 10,
+            appUrl: process.env.NEXT_PUBLIC_APP_URL,
+            expiresInMinutes: EMAIL_OTP_TTL_MINUTES,
           }),
         });
       },

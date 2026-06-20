@@ -1,15 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { WorkspaceLogo } from "@/components/sidebar/WorkspaceLogo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import {
+  deriveInviteState,
+  isEmailVerificationErrorCode,
+} from "@/components/auth/hook/useInviteAcceptance";
+import {
   popInviteRedirectCookie,
   setInviteRedirectCookie,
 } from "@/lib/invite-cookie";
+import { buildVerifyEmailUrl } from "@/lib/verify-email";
 
 interface InviteData {
   id: string;
@@ -40,59 +45,29 @@ export function InvitePageClient({
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isExpired = new Date(invitation.expiresAt) < new Date();
-  const isInvalid =
-    invitation.status === "canceled" ||
-    invitation.status === "rejected" ||
-    isExpired;
-
-  useEffect(() => {
-    if (isInvalid) {
-      popInviteRedirectCookie();
-    }
-  }, [isInvalid]);
-
-  const emailMismatch =
-    !isInvalid &&
-    !!sessionEmail &&
-    sessionEmail.toLowerCase() !== invitation.email.toLowerCase();
-
-  const isReady =
-    !isInvalid &&
-    emailVerified &&
-    sessionEmail?.toLowerCase() === invitation.email.toLowerCase() &&
-    invitation.status === "pending";
-
-  const isAlreadyAccepted =
-    !isInvalid &&
-    sessionEmail?.toLowerCase() === invitation.email.toLowerCase() &&
-    invitation.status === "accepted";
-
-  const needsEmailVerification =
-    !isInvalid &&
-    !!sessionEmail &&
-    sessionEmail.toLowerCase() === invitation.email.toLowerCase() &&
-    !emailVerified;
+  const vm = deriveInviteState({
+    invitation,
+    sessionEmail,
+    emailVerified,
+  });
 
   async function handleAccept() {
+    if (!sessionEmail) return;
     setIsPending(true);
     popInviteRedirectCookie();
     const { error: err } = await authClient.organization.acceptInvitation({
       invitationId: invitation.id,
     });
     if (err) {
-      // If the server complains about email verification, redirect there.
-      const msg = err.message ?? "";
-      if (
-        msg.toLowerCase().includes("email verification") ||
-        msg.toLowerCase().includes("verify your email")
-      ) {
-        router.replace(
-          `/verify-email?email=${encodeURIComponent(sessionEmail ?? "")}&callbackURL=${encodeURIComponent(`/invite/${invitation.id}`)}`,
-        );
+      const code = (err as { code?: unknown }).code;
+      if (isEmailVerificationErrorCode(code)) {
+        router.replace(buildVerifyEmailUrl({
+          email: sessionEmail,
+          callbackURL: `/invite/${invitation.id}`,
+        }));
         return;
       }
-      setError(msg || "Erro ao aceitar convite");
+      setError(err.message || "Erro ao aceitar convite");
       setIsPending(false);
       return;
     }
@@ -108,10 +83,12 @@ export function InvitePageClient({
     router.push("/");
   }
 
-  async function handleVerifyEmail() {
-    router.replace(
-      `/verify-email?email=${encodeURIComponent(sessionEmail ?? "")}&callbackURL=${encodeURIComponent(`/invite/${invitation.id}`)}`,
-    );
+  function handleVerifyEmail() {
+    if (!sessionEmail) return;
+    router.replace(buildVerifyEmailUrl({
+      email: sessionEmail,
+      callbackURL: `/invite/${invitation.id}`,
+    }));
   }
 
   return (
@@ -153,10 +130,10 @@ export function InvitePageClient({
           </div>
         </div>
 
-        {isInvalid && (
+        {vm.isInvalid && (
           <div className="w-full flex flex-col items-center gap-4">
             <p className="text-sm text-destructive text-center">
-              {isExpired
+              {vm.isExpired
                 ? "Este convite expirou."
                 : "Este convite foi cancelado ou recusado."}
             </p>
@@ -171,34 +148,7 @@ export function InvitePageClient({
           </div>
         )}
 
-        {needsEmailVerification && (
-          <div className="w-full flex flex-col items-center gap-4">
-            <p className="text-sm text-destructive text-center">
-              Você precisa verificar seu email{" "}
-              <strong>{sessionEmail}</strong> antes de aceitar o convite.
-            </p>
-            {error && (
-              <p className="text-xs text-destructive text-center">{error}</p>
-            )}
-            <Button
-              rounded="xl"
-              className="w-full"
-              onClick={handleVerifyEmail}
-            >
-              Verificar email
-            </Button>
-            <button
-              type="button"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center w-full disabled:opacity-50"
-              disabled={isPending}
-              onClick={handleReject}
-            >
-              Recusar convite
-            </button>
-          </div>
-        )}
-
-        {!isInvalid && !sessionEmail && (
+        {!vm.isInvalid && !sessionEmail && (
           <div className="w-full flex flex-col gap-3">
             <Button
               rounded="xl"
@@ -223,7 +173,7 @@ export function InvitePageClient({
           </div>
         )}
 
-        {emailMismatch && (
+        {vm.emailMismatch && (
           <div className="w-full flex flex-col items-center gap-4">
             <p className="text-sm text-destructive text-center">
               Este convite é para <strong>{invitation.email}</strong>.<br />
@@ -232,7 +182,30 @@ export function InvitePageClient({
           </div>
         )}
 
-        {isAlreadyAccepted && (
+        {vm.needsEmailVerification && (
+          <div className="w-full flex flex-col items-center gap-4">
+            <p className="text-sm text-destructive text-center">
+              Você precisa verificar seu email{" "}
+              <strong>{sessionEmail}</strong> antes de aceitar o convite.
+            </p>
+            {error && (
+              <p className="text-xs text-destructive text-center">{error}</p>
+            )}
+            <Button rounded="xl" className="w-full" onClick={handleVerifyEmail}>
+              Verificar email
+            </Button>
+            <button
+              type="button"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center w-full disabled:opacity-50"
+              disabled={isPending}
+              onClick={handleReject}
+            >
+              Recusar convite
+            </button>
+          </div>
+        )}
+
+        {vm.isAlreadyAccepted && (
           <div className="w-full flex flex-col gap-3">
             <Button
               rounded="xl"
@@ -244,7 +217,7 @@ export function InvitePageClient({
           </div>
         )}
 
-        {isReady && (
+        {vm.isReady && (
           <div className="w-full flex flex-col gap-3">
             {error && (
               <p className="text-sm text-destructive text-center">{error}</p>

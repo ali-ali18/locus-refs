@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { popInviteRedirectCookie } from "@/lib/invite-cookie";
-import { getSafeRedirectPath } from "@/lib/safe-redirect";
+import { buildVerifyEmailUrl } from "@/lib/verify-email";
 import {
   type RegisterSchema,
   registerSchema,
@@ -74,9 +74,12 @@ export function useRegister() {
       const invite = popInviteRedirectCookie();
       // If user came from an invite, redirect back to the invite after verifying.
       const inviteId = invite ? invite.split("/").pop() ?? null : null;
-      const params = new URLSearchParams({ email: data.email });
-      if (inviteId) params.set("callbackURL", `/invite/${inviteId}`);
-      router.push(`/verify-email?${params.toString()}`);
+      router.push(
+        buildVerifyEmailUrl({
+          email: data.email,
+          callbackURL: inviteId ? `/invite/${inviteId}` : null,
+        }),
+      );
     }
   };
 
