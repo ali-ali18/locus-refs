@@ -175,16 +175,17 @@ export function VerifyEmailOtp({
             padding: "20px 32px 40px",
           }}
         >
-          <Text
+<Text
             style={{
               margin: 0,
               fontSize: 12,
               color: "#a09a91",
               lineHeight: "18px",
+              textAlign: "center",
             }}
           >
-            Você está recebendo este email porque se cadastrou no Locus. O código
-            expira em{" "}
+            Você está recebendo este email porque se cadastrou no Locus. O
+            código expira em{" "}
             <strong style={{ color: "#57524a" }}>{expiresInMinutes} minutos</strong>.
             Caso não tenha solicitado, descarte este email.
           </Text>
