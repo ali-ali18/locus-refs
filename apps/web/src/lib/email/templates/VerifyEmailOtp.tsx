@@ -35,7 +35,7 @@ export function VerifyEmailOtp({
           }}
         >
           {/* Logo as minimal header — no bg, no border */}
-          <Section style={{ textAlign: "center", marginBottom: 32 }}>
+          <Section style={{ textAlign: "left", marginBottom: 32 }}>
             <svg
               width="48"
               height="54"
@@ -152,7 +152,7 @@ export function VerifyEmailOtp({
             <Button
               href="https://locus.com.br"
               style={{
-                backgroundColor: "#3d3a2e",
+                backgroundColor: "#3a3cc8",
                 color: "#faf9f7",
                 borderRadius: 10,
                 padding: "12px 28px",
