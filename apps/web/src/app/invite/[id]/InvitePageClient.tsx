@@ -1,7 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import {
+  deriveInviteState,
+  isEmailVerificationErrorCode,
+} from "@/components/auth/hook/useInviteAcceptance";
 import { WorkspaceLogo } from "@/components/sidebar/WorkspaceLogo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -10,6 +14,7 @@ import {
   popInviteRedirectCookie,
   setInviteRedirectCookie,
 } from "@/lib/invite-cookie";
+import { buildVerifyEmailUrl } from "@/lib/verify-email";
 
 interface InviteData {
   id: string;
@@ -28,61 +33,81 @@ interface InviteData {
 interface Props {
   invitation: InviteData;
   sessionEmail: string | null;
+  emailVerified: boolean;
 }
 
-export function InvitePageClient({ invitation, sessionEmail }: Props) {
+export function InvitePageClient({
+  invitation,
+  sessionEmail,
+  emailVerified,
+}: Props) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isExpired = new Date(invitation.expiresAt) < new Date();
-  const isInvalid =
-    invitation.status === "canceled" ||
-    invitation.status === "rejected" ||
-    isExpired;
-
-  useEffect(() => {
-    if (isInvalid) {
-      popInviteRedirectCookie();
-    }
-  }, [isInvalid]);
-
-  const emailMismatch =
-    !isInvalid &&
-    !!sessionEmail &&
-    sessionEmail.toLowerCase() !== invitation.email.toLowerCase();
-
-  const isReady =
-    !isInvalid &&
-    sessionEmail?.toLowerCase() === invitation.email.toLowerCase() &&
-    invitation.status === "pending";
-
-  const isAlreadyAccepted =
-    !isInvalid &&
-    sessionEmail?.toLowerCase() === invitation.email.toLowerCase() &&
-    invitation.status === "accepted";
+  const vm = deriveInviteState({
+    invitation,
+    sessionEmail,
+    emailVerified,
+  });
 
   async function handleAccept() {
+    if (!sessionEmail) return;
     setIsPending(true);
     popInviteRedirectCookie();
-    const { error: err } = await authClient.organization.acceptInvitation({
-      invitationId: invitation.id,
-    });
-    if (err) {
-      setError(err.message ?? "Erro ao aceitar convite");
+    try {
+      const { error: err } = await authClient.organization.acceptInvitation({
+        invitationId: invitation.id,
+      });
+      if (err) {
+        const code = (err as { code?: unknown }).code;
+        if (isEmailVerificationErrorCode(code)) {
+          router.replace(
+            buildVerifyEmailUrl({
+              email: sessionEmail,
+              callbackURL: `/invite/${invitation.id}`,
+            }),
+          );
+          return;
+        }
+        setError(err.message || "Erro ao aceitar convite");
+        return;
+      }
+      router.push(`/${invitation.organizationSlug}`);
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Erro ao aceitar convite",
+      );
+    } finally {
       setIsPending(false);
-      return;
     }
-    router.push(`/${invitation.organizationSlug}`);
   }
 
   async function handleReject() {
     setIsPending(true);
     popInviteRedirectCookie();
-    await authClient.organization.rejectInvitation({
-      invitationId: invitation.id,
-    });
-    router.push("/");
+    try {
+      await authClient.organization.rejectInvitation({
+        invitationId: invitation.id,
+      });
+      router.push("/");
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Erro ao recusar convite",
+      );
+    } finally {
+      setIsPending(false);
+    }
+  }
+
+  function handleVerifyEmail() {
+    if (!sessionEmail) return;
+    router.replace(
+      buildVerifyEmailUrl({
+        email: sessionEmail,
+        callbackURL: `/invite/${invitation.id}`,
+      }),
+    );
   }
 
   return (
@@ -98,7 +123,7 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
           <p className="text-xs text-muted-foreground">
             <span className="font-medium text-foreground">
               {invitation.inviterName}
-            </span>
+            </span>{" "}
             convidou você para se juntar
           </p>
         </div>
@@ -124,10 +149,10 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
           </div>
         </div>
 
-        {isInvalid && (
+        {vm.isInvalid && (
           <div className="w-full flex flex-col items-center gap-4">
             <p className="text-sm text-destructive text-center">
-              {isExpired
+              {vm.isExpired
                 ? "Este convite expirou."
                 : "Este convite foi cancelado ou recusado."}
             </p>
@@ -142,7 +167,7 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
           </div>
         )}
 
-        {!isInvalid && !sessionEmail && (
+        {!vm.isInvalid && !sessionEmail && (
           <div className="w-full flex flex-col gap-3">
             <Button
               rounded="xl"
@@ -167,7 +192,7 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
           </div>
         )}
 
-        {emailMismatch && (
+        {vm.emailMismatch && (
           <div className="w-full flex flex-col items-center gap-4">
             <p className="text-sm text-destructive text-center">
               Este convite é para <strong>{invitation.email}</strong>.<br />
@@ -176,7 +201,30 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
           </div>
         )}
 
-        {isAlreadyAccepted && (
+        {vm.needsEmailVerification && (
+          <div className="w-full flex flex-col items-center gap-4">
+            <p className="text-sm text-destructive text-center">
+              Você precisa verificar seu email <strong>{sessionEmail}</strong>{" "}
+              antes de aceitar o convite.
+            </p>
+            {error && (
+              <p className="text-xs text-destructive text-center">{error}</p>
+            )}
+            <Button rounded="xl" className="w-full" onClick={handleVerifyEmail}>
+              Verificar email
+            </Button>
+            <button
+              type="button"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center w-full disabled:opacity-50"
+              disabled={isPending}
+              onClick={handleReject}
+            >
+              Recusar convite
+            </button>
+          </div>
+        )}
+
+        {vm.isAlreadyAccepted && (
           <div className="w-full flex flex-col gap-3">
             <Button
               rounded="xl"
@@ -188,7 +236,7 @@ export function InvitePageClient({ invitation, sessionEmail }: Props) {
           </div>
         )}
 
-        {isReady && (
+        {vm.isReady && (
           <div className="w-full flex flex-col gap-3">
             {error && (
               <p className="text-sm text-destructive text-center">{error}</p>

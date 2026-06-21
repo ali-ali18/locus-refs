@@ -1,8 +1,15 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { organization } from "better-auth/plugins";
+import { emailOTP, organization } from "better-auth/plugins";
+import {
+  EMAIL_OTP_LENGTH,
+  EMAIL_OTP_TTL_MINUTES,
+  EMAIL_OTP_TTL_SECONDS,
+  EMAIL_SUBJECTS,
+} from "./email/constants";
 import { sendEmail } from "./email/email";
 import { InvitationEmail } from "./email/templates/InvitationEmail";
+import { VerifyEmailOtp } from "./email/templates/VerifyEmailOtp";
 import prisma from "./prisma";
 
 export const auth = betterAuth({
@@ -24,6 +31,28 @@ export const auth = betterAuth({
   //     },
   //   },
   plugins: [
+    emailOTP({
+      otpLength: EMAIL_OTP_LENGTH,
+      expiresIn: EMAIL_OTP_TTL_SECONDS,
+      sendVerificationOnSignUp: true,
+      sendVerificationOTP: async ({ email, otp, type }) => {
+        if (type !== "email-verification") {
+          // Only verification flows are wired right now. Add branches for
+          // "sign-in" / "forgot-password" / "change-email" when those flows ship.
+          throw new Error(`Unsupported OTP type: ${type}`);
+        }
+        await sendEmail({
+          to: email,
+          subject: EMAIL_SUBJECTS[type],
+          react: VerifyEmailOtp({
+            name: email.split("@")[0] ?? "usuário",
+            otp,
+            appUrl: process.env.NEXT_PUBLIC_APP_URL,
+            expiresInMinutes: EMAIL_OTP_TTL_MINUTES,
+          }),
+        });
+      },
+    }),
     organization({
       allowUserToCreateOrganization: true,
       organizationLimit: 10,

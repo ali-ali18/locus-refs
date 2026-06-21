@@ -1,0 +1,178 @@
+import { Button, Heading, Section, Text } from "@react-email/components";
+import { EMAIL_OTP_LENGTH } from "@/lib/email/constants";
+import { EmailLayout } from "../components/EmailLayout";
+
+interface VerifyEmailOtpProps {
+  name: string;
+  otp: string;
+  appUrl?: string;
+  expiresInMinutes?: number;
+}
+
+function formatOtp(otp: string): string {
+  if (otp.length === EMAIL_OTP_LENGTH) {
+    return `${otp.slice(0, EMAIL_OTP_LENGTH / 2)}-${otp.slice(EMAIL_OTP_LENGTH / 2)}`;
+  }
+  return otp;
+}
+
+export function VerifyEmailOtp({
+  name,
+  otp,
+  appUrl,
+  expiresInMinutes = 10,
+}: VerifyEmailOtpProps) {
+  const firstName = name.split(" ")[0] || "Olá";
+  const formattedOtp = formatOtp(otp);
+  const homeUrl = appUrl ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://locus.com.br";
+
+  const footer = (
+    <Text
+      style={{ margin: 0, fontSize: 12, color: "#a09a91", lineHeight: "18px" }}
+    >
+      Você está recebendo este email porque se cadastrou no Locus. O código
+      expira em{" "}
+      <strong style={{ color: "#57524a" }}>{expiresInMinutes} minutos</strong>.
+      Caso não tenha solicitado, descarte este email.
+    </Text>
+  );
+
+  return (
+    <EmailLayout
+      preview={`${firstName}, confirme seu email no Locus`}
+      orgName="Locus"
+      footer={footer}
+    >
+      {/* Logo as minimal header */}
+      <Section style={{ textAlign: "left", marginBottom: 32 }}>
+        <svg
+          width="40"
+          height="45"
+          viewBox="0 0 48 54"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ display: "block" }}
+        >
+          <title>Locus</title>
+          <path
+            opacity="0.8"
+            d="M22.8781 0L0 15.1091L0 15.1376L17.6909 26.8148L22.8781 23.3828V0Z"
+            fill="#3d3a2e"
+            fillOpacity="0.82"
+          />
+          <path
+            opacity="0.8"
+            d="M22.8781 53.6293V30.2466L17.6909 26.8147L0 38.4918L0 38.5346L22.8781 53.6293Z"
+            fill="#3d3a2e"
+            fillOpacity="0.82"
+          />
+          <path
+            opacity="0.8"
+            d="M47.9994 15.4797L25.1216 0.370544V23.7533L30.3231 27.1852L47.9994 15.5081V15.4797Z"
+            fill="#3d3a2e"
+            fillOpacity="0.82"
+          />
+          <path
+            opacity="0.8"
+            d="M25.1216 54L47.9994 38.8907V38.8622L30.3231 27.1851L25.1216 30.617V54Z"
+            fill="#3d3a2e"
+            fillOpacity="0.82"
+          />
+          <path
+            opacity="0.8"
+            d="M0 15.1376L0 38.4919L17.6909 26.8148L0 15.1376Z"
+            fill="#3d3a2e"
+          />
+          <path
+            opacity="0.8"
+            d="M47.9999 38.8623V15.508L30.323 27.1852L47.9999 38.8623Z"
+            fill="#3d3a2e"
+          />
+        </svg>
+      </Section>
+
+      <Heading
+        as="h1"
+        style={{
+          margin: "0 0 12px",
+          fontSize: 24,
+          fontWeight: 600,
+          color: "#1c1a16",
+          textAlign: "center",
+        }}
+      >
+        Confirme seu email
+      </Heading>
+
+      <Text
+        style={{
+          margin: "0 0 28px",
+          fontSize: 15,
+          color: "#57524a",
+          lineHeight: "24px",
+          textAlign: "center",
+        }}
+      >
+        Olá <strong style={{ color: "#1c1a16" }}>{firstName}</strong>, use o
+        código abaixo para confirmar seu email e liberar o acesso ao convite.
+      </Text>
+
+      {/* OTP code */}
+      <Section
+        style={{
+          textAlign: "center",
+          marginBottom: 28,
+          padding: "20px 16px",
+          backgroundColor: "#ece8e0",
+          borderRadius: 12,
+          border: "1px solid #ddd8cf",
+        }}
+      >
+        <Text
+          style={{
+            margin: 0,
+            fontSize: 36,
+            fontWeight: 700,
+            letterSpacing: "0.4em",
+            color: "#1c1a16",
+            fontFamily:
+              "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace",
+          }}
+        >
+          {formattedOtp}
+        </Text>
+      </Section>
+
+      <Text
+        style={{
+          margin: "0 0 24px",
+          fontSize: 13,
+          color: "#57524a",
+          lineHeight: "20px",
+          textAlign: "center",
+        }}
+      >
+        Este código expira em {expiresInMinutes} minutos. Se você não fez
+        essa solicitação, ignore este email.
+      </Text>
+
+      <Section style={{ textAlign: "center" }}>
+        <Button
+          href={homeUrl}
+          style={{
+            backgroundColor: "#0945ed",
+            color: "#faf9f7",
+            borderRadius: 10,
+            padding: "12px 28px",
+            fontSize: 14,
+            fontWeight: 500,
+            textDecoration: "none",
+            display: "inline-block",
+          }}
+        >
+          Abrir Locus
+        </Button>
+      </Section>
+    </EmailLayout>
+  );
+}
