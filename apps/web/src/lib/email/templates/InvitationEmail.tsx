@@ -1,23 +1,13 @@
 import { Button, Img, Section, Text } from "@react-email/components";
 import { EmailLayout } from "../components/EmailLayout";
+import { toAbsoluteUrl } from "../to-absolute-url";
 
 interface InvitationEmailProps {
   inviterName: string;
   inviterImage?: string | null;
   organizationName: string;
-  organizationLogo?: string | null;
-  role: string;
+  memberRole: string;
   acceptUrl: string;
-}
-
-function isImageUrl(value: string | null | undefined): boolean {
-  if (!value) return false;
-  return (
-    value.startsWith("http://") ||
-    value.startsWith("https://") ||
-    value.startsWith("data:") ||
-    value.startsWith("/storage/")
-  );
 }
 
 function roleLabel(role: string): string {
@@ -33,62 +23,68 @@ export function InvitationEmail({
   inviterName,
   inviterImage,
   organizationName,
-  organizationLogo,
-  role,
+  memberRole,
   acceptUrl,
 }: InvitationEmailProps) {
   const firstName = inviterName.split(" ")[0];
   const initial = inviterName.charAt(0).toUpperCase();
-  const hasAvatar = isImageUrl(inviterImage);
+  const avatarUrl = toAbsoluteUrl(inviterImage);
 
   const footer = (
     <Text
-      style={{ margin: 0, fontSize: 12, color: "#a09a91", lineHeight: "18px" }}
+      style={{ margin: 0, fontSize: 12, color: "#72706b", lineHeight: "18px" }}
     >
       Você está recebendo este email porque{" "}
-      <strong style={{ color: "#57524a" }}>{inviterName}</strong> enviou um
+      <strong style={{ color: "#1d1c17" }}>{inviterName}</strong> enviou um
       convite para este endereço. Caso não reconheça o remetente ou não tenha
       interesse, descarte este email. O link expira em{" "}
-      <strong style={{ color: "#57524a" }}>48 horas</strong>.
+      <strong style={{ color: "#1d1c17" }}>48 horas</strong>.
     </Text>
   );
 
   return (
     <EmailLayout
       preview={`${firstName} convidou você para ${organizationName}`}
-      orgName={organizationName}
-      orgLogo={organizationLogo}
       footer={footer}
     >
       {/* Avatar */}
       <Section style={{ textAlign: "center", marginBottom: 24 }}>
-        {hasAvatar ? (
+        {avatarUrl ? (
           <Img
-            src={inviterImage as string}
+            src={avatarUrl}
             width={56}
             height={56}
             alt={inviterName}
             style={{ borderRadius: "50%", display: "inline-block" }}
           />
         ) : (
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: "50%",
-              backgroundColor: "#3d3a2e",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 22,
-              fontWeight: 600,
-              color: "#faf9f7",
-              lineHeight: "56px",
-              textAlign: "center",
-            }}
+          <table
+            cellPadding={0}
+            cellSpacing={0}
+            border={0}
+            style={{ margin: "0 auto" }}
           >
-            {initial}
-          </div>
+            <tbody>
+              <tr>
+                <td
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: "50%",
+                    backgroundColor: "#1d1c17",
+                    textAlign: "center",
+                    verticalAlign: "middle",
+                    fontSize: 22,
+                    fontWeight: 600,
+                    color: "#ffffff",
+                    lineHeight: "56px",
+                  }}
+                >
+                  {initial}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         )}
       </Section>
 
@@ -98,7 +94,7 @@ export function InvitationEmail({
           margin: "0 0 8px",
           fontSize: 20,
           fontWeight: 600,
-          color: "#1c1a16",
+          color: "#1d1c17",
           textAlign: "center",
         }}
       >
@@ -108,7 +104,7 @@ export function InvitationEmail({
         style={{
           margin: "0 0 20px",
           fontSize: 15,
-          color: "#57524a",
+          color: "#72706b",
           lineHeight: "24px",
           textAlign: "center",
         }}
@@ -125,14 +121,14 @@ export function InvitationEmail({
             display: "inline-block",
             margin: 0,
             padding: "6px 14px",
-            backgroundColor: "#ece8e0",
+            backgroundColor: "#e6e6e4",
             borderRadius: 999,
             fontSize: 13,
-            color: "#57524a",
+            color: "#72706b",
           }}
         >
           Função:{" "}
-          <strong style={{ color: "#1c1a16" }}>{roleLabel(role)}</strong>
+          <strong style={{ color: "#1c1a16" }}>{roleLabel(memberRole)}</strong>
         </Text>
       </Section>
 
@@ -142,8 +138,8 @@ export function InvitationEmail({
           href={acceptUrl}
           className="em-btn"
           style={{
-            backgroundColor: "#3d3a2e",
-            color: "#faf9f7",
+            backgroundColor: "#0945ed",
+            color: "#ffffff",
             borderRadius: 10,
             padding: "12px 28px",
             fontSize: 14,

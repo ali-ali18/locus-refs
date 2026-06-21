@@ -39,11 +39,15 @@ export const auth = betterAuth({
         if (type !== "email-verification") {
           throw new Error(`Unsupported OTP type: ${type}`);
         }
+        const user = await prisma.user.findUnique({
+          where: { email },
+          select: { name: true },
+        });
         await sendEmail({
           to: email,
           subject: EMAIL_SUBJECTS[type],
           react: VerifyEmailOtp({
-            name: email.split("@")[0] ?? "usuário",
+            name: user?.name ?? email.split("@")[0] ?? "usuário",
             otp,
             appUrl: process.env.NEXT_PUBLIC_APP_URL,
             expiresInMinutes: EMAIL_OTP_TTL_MINUTES,
@@ -64,8 +68,7 @@ export const auth = betterAuth({
             inviterName: data.inviter.user.name,
             inviterImage: data.inviter.user.image ?? null,
             organizationName: data.organization.name,
-            organizationLogo: data.organization.logo ?? null,
-            role: data.role,
+            memberRole: data.role,
             acceptUrl,
           }),
         });
