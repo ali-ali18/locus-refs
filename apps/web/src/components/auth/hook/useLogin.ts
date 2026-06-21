@@ -72,7 +72,7 @@ export function useLogin() {
           ? orgs?.find((org) => org.id === activeOrgId)
           : undefined;
         const firstSlug = activeOrg?.slug ?? orgs?.[0]?.slug;
-        router.push(firstSlug ? `/${firstSlug}` : "/onboarding/workspace/new");
+        router.push(firstSlug ? `/${firstSlug}` : "/workspace/new");
       }
     }
 

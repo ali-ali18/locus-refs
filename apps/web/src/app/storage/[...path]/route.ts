@@ -10,8 +10,9 @@ export async function GET(
 ) {
   const { path } = await params;
 
-  // Workspace logos are public — no auth required
-  const isPublic = path[1] === "workspaceLogo";
+  // Public assets — no auth required
+  const isPublic =
+    path[1] === "workspaceLogo" || path[1] === "avatars";
 
   if (!isPublic) {
     let session: Awaited<ReturnType<typeof requireSessionApiOrThrow>>;
