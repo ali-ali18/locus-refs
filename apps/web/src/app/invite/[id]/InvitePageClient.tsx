@@ -2,14 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { WorkspaceLogo } from "@/components/sidebar/WorkspaceLogo";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
 import {
   deriveInviteState,
   isEmailVerificationErrorCode,
 } from "@/components/auth/hook/useInviteAcceptance";
+import { WorkspaceLogo } from "@/components/sidebar/WorkspaceLogo";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 import {
   popInviteRedirectCookie,
   setInviteRedirectCookie,
@@ -55,40 +55,59 @@ export function InvitePageClient({
     if (!sessionEmail) return;
     setIsPending(true);
     popInviteRedirectCookie();
-    const { error: err } = await authClient.organization.acceptInvitation({
-      invitationId: invitation.id,
-    });
-    if (err) {
-      const code = (err as { code?: unknown }).code;
-      if (isEmailVerificationErrorCode(code)) {
-        router.replace(buildVerifyEmailUrl({
-          email: sessionEmail,
-          callbackURL: `/invite/${invitation.id}`,
-        }));
+    try {
+      const { error: err } = await authClient.organization.acceptInvitation({
+        invitationId: invitation.id,
+      });
+      if (err) {
+        const code = (err as { code?: unknown }).code;
+        if (isEmailVerificationErrorCode(code)) {
+          router.replace(
+            buildVerifyEmailUrl({
+              email: sessionEmail,
+              callbackURL: `/invite/${invitation.id}`,
+            }),
+          );
+          return;
+        }
+        setError(err.message || "Erro ao aceitar convite");
         return;
       }
-      setError(err.message || "Erro ao aceitar convite");
+      router.push(`/${invitation.organizationSlug}`);
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Erro ao aceitar convite",
+      );
+    } finally {
       setIsPending(false);
-      return;
     }
-    router.push(`/${invitation.organizationSlug}`);
   }
 
   async function handleReject() {
     setIsPending(true);
     popInviteRedirectCookie();
-    await authClient.organization.rejectInvitation({
-      invitationId: invitation.id,
-    });
-    router.push("/");
+    try {
+      await authClient.organization.rejectInvitation({
+        invitationId: invitation.id,
+      });
+      router.push("/");
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Erro ao recusar convite",
+      );
+    } finally {
+      setIsPending(false);
+    }
   }
 
   function handleVerifyEmail() {
     if (!sessionEmail) return;
-    router.replace(buildVerifyEmailUrl({
-      email: sessionEmail,
-      callbackURL: `/invite/${invitation.id}`,
-    }));
+    router.replace(
+      buildVerifyEmailUrl({
+        email: sessionEmail,
+        callbackURL: `/invite/${invitation.id}`,
+      }),
+    );
   }
 
   return (
@@ -185,8 +204,8 @@ export function InvitePageClient({
         {vm.needsEmailVerification && (
           <div className="w-full flex flex-col items-center gap-4">
             <p className="text-sm text-destructive text-center">
-              Você precisa verificar seu email{" "}
-              <strong>{sessionEmail}</strong> antes de aceitar o convite.
+              Você precisa verificar seu email <strong>{sessionEmail}</strong>{" "}
+              antes de aceitar o convite.
             </p>
             {error && (
               <p className="text-xs text-destructive text-center">{error}</p>

@@ -48,7 +48,10 @@ export function deriveInviteState(params: {
     !isInvalid && sessionMatches && invitation.status === "accepted";
 
   const needsEmailVerification =
-    !isInvalid && sessionMatches && !emailVerified;
+    !isInvalid &&
+    sessionMatches &&
+    invitation.status === "pending" &&
+    !emailVerified;
 
   return {
     isExpired,

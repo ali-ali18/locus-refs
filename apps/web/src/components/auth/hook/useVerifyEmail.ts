@@ -3,11 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 import {
   EMAIL_OTP_LENGTH,
   EMAIL_OTP_RESEND_COOLDOWN_SECONDS,
 } from "@/lib/email/constants";
-import { authClient } from "@/lib/auth-client";
 
 const DEFAULT_VERIFY_REDIRECT = "/dashboard";
 
@@ -44,17 +44,24 @@ export function useVerifyEmail({
   const handleSend = useCallback(async () => {
     setIsSending(true);
     setError(null);
-    const { error: sendErr } = await authClient.emailOtp.sendVerificationOtp({
-      email,
-      type: "email-verification",
-    });
-    setIsSending(false);
-    if (sendErr) {
-      setError(sendErr.message ?? "Erro ao enviar código");
-      return;
+    try {
+      const { error: sendErr } = await authClient.emailOtp.sendVerificationOtp({
+        email,
+        type: "email-verification",
+      });
+      if (sendErr) {
+        setError(sendErr.message ?? "Erro ao enviar código");
+        return;
+      }
+      toast.success("Código enviado para o seu email");
+      setCooldown(EMAIL_OTP_RESEND_COOLDOWN_SECONDS);
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : "Erro ao enviar código",
+      );
+    } finally {
+      setIsSending(false);
     }
-    toast.success("Código enviado para o seu email");
-    setCooldown(EMAIL_OTP_RESEND_COOLDOWN_SECONDS);
   }, [email]);
 
   const handleVerify = useCallback(async () => {
@@ -63,21 +70,32 @@ export function useVerifyEmail({
     lastSubmitted.current = otp;
     setIsVerifying(true);
     setError(null);
-    const { error: verifyErr } = await authClient.emailOtp.verifyEmail({
-      email,
-      otp,
-    });
-    if (verifyErr) {
-      setIsVerifying(false);
+    try {
+      const { error: verifyErr } = await authClient.emailOtp.verifyEmail({
+        email,
+        otp,
+      });
+      if (verifyErr) {
+        setOtp("");
+        lastSubmitted.current = "";
+        setError(verifyErr.message ?? "Código inválido ou expirado");
+        return;
+      }
+      toast.success("Email confirmado!");
+      const target = callbackURL ?? DEFAULT_VERIFY_REDIRECT;
+      router.replace(target);
+      router.refresh();
+    } catch (caught) {
       setOtp("");
       lastSubmitted.current = "";
-      setError(verifyErr.message ?? "Código inválido ou expirado");
-      return;
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Código inválido ou expirado",
+      );
+    } finally {
+      setIsVerifying(false);
     }
-    toast.success("Email confirmado!");
-    const target = callbackURL ?? DEFAULT_VERIFY_REDIRECT;
-    router.replace(target);
-    router.refresh();
   }, [otp, email, callbackURL, router]);
 
   // Auto-send the first OTP on mount (only if not already verified)
