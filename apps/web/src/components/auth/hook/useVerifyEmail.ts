@@ -49,6 +49,7 @@ export function useVerifyEmail({
         email,
         type: "email-verification",
       });
+      
       if (sendErr) {
         setError(sendErr.message ?? "Erro ao enviar código");
         return;

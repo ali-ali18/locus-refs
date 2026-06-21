@@ -37,8 +37,6 @@ export const auth = betterAuth({
       sendVerificationOnSignUp: true,
       sendVerificationOTP: async ({ email, otp, type }) => {
         if (type !== "email-verification") {
-          // Only verification flows are wired right now. Add branches for
-          // "sign-in" / "forgot-password" / "change-email" when those flows ship.
           throw new Error(`Unsupported OTP type: ${type}`);
         }
         await sendEmail({
