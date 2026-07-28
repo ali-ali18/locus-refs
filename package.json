@@ -3,7 +3,8 @@
   "version": "0.2.0-beta.1",
   "private": true,
   "scripts": {
-    "dev": "pnpm --filter @refstash/web dev",
+    "dev": "pnpm --parallel --filter @refstash/web --filter @refstash/collab --filter @refstash/tldraw-sync run dev",
+    "dev:web": "pnpm --filter @refstash/web dev",
     "build": "pnpm --filter @refstash/web build",
     "start": "prisma migrate deploy && pnpm --filter @refstash/web start",
     "collab:dev": "pnpm --filter @refstash/collab dev",
@@ -56,4 +57,3 @@
     "@parcel/watcher"
   ]
 }
-

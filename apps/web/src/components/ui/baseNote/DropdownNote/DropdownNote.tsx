@@ -6,6 +6,7 @@ import {
   KanbanIcon,
   MoreHorizontal,
   QuoteDownIcon,
+  YoutubeIcon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { Editor } from "@tiptap/react";
@@ -38,9 +39,10 @@ import { LinkPopover } from "../link/LinkPopover";
 interface Props {
   editor: Editor;
   noteId?: string;
+  onOpenPluginDialog?: () => void;
 }
 
-export function DropdownNote({ editor, noteId }: Props) {
+export function DropdownNote({ editor, noteId, onOpenPluginDialog }: Props) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
   const [imagePopoverOpen, setImagePopoverOpen] = useState(false);
@@ -332,6 +334,15 @@ export function DropdownNote({ editor, noteId }: Props) {
                 <Icon icon={KanbanIcon} />
                 Roadmap
               </DropdownMenuItem>
+              {onOpenPluginDialog ? (
+                <DropdownMenuItem
+                  className="rounded-xl"
+                  onClick={onOpenPluginDialog}
+                >
+                  <Icon icon={YoutubeIcon} />
+                  YouTube
+                </DropdownMenuItem>
+              ) : null}
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -12,6 +12,7 @@ import {
   SolidLine01Icon,
   SourceCodeSquareIcon,
   TextIcon,
+  YoutubeIcon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { Editor, Range } from "@tiptap/react";
@@ -28,6 +29,7 @@ export interface SlashCommandItem {
 
 export function buildSlashCommands(
   onOpenImageDialog: () => void,
+  onOpenPluginDialog: () => void,
 ): SlashCommandItem[] {
   return [
     // Formatação
@@ -148,6 +150,24 @@ export function buildSlashCommands(
       icon: SolidLine01Icon,
       onSelect: ({ editor }) =>
         editor.chain().focus().setHorizontalRule().run(),
+    },
+    // Plugins
+    {
+      id: "youtube",
+      title: "YouTube",
+      subtext: "Incorporar vídeo do YouTube",
+      keywords: [
+        "youtube",
+        "yt",
+        "video",
+        "vídeo",
+        "plugin",
+        "embed",
+        "incorporar",
+      ],
+      group: "Plugins",
+      icon: YoutubeIcon,
+      onSelect: () => onOpenPluginDialog(),
     },
     // Mídia
     {

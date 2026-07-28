@@ -25,9 +25,14 @@ const PLUGIN_KEY = new PluginKey("slashCommand");
 interface Props {
   editor: Editor;
   onOpenImageDialog: () => void;
+  onOpenPluginDialog: () => void;
 }
 
-export function SlashCommand({ editor, onOpenImageDialog }: Props) {
+export function SlashCommand({
+  editor,
+  onOpenImageDialog,
+  onOpenPluginDialog,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<SlashCommandItem[]>([]);
   const [decorationNode, setDecorationNode] = useState<HTMLElement | null>(
@@ -43,8 +48,8 @@ export function SlashCommand({ editor, onOpenImageDialog }: Props) {
   stateRef.current = { items, selectedIndex };
 
   const commands = useMemo(
-    () => buildSlashCommands(onOpenImageDialog),
-    [onOpenImageDialog],
+    () => buildSlashCommands(onOpenImageDialog, onOpenPluginDialog),
+    [onOpenImageDialog, onOpenPluginDialog],
   );
 
   const { refs, floatingStyles } = useFloating({

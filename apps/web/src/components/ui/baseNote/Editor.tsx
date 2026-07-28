@@ -22,6 +22,7 @@ import { EmojiDropdownMenu } from "../../tiptap-ui/emoji-dropdown-menu";
 import { DropdownNote } from "./DropdownNote/DropdownNote";
 import { ImageDialog } from "./imageBlock/ImageDialog";
 import { useImageUpload } from "./imageBlock/useImageUpload";
+import { PluginDialog } from "./pluginBlock/PluginDialog";
 import { SlashCommand } from "./SlashCommand/SlashCommand";
 
 interface EditorProps {
@@ -44,6 +45,8 @@ export function Editor({
   const { attachedSelection, clearAttachedSelection } = useChatPanel();
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const openImageDialog = useCallback(() => setImageDialogOpen(true), []);
+  const [pluginDialogOpen, setPluginDialogOpen] = useState(false);
+  const openPluginDialog = useCallback(() => setPluginDialogOpen(true), []);
 
   const attachedSelectionRef = useRef(attachedSelection);
   attachedSelectionRef.current = attachedSelection;
@@ -318,16 +321,33 @@ export function Editor({
     <EditorContext.Provider value={{ editor }}>
       <EditorContent editor={editor} />
       {editor && (
-        <SlashCommand editor={editor} onOpenImageDialog={openImageDialog} />
+        <SlashCommand
+          editor={editor}
+          onOpenImageDialog={openImageDialog}
+          onOpenPluginDialog={openPluginDialog}
+        />
       )}
       {editor && <EmojiDropdownMenu char=":" />}
-      {editor && <DropdownNote editor={editor} noteId={noteId} />}
+      {editor && (
+        <DropdownNote
+          editor={editor}
+          noteId={noteId}
+          onOpenPluginDialog={openPluginDialog}
+        />
+      )}
       {editor && (
         <ImageDialog
           editor={editor}
           open={imageDialogOpen}
           onOpenChange={setImageDialogOpen}
           uploadImage={uploadImage}
+        />
+      )}
+      {editor && (
+        <PluginDialog
+          editor={editor}
+          open={pluginDialogOpen}
+          onOpenChange={setPluginDialogOpen}
         />
       )}
     </EditorContext.Provider>

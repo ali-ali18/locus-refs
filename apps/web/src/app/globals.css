@@ -257,7 +257,6 @@
   --shadow-2xl: var(--shadow-2xl);
 }
 
-
 .tiptap {
   overflow-wrap: anywhere;
 }
@@ -305,7 +304,9 @@
   vertical-align: middle;
 }
 
-.tiptap img {
+/* Só imagens de emoji — não aplicar a thumbs/imagens de bloco */
+.tiptap span[data-emoji] img,
+.tiptap img.emoji {
   display: inline;
   height: 1.5em;
   width: 1.5em;

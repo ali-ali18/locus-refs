@@ -11,6 +11,7 @@ import type * as Y from "yjs";
 import { CustomCodeBlock } from "@/lib/extension/CustomCodeBlock";
 import { CustomTextStyle } from "@/lib/extension/CustomTextStyle";
 import { ImageUpload } from "@/lib/extension/ImageUpload";
+import { PluginBlock } from "@/lib/extension/PluginBlock";
 import { RoadmapBlock } from "@/lib/extension/RoadmapBlock";
 import { CustomCode } from "./extension/CustomCode";
 import { CustomTaskItem } from "./extension/CustomTaskItem";
@@ -139,6 +140,7 @@ export function getNotesEditorExtensions(
     CustomTaskItem.configure({ nested: true }),
 
     RoadmapBlock,
+    PluginBlock,
 
     CustomTextStyle,
     Color,
@@ -166,7 +168,6 @@ export function getNotesEditorExtensions(
 
 export const NOTES_EDITOR_PROPS = {
   attributes: {
-    class:
-      "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 ",
+    class: "focus:outline-none min-h-[200px] px-1 py-2 space-y-4 ",
   },
 };
