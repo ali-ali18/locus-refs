@@ -3,13 +3,12 @@ import type { ReactNode } from "react";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { SettingsDialog } from "@/components/workspace/SettingsDialog";
 import { SessionGuard } from "@/components/workspace/SessionGuard";
+import { SettingsDialog } from "@/components/workspace/SettingsDialog";
 import { WorkspaceShell } from "@/components/workspace/WorkspaceShell";
 import { ChatPanelProvider } from "@/context/chatPanel";
 import { NoteEditorProvider } from "@/context/noteEditor";
 import { SettingsDialogProvider } from "@/context/settingsDialog";
-import { SidebarTabProvider } from "@/context/sidebarTab";
 import { WorkspaceProvider } from "@/context/workspace";
 import prisma from "@/lib/prisma";
 import { requireSession } from "@/server/requireSession";
@@ -51,14 +50,12 @@ export default async function WorkspaceLayout({ children, params }: Props) {
         <NoteEditorProvider>
           <ChatPanelProvider>
             <SettingsDialogProvider>
-              <SidebarTabProvider>
-                <SidebarProvider>
-                  <SessionGuard />
-                  <WorkspaceShell>{children}</WorkspaceShell>
-                  <ChatPanel />
-                  <SettingsDialog />
-                </SidebarProvider>
-              </SidebarTabProvider>
+              <SidebarProvider>
+                <SessionGuard />
+                <WorkspaceShell>{children}</WorkspaceShell>
+                <ChatPanel />
+                <SettingsDialog />
+              </SidebarProvider>
             </SettingsDialogProvider>
           </ChatPanelProvider>
         </NoteEditorProvider>

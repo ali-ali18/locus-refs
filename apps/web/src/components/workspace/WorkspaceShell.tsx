@@ -3,15 +3,16 @@
 import type { ReactNode } from "react";
 import { DashboardLayoutHeader } from "@/components/dashboard/DashboardLayoutHeader";
 import { AppSidebar } from "@/components/sidebar/AppSidebar";
+import { SidebarInset } from "@/components/ui/sidebar";
 
 export function WorkspaceShell({ children }: { children: ReactNode }) {
   return (
     <>
       <AppSidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <SidebarInset className="min-w-0">
         <DashboardLayoutHeader />
         {children}
-      </div>
+      </SidebarInset>
     </>
   );
 }
