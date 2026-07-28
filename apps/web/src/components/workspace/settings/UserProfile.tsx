@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Icon } from "@/components/shared/Icon";
+import { ToggleButtonTheme } from "@/components/shared/ToggleButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,6 +131,10 @@ export function UserProfile() {
         <span className="text-muted-foreground text-sm">
           {session?.user?.email}
         </span>
+      </SettingsRow>
+
+      <SettingsRow label="Tema">
+        <ToggleButtonTheme />
       </SettingsRow>
 
       <div className="mt-4 flex justify-end">

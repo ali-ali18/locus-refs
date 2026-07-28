@@ -2,12 +2,9 @@
 
 import {
   BubbleChatIcon,
-  Moon02Icon,
   MoreHorizontalCircle01Icon,
   Settings01Icon,
-  Sun03Icon,
 } from "@hugeicons/core-free-icons";
-import { useTheme } from "next-themes";
 import { useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
@@ -19,24 +16,14 @@ import {
 import { useChatPanel } from "@/context/chatPanel";
 import { useSettingsDialog } from "@/context/settingsDialog";
 import { useIsMobile } from "@/hook/use-mobile";
-import { ButtonChatPanel } from "../chat/ButtonChatPanel";
-import { ButtonTheme } from "../shared/ToggleButton";
 
 export function NavActions() {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
   const { toggle: toggleChat } = useChatPanel();
   const { openSettings } = useSettingsDialog();
-  const { theme, setTheme } = useTheme();
 
-  if (!isMobile) {
-    return (
-      <div className="flex items-center gap-1">
-        <ButtonChatPanel />
-        <ButtonTheme />
-      </div>
-    );
-  }
+  if (!isMobile) return null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -78,18 +65,6 @@ export function NavActions() {
           >
             <Icon icon={Settings01Icon} />
             Configurações
-          </Button>
-          <Button
-            variant="ghost"
-            rounded="xl"
-            className="w-full justify-start gap-2"
-            onClick={() => {
-              setTheme(theme === "light" ? "dark" : "light");
-              setOpen(false);
-            }}
-          >
-            <Icon icon={theme === "dark" ? Moon02Icon : Sun03Icon} />
-            {theme === "dark" ? "Modo claro" : "Modo escuro"}
           </Button>
         </div>
       </PopoverContent>

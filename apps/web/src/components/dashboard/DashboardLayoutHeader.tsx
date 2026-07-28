@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BreadcrumbRenderer } from "@/components/breadcrumb/BreadcrumbRenderer";
 import { NavActions } from "@/components/sidebar/NavActions";
-import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { resolveBreadcrumb } from "@/lib/breadcrumb/actions/resolve-breadcrumb";
@@ -41,7 +40,7 @@ export function DashboardLayoutHeader() {
           <BreadcrumbRenderer items={items} />
         )}
       </div>
-      <div className="ml-auto px-3">
+      <div className="ml-auto flex shrink-0 items-center gap-2 px-3">
         <NavActions />
       </div>
     </header>

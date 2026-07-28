@@ -27,8 +27,6 @@ export function PageHeaderNote({ title, icon, id }: Props) {
 
   return (
     <div>
-      <div className="h-42 w-full rounded-xl bg-linear-to-br from-[#423E37] via-[#262626] to-[#171717] aspect-video" />
-
       <div className="flex flex-col gap-0.5">
         <div className="min-h-[20px] flex items-center gap-1 my-1 text-xs">
           <AnimatePresence>

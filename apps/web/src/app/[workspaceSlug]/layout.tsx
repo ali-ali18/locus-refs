@@ -1,12 +1,14 @@
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { ChatPanel } from "@/components/chat/ChatPanel";
+import { CommandPalette } from "@/components/command-palette/CommandPalette";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SessionGuard } from "@/components/workspace/SessionGuard";
 import { SettingsDialog } from "@/components/workspace/SettingsDialog";
 import { WorkspaceShell } from "@/components/workspace/WorkspaceShell";
 import { ChatPanelProvider } from "@/context/chatPanel";
+import { CommandPaletteProvider } from "@/context/commandPalette";
 import { NoteEditorProvider } from "@/context/noteEditor";
 import { SettingsDialogProvider } from "@/context/settingsDialog";
 import { WorkspaceProvider } from "@/context/workspace";
@@ -50,12 +52,15 @@ export default async function WorkspaceLayout({ children, params }: Props) {
         <NoteEditorProvider>
           <ChatPanelProvider>
             <SettingsDialogProvider>
-              <SidebarProvider>
-                <SessionGuard />
-                <WorkspaceShell>{children}</WorkspaceShell>
-                <ChatPanel />
-                <SettingsDialog />
-              </SidebarProvider>
+              <CommandPaletteProvider>
+                <SidebarProvider>
+                  <SessionGuard />
+                  <WorkspaceShell>{children}</WorkspaceShell>
+                  <ChatPanel />
+                  <SettingsDialog />
+                  <CommandPalette />
+                </SidebarProvider>
+              </CommandPaletteProvider>
             </SettingsDialogProvider>
           </ChatPanelProvider>
         </NoteEditorProvider>

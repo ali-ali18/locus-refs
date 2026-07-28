@@ -1,5 +1,6 @@
 "use client";
 
+import { CommandPaletteTrigger } from "@/components/command-palette/CommandPalette";
 import { NavBoards } from "@/components/sidebar/NavBoards";
 import { NavMain } from "@/components/sidebar/NavMain";
 import { NavNotes } from "@/components/sidebar/NavNotes";
@@ -19,6 +20,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" className="border-r-0" {...props}>
       <SidebarHeader>
         <TeamSwitcher />
+        <CommandPaletteTrigger />
         <NavQuick />
       </SidebarHeader>
       <SidebarContent className="gap-0">
