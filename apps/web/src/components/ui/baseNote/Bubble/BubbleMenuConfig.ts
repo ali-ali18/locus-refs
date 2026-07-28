@@ -14,6 +14,11 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { Editor } from "@tiptap/react";
+import {
+  isNoteLinkSelected,
+  toggleSelectedNoteLinkFlag,
+  updateSelectedNoteLinkStyle,
+} from "@/components/ui/baseNote/WikiLink/noteLinkStyle";
 import { BACKGROUND_COLORS, TEXT_COLORS } from "@/lib/data/colorsNote";
 
 export type MenuItemAction = {
@@ -70,6 +75,7 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
         mark: "bold",
         icon: Bold,
         onSelect: (editor) => {
+          if (toggleSelectedNoteLinkFlag(editor, "bold")) return;
           editor.chain().focus().toggleBold().run();
         },
       },
@@ -79,6 +85,7 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
         mark: "italic",
         icon: Italic,
         onSelect: (editor) => {
+          if (toggleSelectedNoteLinkFlag(editor, "italic")) return;
           editor.chain().focus().toggleItalic().run();
         },
       },
@@ -88,6 +95,7 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
         mark: "underline",
         icon: Underline,
         onSelect: (editor) => {
+          if (toggleSelectedNoteLinkFlag(editor, "underline")) return;
           editor.chain().focus().toggleUnderline().run();
         },
       },
@@ -113,6 +121,10 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
             label: "Padrão",
             value: "",
             onSelect: (editor) => {
+              if (isNoteLinkSelected(editor)) {
+                updateSelectedNoteLinkStyle(editor, { color: null });
+                return;
+              }
               editor.chain().focus().unsetColor().run();
             },
           },
@@ -121,6 +133,10 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
             label: color.label,
             value: color.value,
             onSelect: (editor: Editor) => {
+              if (isNoteLinkSelected(editor)) {
+                updateSelectedNoteLinkStyle(editor, { color: color.value });
+                return;
+              }
               editor.chain().focus().setColor(color.value).run();
             },
           })),
@@ -136,6 +152,12 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
             label: "Padrão",
             value: "",
             onSelect: (editor) => {
+              if (isNoteLinkSelected(editor)) {
+                updateSelectedNoteLinkStyle(editor, {
+                  backgroundColor: null,
+                });
+                return;
+              }
               editor.chain().focus().unsetBackgroundColor().run();
             },
           },
@@ -144,6 +166,12 @@ export const BUBBLE_MENU_GROUPS: MenuGroup[] = [
             label: color.label,
             value: color.value,
             onSelect: (editor: Editor) => {
+              if (isNoteLinkSelected(editor)) {
+                updateSelectedNoteLinkStyle(editor, {
+                  backgroundColor: color.value,
+                });
+                return;
+              }
               editor.chain().focus().setBackgroundColor(color.value).run();
             },
           })),

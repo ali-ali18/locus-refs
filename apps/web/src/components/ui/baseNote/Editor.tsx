@@ -22,8 +22,10 @@ import { EmojiDropdownMenu } from "../../tiptap-ui/emoji-dropdown-menu";
 import { DropdownNote } from "./DropdownNote/DropdownNote";
 import { ImageDialog } from "./imageBlock/ImageDialog";
 import { useImageUpload } from "./imageBlock/useImageUpload";
+import { NoteEditorSurface } from "./NoteEditorSurface";
 import { PluginDialog } from "./pluginBlock/PluginDialog";
 import { SlashCommand } from "./SlashCommand/SlashCommand";
+import { WikiLinkSuggestion } from "./WikiLink/WikiLinkSuggestion";
 
 interface EditorProps {
   noteId: string;
@@ -319,7 +321,11 @@ export function Editor({
 
   return (
     <EditorContext.Provider value={{ editor }}>
-      <EditorContent editor={editor} />
+      {editor ? (
+        <NoteEditorSurface editor={editor} noteId={noteId} />
+      ) : (
+        <EditorContent editor={editor} />
+      )}
       {editor && (
         <SlashCommand
           editor={editor}
@@ -327,6 +333,7 @@ export function Editor({
           onOpenPluginDialog={openPluginDialog}
         />
       )}
+      {editor && <WikiLinkSuggestion editor={editor} noteId={noteId} />}
       {editor && <EmojiDropdownMenu char=":" />}
       {editor && (
         <DropdownNote

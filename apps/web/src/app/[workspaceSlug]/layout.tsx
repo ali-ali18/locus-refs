@@ -10,6 +10,7 @@ import { WorkspaceShell } from "@/components/workspace/WorkspaceShell";
 import { ChatPanelProvider } from "@/context/chatPanel";
 import { CommandPaletteProvider } from "@/context/commandPalette";
 import { NoteEditorProvider } from "@/context/noteEditor";
+import { NoteTrailProvider } from "@/context/noteTrail";
 import { SettingsDialogProvider } from "@/context/settingsDialog";
 import { WorkspaceProvider } from "@/context/workspace";
 import prisma from "@/lib/prisma";
@@ -50,19 +51,21 @@ export default async function WorkspaceLayout({ children, params }: Props) {
         workspaceLogo={workspace.logo}
       >
         <NoteEditorProvider>
-          <ChatPanelProvider>
-            <SettingsDialogProvider>
-              <CommandPaletteProvider>
-                <SidebarProvider>
-                  <SessionGuard />
-                  <WorkspaceShell>{children}</WorkspaceShell>
-                  <ChatPanel />
-                  <SettingsDialog />
-                  <CommandPalette />
-                </SidebarProvider>
-              </CommandPaletteProvider>
-            </SettingsDialogProvider>
-          </ChatPanelProvider>
+          <NoteTrailProvider>
+            <ChatPanelProvider>
+              <SettingsDialogProvider>
+                <CommandPaletteProvider>
+                  <SidebarProvider>
+                    <SessionGuard />
+                    <WorkspaceShell>{children}</WorkspaceShell>
+                    <ChatPanel />
+                    <SettingsDialog />
+                    <CommandPalette />
+                  </SidebarProvider>
+                </CommandPaletteProvider>
+              </SettingsDialogProvider>
+            </ChatPanelProvider>
+          </NoteTrailProvider>
         </NoteEditorProvider>
       </WorkspaceProvider>
     </ThemeProvider>

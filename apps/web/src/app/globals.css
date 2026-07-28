@@ -304,6 +304,12 @@
   vertical-align: middle;
 }
 
+.tiptap .node-noteLink.ProseMirror-selectednode,
+.tiptap .node-noteLink.ProseMirror-selectednode > * {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Só imagens de emoji — não aplicar a thumbs/imagens de bloco */
 .tiptap span[data-emoji] img,
 .tiptap img.emoji {

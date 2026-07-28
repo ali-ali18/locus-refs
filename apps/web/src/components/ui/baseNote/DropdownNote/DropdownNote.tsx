@@ -4,6 +4,7 @@ import {
   Heading02Icon,
   Heading03Icon,
   KanbanIcon,
+  Message01Icon,
   MoreHorizontal,
   QuoteDownIcon,
   YoutubeIcon,
@@ -27,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useChatPanel } from "@/context/chatPanel";
+import { copySelectionForMessaging } from "@/lib/copy-selection-messaging";
 import { Button } from "../../button";
 import {
   BUBBLE_MENU_GROUPS,
@@ -57,19 +59,34 @@ export function DropdownNote({ editor, noteId, onOpenPluginDialog }: Props) {
     if (!text) return;
     attachSelection({ noteId, from, to, text });
   };
+
+  const handleCopyForMessaging = () => {
+    void copySelectionForMessaging(editor);
+  };
+
   const activeMarks = useEditorState({
     editor,
-    selector: ({ editor }) => ({
-      bold: editor.isActive("bold"),
-      italic: editor.isActive("italic"),
-      underline: editor.isActive("underline"),
-      link: editor.isActive("link"),
-      heading1: editor.isActive("heading", { level: 1 }),
-      heading2: editor.isActive("heading", { level: 2 }),
-      heading3: editor.isActive("heading", { level: 3 }),
-      blockquote: editor.isActive("blockquote"),
-      taskList: editor.isActive("taskList"),
-    }),
+    selector: ({ editor }) => {
+      const noteLink = editor.isActive("noteLink")
+        ? editor.getAttributes("noteLink")
+        : null;
+
+      return {
+        bold: noteLink ? Boolean(noteLink.bold) : editor.isActive("bold"),
+        italic: noteLink
+          ? Boolean(noteLink.italic)
+          : editor.isActive("italic"),
+        underline: noteLink
+          ? Boolean(noteLink.underline)
+          : editor.isActive("underline"),
+        link: editor.isActive("link"),
+        heading1: editor.isActive("heading", { level: 1 }),
+        heading2: editor.isActive("heading", { level: 2 }),
+        heading3: editor.isActive("heading", { level: 3 }),
+        blockquote: editor.isActive("blockquote"),
+        taskList: editor.isActive("taskList"),
+      };
+    },
   });
 
   const isActive = (mark?: string) => {
@@ -343,6 +360,21 @@ export function DropdownNote({ editor, noteId, onOpenPluginDialog }: Props) {
                   YouTube
                 </DropdownMenuItem>
               ) : null}
+            </DropdownMenuGroup>
+
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Formatar</DropdownMenuLabel>
+              <DropdownMenuItem
+                className="rounded-xl"
+                onClick={() => {
+                  setDropdownOpen(false);
+                  handleCopyForMessaging();
+                }}
+              >
+                <Icon icon={Message01Icon} />
+                Formatar para app de mensagem
+              </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

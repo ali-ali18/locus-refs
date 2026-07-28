@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { extractNoteLinkIds } from "@/lib/note-links";
 import prisma from "@/lib/prisma";
 import { requireWorkspaceAccess } from "@/server/requireSession";
 import { deleteObjects } from "@/server/upload";
@@ -118,6 +119,40 @@ export async function PATCH(
 
     if (orphanedKeys.length > 0) {
       deleteObjects(orphanedKeys).catch(console.error);
+    }
+
+    if (content !== undefined) {
+      const linkedIds = extractNoteLinkIds(content as TiptapNode).filter(
+        (targetId) => targetId !== id,
+      );
+
+      const validTargets = linkedIds.length
+        ? await prisma.note.findMany({
+            where: { workspaceId, id: { in: linkedIds } },
+            select: { id: true },
+          })
+        : [];
+      const validTargetIds = validTargets.map((note) => note.id);
+
+      await prisma.$transaction([
+        prisma.noteLink.deleteMany({
+          where: {
+            sourceId: id,
+            ...(validTargetIds.length > 0
+              ? { targetId: { notIn: validTargetIds } }
+              : {}),
+          },
+        }),
+        ...validTargetIds.map((targetId) =>
+          prisma.noteLink.upsert({
+            where: {
+              sourceId_targetId: { sourceId: id, targetId },
+            },
+            create: { sourceId: id, targetId },
+            update: {},
+          }),
+        ),
+      ]);
     }
 
     return NextResponse.json(
