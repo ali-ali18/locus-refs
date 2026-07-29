@@ -304,10 +304,14 @@
   vertical-align: middle;
 }
 
-.tiptap .node-noteLink.ProseMirror-selectednode,
-.tiptap .node-noteLink.ProseMirror-selectednode > * {
-  outline: none !important;
-  box-shadow: none !important;
+/* Seleção do wiki-link: troca o outline azul padrão do TipTap pelo token do tema */
+.tiptap .node-noteLink.ProseMirror-selectednode {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: 2px;
+}
+
+.tiptap .node-noteLink.ProseMirror-selectednode [data-node-view-wrapper] {
+  outline: none;
 }
 
 /* Só imagens de emoji — não aplicar a thumbs/imagens de bloco */

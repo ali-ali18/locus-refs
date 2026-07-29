@@ -49,7 +49,7 @@ export function NoteTrailSync() {
     if (consumeLinkNavigation()) return;
 
     if (!currentNoteId) {
-      resetTrail();
+      if (trail.length > 0) resetTrail();
       return;
     }
 
@@ -57,7 +57,8 @@ export function NoteTrailSync() {
     if (trail.length > 0 && last && last.id !== currentNoteId) {
       resetTrail();
     }
-  }, [currentNoteId, pathname, trail, resetTrail, consumeLinkNavigation]);
+    // trail lido da closure; deps só de navegação para evitar loop com setTrail([])
+  }, [currentNoteId, pathname, resetTrail, consumeLinkNavigation]);
 
   return null;
 }

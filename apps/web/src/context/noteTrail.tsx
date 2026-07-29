@@ -41,7 +41,7 @@ export function NoteTrailProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const resetTrail = useCallback(() => {
-    setTrail([]);
+    setTrail((prev) => (prev.length === 0 ? prev : []));
   }, []);
 
   const navigateViaLink = useCallback(

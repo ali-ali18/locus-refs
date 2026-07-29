@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "pnpm --parallel --filter @refstash/web --filter @refstash/collab --filter @refstash/tldraw-sync run dev",
     "dev:web": "pnpm --filter @refstash/web dev",
+    "dev:web:webpack": "pnpm --filter @refstash/web dev:webpack",
     "build": "pnpm --filter @refstash/web build",
     "start": "prisma migrate deploy && pnpm --filter @refstash/web start",
     "collab:dev": "pnpm --filter @refstash/collab dev",

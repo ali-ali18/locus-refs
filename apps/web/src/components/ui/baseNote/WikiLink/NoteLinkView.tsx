@@ -28,6 +28,7 @@ export function NoteLinkView({
   node,
   editor,
   getPos,
+  selected,
 }: NodeViewProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -108,7 +109,13 @@ export function NoteLinkView({
   return (
     <NodeViewWrapper
       as="span"
-      className={cn(noteLinkBaseClassName, "cursor-pointer select-none")}
+      className={cn(
+        noteLinkBaseClassName,
+        "cursor-pointer select-none",
+        selected &&
+          "outline outline-2 outline-ring outline-offset-2",
+      )}
+      data-selected={selected ? "true" : undefined}
       style={markStyle}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
