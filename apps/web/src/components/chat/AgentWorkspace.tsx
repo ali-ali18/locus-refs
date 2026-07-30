@@ -53,7 +53,7 @@ export function AgentWorkspace() {
           <AgentEmptyState />
         ) : (
           <div className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden">
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
               <div className="min-h-0 min-w-0 flex-1 overflow-hidden">
                 <ChatMessages
                   messages={messages}
@@ -63,14 +63,16 @@ export function AgentWorkspace() {
                   addToolApprovalResponse={addToolApprovalResponse}
                 />
               </div>
-              <div className="mx-auto w-full max-w-3xl shrink-0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 md:px-4 md:pb-4">
-                <ChatInput
-                  onSend={send}
-                  onStop={stop}
-                  status={status}
-                  noteId={noteId}
-                  variant="dock"
-                />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-background from-40% via-background/85 to-transparent px-3 pt-10 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-4 md:pb-4">
+                <div className="pointer-events-auto mx-auto w-full max-w-3xl">
+                  <ChatInput
+                    onSend={send}
+                    onStop={stop}
+                    status={status}
+                    noteId={noteId}
+                    variant="dock"
+                  />
+                </div>
               </div>
             </div>
             <AgentActivityRail />

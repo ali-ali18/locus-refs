@@ -52,102 +52,101 @@ export function AgentHeader({
     .join(" · ");
 
   return (
-    <header className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-linear-to-b from-background from-30% via-background/80 to-transparent px-3 pt-2 pb-10">
+    <header className="pointer-events-none absolute inset-x-0 top-0 z-20 px-3 pt-2">
       <div className="pointer-events-auto flex h-10 items-center gap-2">
-      <div className="flex min-w-0 flex-1 items-center gap-2">
-        {onOpenThreads ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            rounded="full"
-            className="bg-background px-0 md:hidden"
-            aria-label="Abrir conversas"
-            onClick={onOpenThreads}
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          {onOpenThreads ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              rounded="full"
+              className="bg-background px-0 md:hidden"
+              aria-label="Abrir conversas"
+              onClick={onOpenThreads}
+            >
+              <Icon icon={Menu01FreeIcons} />
+            </Button>
+          ) : null}
+          <h2 className="hidden shrink-0 text-sm font-semibold text-foreground md:block">
+            Agent
+          </h2>
+          {desktopSubtitle ? (
+            <span className="hidden truncate text-sm text-muted-foreground md:inline">
+              {desktopSubtitle}
+            </span>
+          ) : null}
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          {/* Mobile: nova conversa + compartilhar + fechar (pill único, sem divisor) */}
+          <div
+            className="flex overflow-hidden rounded-full border border-border bg-background shadow-xs md:hidden"
           >
-            <Icon icon={Menu01FreeIcons} />
-          </Button>
-        ) : null}
-        <h2 className="hidden shrink-0 text-sm font-semibold text-foreground md:block">
-          Agent
-        </h2>
-        {desktopSubtitle ? (
-          <span className="hidden truncate text-sm text-muted-foreground md:inline">
-            {desktopSubtitle}
-          </span>
-        ) : null}
-      </div>
-      <div className="flex shrink-0 items-center gap-1">
-        {/* Mobile: nova conversa + compartilhar + fechar (pill único, sem divisor) */}
-        <div
-          role="group"
-          className="flex overflow-hidden rounded-full border border-border bg-background shadow-xs md:hidden"
-        >
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="rounded-none border-0 px-0 shadow-none"
-            aria-label="Nova conversa"
-            onClick={startNewChat}
-          >
-            <Icon icon={Add01Icon} className="size-4" />
-          </Button>
-          {canShare ? (
             <Button
               type="button"
               variant="ghost"
               size="icon"
               className="rounded-none border-0 px-0 shadow-none"
+              aria-label="Nova conversa"
+              onClick={startNewChat}
+            >
+              <Icon icon={Add01Icon} className="size-4" />
+            </Button>
+            {canShare ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="rounded-none border-0 px-0 shadow-none"
+                disabled={sharing || isSharing}
+                aria-label={
+                  sharing || isSharing ? "Compartilhando…" : "Compartilhar"
+                }
+                onClick={() => void handleShare()}
+              >
+                <Icon icon={Share06Icon} className="size-4" />
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="rounded-none border-0 px-0 shadow-none"
+              onClick={() => setOpen(false)}
+              aria-label="Fechar agent"
+            >
+              <Icon icon={Cancel01Icon} className="size-4" />
+            </Button>
+          </div>
+
+          {/* Desktop: compartilhar + fechar */}
+          {canShare ? (
+            <Button
+              variant="outline"
+              size="sm"
+              rounded="xl"
+              className="hidden gap-1.5 bg-background md:inline-flex"
               disabled={sharing || isSharing}
-              aria-label={
-                sharing || isSharing ? "Compartilhando…" : "Compartilhar"
-              }
               onClick={() => void handleShare()}
             >
-              <Icon icon={Share06Icon} className="size-4" />
+              <Icon icon={Share06Icon} className="size-3.5" />
+              <span>
+                {sharing || isSharing ? "Compartilhando…" : "Compartilhar"}
+              </span>
             </Button>
           ) : null}
+
           <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="rounded-none border-0 px-0 shadow-none"
+            variant="outline"
+            size="icon-sm"
+            rounded="full"
+            className="hidden bg-background md:inline-flex"
             onClick={() => setOpen(false)}
             aria-label="Fechar agent"
           >
-            <Icon icon={Cancel01Icon} className="size-4" />
+            <Icon icon={Cancel01Icon} />
           </Button>
         </div>
-
-        {/* Desktop: compartilhar + fechar */}
-        {canShare ? (
-          <Button
-            variant="outline"
-            size="sm"
-            rounded="xl"
-            className="hidden gap-1.5 bg-background md:inline-flex"
-            disabled={sharing || isSharing}
-            onClick={() => void handleShare()}
-          >
-            <Icon icon={Share06Icon} className="size-3.5" />
-            <span>
-              {sharing || isSharing ? "Compartilhando…" : "Compartilhar"}
-            </span>
-          </Button>
-        ) : null}
-
-        <Button
-          variant="outline"
-          size="icon-sm"
-          rounded="full"
-          className="hidden bg-background md:inline-flex"
-          onClick={() => setOpen(false)}
-          aria-label="Fechar agent"
-        >
-          <Icon icon={Cancel01Icon} />
-        </Button>
-      </div>
       </div>
     </header>
   );
