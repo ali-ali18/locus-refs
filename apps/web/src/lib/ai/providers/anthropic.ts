@@ -31,6 +31,8 @@ export const ANTHROPIC_STATIC_MODELS: readonly ModelMetadata[] = [
     costPer1kInput: 0.003,
     costPer1kOutput: 0.015,
     supportsTools: true,
+    supportsThinking: true,
+    thinkingMode: "adaptive",
   },
   {
     id: "claude-haiku-4-5",
@@ -44,6 +46,8 @@ export const ANTHROPIC_STATIC_MODELS: readonly ModelMetadata[] = [
     costPer1kInput: 0.0008,
     costPer1kOutput: 0.004,
     supportsTools: true,
+    supportsThinking: true,
+    thinkingMode: "budget",
   },
 ];
 

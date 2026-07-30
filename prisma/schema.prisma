@@ -207,12 +207,14 @@ model Organization {
 }
 
 model WorkspaceAiSettings {
-  workspaceId    String       @id
-  workspace      Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  defaultModelId String       @default("claude-sonnet-4-6")
-  systemPrompt   String?      @db.Text
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  workspaceId     String       @id
+  workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  defaultModelId  String       @default("claude-sonnet-4-6")
+  systemPrompt    String?      @db.Text
+  /// Raciocínio (thinking) visível — só aplicado em modelos com supportsThinking.
+  thinkingEnabled Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   @@map("workspace_ai_settings")
 }

@@ -16,6 +16,7 @@ import { agentThreadKeys } from "@/hook/ai/agentThreadKeys";
 import { useAgentThread, useAgentThreadMutations } from "@/hook/ai/useAgentThreads";
 import { noteKeys } from "@/hook/notes/noteKeys";
 import type { AiMessageMetadata } from "@/lib/ai/intent";
+import { deleteChatUploads } from "@/lib/chat-upload-cleanup";
 import type { AgentSkillId } from "@/lib/ai/skills";
 
 export type AiUIMessage = UIMessage<AiMessageMetadata>;
@@ -40,9 +41,19 @@ interface UseAiChatParams {
   onThreadCreated?: (threadId: string) => void;
 }
 
+export interface ChatAttachment {
+  url: string;
+  mediaType: string;
+  filename: string;
+}
+
 type PendingSend = {
   text: string;
-  options?: { skillId?: AgentSkillId; mentions?: AgentMention[] };
+  options?: {
+    skillId?: AgentSkillId;
+    mentions?: AgentMention[];
+    attachments?: ChatAttachment[];
+  };
 };
 
 export function useAiChat({
@@ -68,6 +79,7 @@ export function useAiChat({
   const selectionRef = useRef<SelectionContext | null>(null);
   const skillIdRef = useRef<AgentSkillId | null>(null);
   const mentionsRef = useRef<AgentMention[]>([]);
+  const attachmentsRef = useRef<ChatAttachment[]>([]);
   const isSendingRef = useRef(false);
   const invalidatedToolCallIdsRef = useRef<Set<string>>(new Set());
   const hydratedThreadIdRef = useRef<string | null>(null);
@@ -101,7 +113,9 @@ export function useAiChat({
 
           const skillId = skillIdRef.current;
           const mentions = mentionsRef.current;
+          const attachments = attachmentsRef.current;
           skillIdRef.current = null;
+          attachmentsRef.current = [];
 
           return {
             headers: { "x-workspace-id": workspaceId },
@@ -112,6 +126,7 @@ export function useAiChat({
               selectionContext,
               skillId: skillId ?? undefined,
               mentions: mentions.length ? mentions : undefined,
+              attachments: attachments.length ? attachments : undefined,
             },
           };
         },
@@ -267,7 +282,11 @@ export function useAiChat({
   const dispatchSend = useCallback(
     (
       text: string,
-      options?: { skillId?: AgentSkillId; mentions?: AgentMention[] },
+      options?: {
+        skillId?: AgentSkillId;
+        mentions?: AgentMention[];
+        attachments?: ChatAttachment[];
+      },
     ) => {
       const quote = attachedSelection
         ? {
@@ -289,10 +308,19 @@ export function useAiChat({
 
       skillIdRef.current = options?.skillId ?? null;
       mentionsRef.current = options?.mentions ?? [];
+      attachmentsRef.current = options?.attachments ?? [];
       isSendingRef.current = true;
+
+      const files = (options?.attachments ?? []).map((file) => ({
+        type: "file" as const,
+        url: file.url,
+        mediaType: file.mediaType,
+        filename: file.filename,
+      }));
 
       void sendMessage({
         text,
+        files: files.length ? files : undefined,
         metadata: quote
           ? {
               attachedSelection: {
@@ -323,10 +351,21 @@ export function useAiChat({
   const send = useCallback(
     (
       text: string,
-      options?: { skillId?: AgentSkillId; mentions?: AgentMention[] },
+      options?: {
+        skillId?: AgentSkillId;
+        mentions?: AgentMention[];
+        attachments?: ChatAttachment[];
+      },
     ) => {
       const trimmed = text.trim();
-      if (!trimmed || isStreaming || creatingThreadRef.current) return;
+      const hasAttachments = (options?.attachments?.length ?? 0) > 0;
+      if (
+        (!trimmed && !hasAttachments) ||
+        isStreaming ||
+        creatingThreadRef.current
+      ) {
+        return;
+      }
 
       if (threadIdRef.current) {
         dispatchSend(trimmed, options);
@@ -337,8 +376,10 @@ export function useAiChat({
 
       creatingThreadRef.current = true;
       pendingSendRef.current = { text: trimmed, options };
+      const titleSource =
+        trimmed || options?.attachments?.[0]?.filename || "Anexo";
       const title =
-        trimmed.slice(0, 60) + (trimmed.length > 60 ? "…" : "");
+        titleSource.slice(0, 60) + (titleSource.length > 60 ? "…" : "");
 
       void createThread({ visibility: "private", title })
         .then((thread) => {
@@ -346,8 +387,14 @@ export function useAiChat({
           onThreadCreatedRef.current?.(thread.id);
         })
         .catch(() => {
+          const orphanUrls =
+            pendingSendRef.current?.options?.attachments?.map((a) => a.url) ??
+            [];
           pendingSendRef.current = null;
           creatingThreadRef.current = false;
+          if (orphanUrls.length > 0) {
+            void deleteChatUploads(orphanUrls);
+          }
         });
     },
     [createThread, dispatchSend, isStreaming],

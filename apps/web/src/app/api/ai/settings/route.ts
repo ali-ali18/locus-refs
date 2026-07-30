@@ -31,7 +31,8 @@ export async function PATCH(request: NextRequest) {
   const { workspaceId } = auth;
 
   try {
-    const { defaultModelId, systemPrompt } = await request.json();
+    const { defaultModelId, systemPrompt, thinkingEnabled } =
+      await request.json();
 
     if (
       defaultModelId !== undefined &&
@@ -43,16 +44,28 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    if (
+      thinkingEnabled !== undefined &&
+      typeof thinkingEnabled !== "boolean"
+    ) {
+      return NextResponse.json(
+        { error: "thinkingEnabled inválido", code: "INVALID_THINKING" },
+        { status: 400 },
+      );
+    }
+
     const settings = await prisma.workspaceAiSettings.upsert({
       where: { workspaceId },
       create: {
         workspaceId,
         defaultModelId: defaultModelId ?? DEFAULT_MODEL_ID,
         systemPrompt: systemPrompt ?? null,
+        thinkingEnabled: thinkingEnabled ?? false,
       },
       update: {
         ...(defaultModelId !== undefined && { defaultModelId }),
         ...(systemPrompt !== undefined && { systemPrompt }),
+        ...(thinkingEnabled !== undefined && { thinkingEnabled }),
       },
     });
 

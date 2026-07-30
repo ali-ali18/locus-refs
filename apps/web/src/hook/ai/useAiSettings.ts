@@ -8,20 +8,24 @@ interface AiSettings {
   workspaceId: string;
   defaultModelId: string;
   systemPrompt: string | null;
+  thinkingEnabled: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-interface AiModel {
+export interface AiModel {
   id: string;
   provider: string;
   label: string;
   description: string;
+  inputModalities?: Array<"text" | "image" | "audio" | "video">;
+  supportsThinking?: boolean;
 }
 
 interface UpdateAiSettingsPayload {
   defaultModelId?: string;
   systemPrompt?: string | null;
+  thinkingEnabled?: boolean;
 }
 
 export function useAiSettings() {

@@ -31,9 +31,11 @@ export const MINIMAX_STATIC_MODELS: readonly ModelMetadata[] = [
     description: "Modelo mais recente da MinMax — lançado junho 2026",
     contextWindow: 200_000,
     maxOutputTokens: 8_192,
-    inputModalities: ["text"],
+    inputModalities: ["text", "image"],
     outputModalities: ["text"],
     supportsTools: true,
+    supportsThinking: true,
+    thinkingMode: "adaptive",
   },
 ];
 

@@ -25,6 +25,10 @@ export interface ModelMetadata {
   costPer1kInput?: number;
   costPer1kOutput?: number;
   supportsTools?: boolean;
+  /** Modelo expõe raciocínio (thinking) configurável. */
+  supportsThinking?: boolean;
+  /** Como habilitar thinking na API Anthropic-compatible. */
+  thinkingMode?: "adaptive" | "budget";
   deprecated?: boolean;
 }
 

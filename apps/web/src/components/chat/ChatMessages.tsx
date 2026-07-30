@@ -1,21 +1,36 @@
 "use client";
 
 import { isToolUIPart, type ToolUIPart } from "ai";
-import { ReplyIcon } from "lucide-react";
+import { BrainIcon, ReplyIcon, WrenchIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Attachment,
+  AttachmentInfo,
+  AttachmentPreview,
+  Attachments,
+  getAttachmentLabel,
+} from "@/components/ai-elements/attachments";
+import {
+  ChainOfThought,
+  ChainOfThoughtContent,
+  ChainOfThoughtHeader,
+  ChainOfThoughtStep,
+} from "@/components/ai-elements/chain-of-thought";
 import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { MessageResponse } from "@/components/ai-elements/message";
-import {
-  Reasoning,
-  ReasoningContent,
-  ReasoningTrigger,
-} from "@/components/ai-elements/reasoning";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import type { NoteEditToolName, NoteEditToolResult } from "@/lib/ai/tools";
-import { NOTE_EDIT_TOOLS } from "./agentToolLabels";
+import {
+  getToolCardSnippet,
+  getToolCardTitle,
+  getToolDoneLabel,
+  getToolPendingLabel,
+  NOTE_EDIT_TOOLS,
+} from "./agentToolLabels";
 import {
   ChatDeleteConfirmation,
   isDeleteApprovalTool,
@@ -53,6 +68,42 @@ function getReasoningText(message: AiUIMessage): string {
     .join("");
 }
 
+function getFileParts(message: AiUIMessage) {
+  return message.parts.filter(
+    (part): part is Extract<(typeof message.parts)[number], { type: "file" }> =>
+      part.type === "file",
+  );
+}
+
+function getWorkspaceTools(message: AiUIMessage): ToolUIPart[] {
+  return message.parts.filter((part): part is ToolUIPart => {
+    if (!isToolUIPart(part)) return false;
+    const name = part.type.replace(/^tool-/, "");
+    return !NOTE_EDIT_TOOLS.has(name) && !isDeleteApprovalTool(name);
+  });
+}
+
+function toolStepStatus(
+  state: ToolUIPart["state"],
+): "complete" | "active" | "pending" {
+  switch (state) {
+    case "output-available":
+    case "output-error":
+    case "output-denied":
+      return "complete";
+    case "input-streaming":
+    case "input-available":
+    case "approval-requested":
+    case "approval-responded":
+      return "active";
+    default: {
+      const _exhaustive: never = state;
+      void _exhaustive;
+      return "pending";
+    }
+  }
+}
+
 function AttachedSelectionQuote({ text }: { text: string }) {
   const preview =
     text.length > 280 ? `${text.slice(0, 280).trimEnd()}…` : text;
@@ -67,6 +118,129 @@ function AttachedSelectionQuote({ text }: { text: string }) {
         {preview}
       </p>
     </div>
+  );
+}
+
+function cotHeaderLabel(params: {
+  isStreaming: boolean;
+  hasReasoning: boolean;
+  toolCount: number;
+}): string {
+  const { isStreaming, hasReasoning, toolCount } = params;
+  if (isStreaming) {
+    if (toolCount > 0) return `Usando ferramentas (${toolCount})…`;
+    return "Pensando…";
+  }
+  if (hasReasoning && toolCount > 0) {
+    return `Raciocínio · ${toolCount} ferramenta${toolCount === 1 ? "" : "s"}`;
+  }
+  if (toolCount > 0) {
+    return `${toolCount} ferramenta${toolCount === 1 ? "" : "s"}`;
+  }
+  return "Raciocínio";
+}
+
+function MessageChainOfThought({
+  message,
+  isStreaming,
+}: {
+  message: AiUIMessage;
+  isStreaming: boolean;
+}) {
+  const reasoningText = getReasoningText(message);
+  const workspaceTools = getWorkspaceTools(message);
+  const hasReasoning = Boolean(reasoningText.trim());
+  const hasContent = hasReasoning || workspaceTools.length > 0;
+
+  // Com tools: permanece aberto para o usuario ver. So reasoning: fecha ao terminar.
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    if (isStreaming) {
+      setOpen(true);
+      return;
+    }
+    if (workspaceTools.length > 0) {
+      setOpen(true);
+      return;
+    }
+    if (hasReasoning) {
+      const timer = setTimeout(() => setOpen(false), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [hasReasoning, isStreaming, workspaceTools.length]);
+
+  if (!hasContent) return null;
+
+  return (
+    <ChainOfThought open={open} onOpenChange={setOpen} className="mb-1">
+      <ChainOfThoughtHeader>
+        {cotHeaderLabel({
+          isStreaming,
+          hasReasoning,
+          toolCount: workspaceTools.length,
+        })}
+      </ChainOfThoughtHeader>
+      <ChainOfThoughtContent>
+        {hasReasoning ? (
+          <ChainOfThoughtStep
+            icon={BrainIcon}
+            label="Pensamento"
+            description={
+              <span className="whitespace-pre-wrap">{reasoningText}</span>
+            }
+            status={isStreaming && workspaceTools.length === 0 ? "active" : "complete"}
+          />
+        ) : null}
+        {workspaceTools.map((toolPart) => {
+          const snippet = getToolCardSnippet(toolPart);
+          return (
+            <ChainOfThoughtStep
+              key={toolPart.toolCallId}
+              icon={WrenchIcon}
+              label={getToolCardTitle(toolPart)}
+              description={
+                snippet ||
+                (toolPart.state === "output-available" ||
+                toolPart.state === "output-error"
+                  ? getToolDoneLabel(toolPart)
+                  : getToolPendingLabel(toolPart))
+              }
+              status={toolStepStatus(toolPart.state)}
+            />
+          );
+        })}
+      </ChainOfThoughtContent>
+    </ChainOfThought>
+  );
+}
+
+function UserFileAttachments({
+  files,
+}: {
+  files: ReturnType<typeof getFileParts>;
+}) {
+  if (files.length === 0) return null;
+
+  return (
+    <Attachments variant="inline" className="mb-1.5 ml-auto max-w-[85%] justify-end">
+      {files.map((file, idx) => {
+        const data = {
+          id: `${file.url}-${idx}`,
+          type: "file" as const,
+          url: file.url,
+          mediaType: file.mediaType,
+          filename: file.filename,
+        };
+        return (
+          <Attachment key={data.id} data={data}>
+            <AttachmentPreview />
+            <AttachmentInfo />
+            <span className="sr-only">{getAttachmentLabel(data)}</span>
+          </Attachment>
+        );
+      })}
+    </Attachments>
   );
 }
 
@@ -89,30 +263,30 @@ export function ChatMessages({
       <ConversationContent className="mx-auto w-full max-w-3xl gap-6 px-4 py-6">
         {messages.map((message) => {
           const isUser = message.role === "user";
-          const reasoningText = isUser ? "" : getReasoningText(message);
           const userText = isUser ? getMessageText(message).trim() : "";
+          const userFiles = isUser ? getFileParts(message) : [];
           const attachedQuote = isUser
             ? message.metadata?.attachedSelection?.text?.trim()
             : undefined;
+          const isThisAssistantStreaming =
+            isStreaming && lastMessage?.id === message.id && !isUser;
 
           return (
             <div key={message.id} className="flex min-w-0 flex-col gap-3">
-              {reasoningText ? (
-                <Reasoning
-                  key={`${message.id}-${isLastAssistantStreaming ? "streaming" : "done"}`}
-                  isStreaming={isStreaming && isLastAssistantStreaming}
-                >
-                  <ReasoningTrigger />
-                  <ReasoningContent>{reasoningText}</ReasoningContent>
-                </Reasoning>
+              {!isUser ? (
+                <MessageChainOfThought
+                  message={message}
+                  isStreaming={isThisAssistantStreaming}
+                />
               ) : null}
 
               {isUser ? (
-                userText || attachedQuote ? (
+                userText || attachedQuote || userFiles.length > 0 ? (
                   <div className="flex w-full flex-col items-end gap-1.5">
                     {attachedQuote ? (
                       <AttachedSelectionQuote text={attachedQuote} />
                     ) : null}
+                    <UserFileAttachments files={userFiles} />
                     {userText ? (
                       <Bubble
                         variant="default"

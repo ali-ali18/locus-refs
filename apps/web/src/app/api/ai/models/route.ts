@@ -7,11 +7,13 @@ export async function GET(request: NextRequest) {
   if ("error" in auth) return auth.error;
 
   const models = getAvailableModels().map(
-    ({ id, provider, label, description }) => ({
+    ({ id, provider, label, description, metadata }) => ({
       id,
       provider,
       label,
       description,
+      inputModalities: metadata?.inputModalities ?? ["text"],
+      supportsThinking: metadata?.supportsThinking ?? false,
     }),
   );
 

@@ -117,6 +117,7 @@ describe("minimaxProvider", () => {
         expect(m?.maxOutputTokens).toBeGreaterThan(0);
         expect(m?.inputModalities).toContain("text");
       }
+      expect(m3?.inputModalities).toContain("image");
     });
 
     it("aponta modelId para os IDs da SDK", () => {
