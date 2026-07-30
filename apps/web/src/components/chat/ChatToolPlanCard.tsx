@@ -175,7 +175,7 @@ export function ChatToolPlanCard({
               <PlanTitle>{aiTitle}</PlanTitle>
             </div>
             <PlanDescription>
-              Inserir {links.length} wiki-link(s) na nota
+              {`Inserir ${links.length} wiki-link(s) na nota`}
             </PlanDescription>
           </div>
           <PlanTrigger />
