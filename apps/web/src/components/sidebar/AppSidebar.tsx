@@ -2,6 +2,7 @@
 
 import { CommandPaletteTrigger } from "@/components/command-palette/CommandPalette";
 import { NavBoards } from "@/components/sidebar/NavBoards";
+import { NavFavoritesRecents } from "@/components/sidebar/NavFavoritesRecents";
 import { NavMain } from "@/components/sidebar/NavMain";
 import { NavNotes } from "@/components/sidebar/NavNotes";
 import { NavQuick } from "@/components/sidebar/NavQuick";
@@ -25,6 +26,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent className="gap-0">
         <div className="flex flex-col gap-0 group-data-[collapsible=icon]:hidden">
+          <NavFavoritesRecents />
           <NavNotes />
           <NavMain />
           <NavBoards />

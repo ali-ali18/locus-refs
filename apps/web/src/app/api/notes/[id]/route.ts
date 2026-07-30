@@ -34,7 +34,7 @@ export async function GET(
 ) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { workspaceId } = auth;
+  const { session, workspaceId } = auth;
   const { id } = await params;
 
   try {
@@ -48,6 +48,11 @@ export async function GET(
         linkedFrom: {
           select: { source: { select: { id: true, title: true, icon: true } } },
         },
+        userStates: {
+          where: { userId: session.user.id },
+          select: { isFavorite: true },
+          take: 1,
+        },
       },
     });
 
@@ -55,7 +60,11 @@ export async function GET(
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
-    return NextResponse.json(note);
+    const { userStates, ...rest } = note;
+    return NextResponse.json({
+      ...rest,
+      isFavorite: userStates[0]?.isFavorite ?? false,
+    });
   } catch (_error) {
     return NextResponse.json({ error: "Failed to get note" }, { status: 500 });
   }

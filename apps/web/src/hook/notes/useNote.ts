@@ -66,6 +66,7 @@ export function useNoteMutations() {
       queryClient.invalidateQueries({
         queryKey: noteKeys.detail(workspaceId, _deletedId),
       });
+      queryClient.invalidateQueries({ queryKey: noteKeys.pins(workspaceId) });
     },
     onError: () => {
       toast.error("Erro ao excluir nota. Tente novamente.");

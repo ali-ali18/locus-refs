@@ -34,7 +34,7 @@ export {
 } from "./schemas/workspace.schema";
 export type { Category } from "./types/categories.type";
 export type { Collection } from "./types/collection.type";
-export type { Note, NoteContent } from "./types/note.type";
+export type { Note, NoteContent, NotePinItem, NotePins } from "./types/note.type";
 export { EMPTY_NOTE_CONTENT } from "./types/note.type";
 export type { Board } from "./types/board.type";
 export type {

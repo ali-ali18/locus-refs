@@ -8,6 +8,7 @@ import {
   NoteTrailSync,
   useHasActiveNoteTrail,
 } from "@/components/breadcrumb/NoteTrailBreadcrumb";
+import { NoteFavoriteHeaderAction } from "@/components/notes/note/NoteFavoriteHeaderAction";
 import { NavActions } from "@/components/sidebar/NavActions";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,6 +62,7 @@ export function DashboardLayoutHeader() {
         <HeaderBreadcrumb />
       </div>
       <div className="ml-auto flex shrink-0 items-center gap-2 px-3">
+        <NoteFavoriteHeaderAction />
         <NavActions />
       </div>
     </header>

@@ -17,4 +17,20 @@ export interface Note {
   userId: string;
   createdAt: string;
   updatedAt: string;
+  /** Present when loaded for the current user. */
+  isFavorite?: boolean;
+}
+
+export interface NotePinItem {
+  id: string;
+  title: string;
+  icon: string | null;
+  favoritedAt?: string | null;
+  lastOpenedAt?: string | null;
+  isFavorite?: boolean;
+}
+
+export interface NotePins {
+  favorites: NotePinItem[];
+  recents: NotePinItem[];
 }
