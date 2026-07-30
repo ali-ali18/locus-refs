@@ -1,12 +1,12 @@
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { ChatPanel } from "@/components/chat/ChatPanel";
 import { CommandPalette } from "@/components/command-palette/CommandPalette";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SessionGuard } from "@/components/workspace/SessionGuard";
 import { SettingsDialog } from "@/components/workspace/SettingsDialog";
 import { WorkspaceShell } from "@/components/workspace/WorkspaceShell";
+import { AgentSessionProvider } from "@/context/agentSession";
 import { ChatPanelProvider } from "@/context/chatPanel";
 import { CommandPaletteProvider } from "@/context/commandPalette";
 import { NoteEditorProvider } from "@/context/noteEditor";
@@ -53,17 +53,18 @@ export default async function WorkspaceLayout({ children, params }: Props) {
         <NoteEditorProvider>
           <NoteTrailProvider>
             <ChatPanelProvider>
-              <SettingsDialogProvider>
-                <CommandPaletteProvider>
-                  <SidebarProvider>
-                    <SessionGuard />
-                    <WorkspaceShell>{children}</WorkspaceShell>
-                    <ChatPanel />
-                    <SettingsDialog />
-                    <CommandPalette />
-                  </SidebarProvider>
-                </CommandPaletteProvider>
-              </SettingsDialogProvider>
+              <AgentSessionProvider>
+                <SettingsDialogProvider>
+                  <CommandPaletteProvider>
+                    <SidebarProvider>
+                      <SessionGuard />
+                      <WorkspaceShell>{children}</WorkspaceShell>
+                      <SettingsDialog />
+                      <CommandPalette />
+                    </SidebarProvider>
+                  </CommandPaletteProvider>
+                </SettingsDialogProvider>
+              </AgentSessionProvider>
             </ChatPanelProvider>
           </NoteTrailProvider>
         </NoteEditorProvider>

@@ -52,7 +52,7 @@ export function NavActions() {
             }}
           >
             <Icon icon={BubbleChatIcon} />
-            Assistente IA
+            Agent
           </Button>
           <Button
             variant="ghost"

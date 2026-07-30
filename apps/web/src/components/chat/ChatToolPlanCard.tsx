@@ -43,6 +43,7 @@ const TOOL_TITLES: Record<NoteEditToolName, string> = {
   replaceBlock: "Substituir bloco",
   replaceSelection: "Substituir seleção",
   replaceEntireNote: "Reescrever nota inteira",
+  insertWikiLinks: "Inserir wiki-links",
 };
 
 const KNOWN_TOOL_NAMES: NoteEditToolName[] = [
@@ -52,6 +53,7 @@ const KNOWN_TOOL_NAMES: NoteEditToolName[] = [
   "replaceBlock",
   "replaceSelection",
   "replaceEntireNote",
+  "insertWikiLinks",
 ];
 
 function isKnownToolName(name: string): name is NoteEditToolName {
@@ -143,17 +145,9 @@ export function ChatToolPlanCard({
   const input = part.input as NoteEditToolInput["input"] | undefined;
   if (!input) return null;
 
-  const blocks = getEnumeratedBlocks(noteId);
-  const targetBlock =
-    "blockIndex" in input ? blocks[input.blockIndex] : undefined;
-  const blocoLabel = "blockIndex" in input ? `bloco ${input.blockIndex}` : null;
-  const blockMissing = !targetBlock && blocoLabel !== null;
-  const aiTitle = input.title?.trim() || title;
-  const description = targetBlock
-    ? `${title} · ${targetBlock.preview || `(${targetBlock.type} vazio)`}`
-    : blockMissing
-      ? `${title} · ${blocoLabel} não existe nesta nota`
-      : title;
+  const handleDeny = () => {
+    onResolve(part.toolCallId, toolName, { status: "denied" });
+  };
 
   const handleAccept = () => {
     setBusy(true);
@@ -168,9 +162,70 @@ export function ChatToolPlanCard({
     setBusy(false);
   };
 
-  const handleDeny = () => {
-    onResolve(part.toolCallId, toolName, { status: "denied" });
-  };
+  if (toolName === "insertWikiLinks" && "links" in input) {
+    const aiTitle = input.title?.trim() || title;
+    const links = input.links;
+
+    return (
+      <Plan defaultOpen className="mt-2 w-full">
+        <PlanHeader>
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex items-center gap-2">
+              <FileText className="size-4 shrink-0 text-muted-foreground" />
+              <PlanTitle>{aiTitle}</PlanTitle>
+            </div>
+            <PlanDescription>
+              Inserir {links.length} wiki-link(s) na nota
+            </PlanDescription>
+          </div>
+          <PlanTrigger />
+        </PlanHeader>
+        <PlanContent>
+          {input.intro?.trim() ? (
+            <p className="mb-2 text-sm text-muted-foreground">{input.intro}</p>
+          ) : null}
+          <ul className="flex flex-col gap-1.5 text-sm">
+            {links.map((link) => (
+              <li key={link.noteId} className="text-foreground">
+                [[{link.title}]]
+              </li>
+            ))}
+          </ul>
+        </PlanContent>
+        <PlanFooter className="justify-end">
+          <PlanAction className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDeny}
+              disabled={busy}
+            >
+              <X className="size-4" />
+              Recusar
+            </Button>
+            <Button size="sm" onClick={handleAccept} disabled={busy}>
+              <Check className="size-4" />
+              Aceitar
+            </Button>
+          </PlanAction>
+        </PlanFooter>
+      </Plan>
+    );
+  }
+
+  if (!("content" in input)) return null;
+
+  const blocks = getEnumeratedBlocks(noteId);
+  const targetBlock =
+    "blockIndex" in input ? blocks[input.blockIndex] : undefined;
+  const blocoLabel = "blockIndex" in input ? `bloco ${input.blockIndex}` : null;
+  const blockMissing = !targetBlock && blocoLabel !== null;
+  const aiTitle = input.title?.trim() || title;
+  const description = targetBlock
+    ? `${title} · ${targetBlock.preview || `(${targetBlock.type} vazio)`}`
+    : blockMissing
+      ? `${title} · ${blocoLabel} não existe nesta nota`
+      : title;
 
   return (
     <Plan defaultOpen className="mt-2 w-full">

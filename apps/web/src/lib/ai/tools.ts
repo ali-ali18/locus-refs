@@ -61,6 +61,26 @@ const replaceEntireNoteSchema = z.object({
   content: replaceContentField,
 });
 
+const insertWikiLinksSchema = z.object({
+  title: titleField,
+  links: z
+    .array(
+      z.object({
+        noteId: z.string().min(1).describe("Id da nota alvo do wiki-link"),
+        title: z.string().min(1).describe("Título da nota alvo"),
+        icon: z.string().nullable().optional(),
+      }),
+    )
+    .min(1)
+    .max(20)
+    .describe("Notas a inserir como wiki-links na nota aberta"),
+  intro: z
+    .string()
+    .max(500)
+    .optional()
+    .describe("Texto curto opcional antes dos links"),
+});
+
 export const noteEditTools = {
   appendToEnd: tool({
     description: "Anexa conteúdo Markdown no fim da nota.",
@@ -91,6 +111,11 @@ export const noteEditTools = {
       "Substitui TODO o conteúdo da nota pelo novo Markdown. Use quando o usuário pedir para reescrever, reorganizar ou refazer a nota inteira.",
     inputSchema: replaceEntireNoteSchema,
   }),
+  insertWikiLinks: tool({
+    description:
+      "Insere wiki-links (noteLink) na nota aberta, ligando a outras notas do workspace. Use após searchNotes/getNoteBacklinks quando o usuário pedir para relacionar/ligar notas.",
+    inputSchema: insertWikiLinksSchema,
+  }),
 } as const;
 
 export type NoteEditToolName = keyof typeof noteEditTools;
@@ -107,7 +132,8 @@ export type NoteEditToolInput =
   | {
       name: "replaceEntireNote";
       input: z.infer<typeof replaceEntireNoteSchema>;
-    };
+    }
+  | { name: "insertWikiLinks"; input: z.infer<typeof insertWikiLinksSchema> };
 
 export interface NoteEditToolResult {
   status: "applied" | "denied" | "error";

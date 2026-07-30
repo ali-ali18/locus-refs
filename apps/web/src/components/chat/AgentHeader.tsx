@@ -2,49 +2,44 @@
 
 import { Cancel01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 import { useChatPanel } from "@/context/chatPanel";
+import { useAgentSession } from "@/context/agentSession";
 import { useWorkspace } from "@/context/workspace";
 import { useNote } from "@/hook/notes/useNotes";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";
+import { SidebarTrigger } from "../ui/sidebar";
 
-interface ChatHeaderProps {
-  onClear: () => void;
-  hasMessages: boolean;
-  noteId?: string;
-}
-
-export function ChatHeader({
-  onClear,
-  hasMessages,
-  noteId,
-}: ChatHeaderProps) {
+export function AgentHeader() {
   const { setOpen } = useChatPanel();
+  const { clear, messages, noteId } = useAgentSession();
   const { workspaceName } = useWorkspace();
   const { data: note } = useNote(noteId ?? "");
+  const hasMessages = messages.length > 0;
 
   return (
-    <header className="flex items-center justify-between gap-2 border-b border-sidebar-border px-3 py-2.5">
-      <div className="min-w-0 flex flex-col gap-0.5">
+    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-3">
+      <SidebarTrigger className="-ml-1" />
+      <div className="min-w-0 flex flex-1 flex-col gap-0.5">
         <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
           Agent
         </span>
-        <span className="truncate text-xs text-sidebar-foreground/70">
+        <span className="truncate text-xs text-muted-foreground">
           {workspaceName}
           {note ? ` · ${note.title || "Sem título"}` : ""}
         </span>
       </div>
       <div className="flex shrink-0 items-center gap-1">
-        {hasMessages && (
+        {hasMessages ? (
           <Button
             variant="ghost"
             size="icon-sm"
             rounded="xl"
-            onClick={onClear}
+            onClick={clear}
             aria-label="Limpar conversa"
           >
             <Icon icon={Delete02Icon} />
           </Button>
-        )}
+        ) : null}
         <Button
           variant="ghost"
           size="icon-sm"

@@ -9,5 +9,10 @@ export const aiIntentSchema = z.object({
 });
 
 export interface AiMessageMetadata {
-  intent: AiIntent;
+  intent?: AiIntent;
+  /** Trecho da nota anexado no envio — só para UI do transcript. */
+  attachedSelection?: {
+    text: string;
+    noteId?: string;
+  };
 }

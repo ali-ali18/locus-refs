@@ -21,7 +21,7 @@ import { useWorkspace } from "@/context/workspace";
 export function NavQuick() {
   const { workspaceSlug } = useWorkspace();
   const pathname = usePathname();
-  const { toggle: toggleChat } = useChatPanel();
+  const { open: agentOpen, toggle: toggleChat } = useChatPanel();
 
   const links = [
     {
@@ -53,9 +53,13 @@ export function NavQuick() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton tooltip="Ask AI" onClick={toggleChat}>
+        <SidebarMenuButton
+          tooltip="Agent"
+          onClick={toggleChat}
+          isActive={agentOpen}
+        >
           <Icon icon={BubbleChatIcon} />
-          <span>Ask AI</span>
+          <span>Agent</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
       {links.map((link) => {
