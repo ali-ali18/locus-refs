@@ -18,13 +18,13 @@ import { ChatMessages } from "./ChatMessages";
 import { useAiChat } from "./hook/useAiChat";
 
 function ChatPanelContent({ noteId }: { noteId?: string }) {
-  const { messages, isStreaming, status, send, clear, stop, addToolOutput } =
-    useAiChat({ noteId });
+  const { messages, isStreaming, status, send, stop, addToolOutput } =
+    useAiChat({ noteId, threadId: null });
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col bg-sidebar text-sidebar-foreground">
       <ChatHeader
-        onClear={clear}
+        onClear={() => undefined}
         hasMessages={messages.length > 0}
         noteId={noteId}
       />
@@ -33,7 +33,7 @@ function ChatPanelContent({ noteId }: { noteId?: string }) {
         isStreaming={isStreaming}
         noteId={noteId}
         addToolOutput={addToolOutput}
-        onSkillSelect={(skill) => send(skill.prompt, { skillId: skill.id })}
+        addToolApprovalResponse={() => undefined}
       />
       <ChatInput onSend={send} onStop={stop} status={status} noteId={noteId} />
     </div>

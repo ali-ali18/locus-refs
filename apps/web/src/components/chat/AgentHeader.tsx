@@ -1,43 +1,59 @@
 "use client";
 
-import { Cancel01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
-import { useChatPanel } from "@/context/chatPanel";
+import { Cancel01Icon, Share06Icon } from "@hugeicons/core-free-icons";
+import { useState } from "react";
 import { useAgentSession } from "@/context/agentSession";
+import { useChatPanel } from "@/context/chatPanel";
 import { useWorkspace } from "@/context/workspace";
 import { useNote } from "@/hook/notes/useNotes";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";
-import { SidebarTrigger } from "../ui/sidebar";
 
 export function AgentHeader() {
   const { setOpen } = useChatPanel();
-  const { clear, messages, noteId } = useAgentSession();
+  const { noteId, activeThread, shareThread, isSharing } = useAgentSession();
   const { workspaceName } = useWorkspace();
   const { data: note } = useNote(noteId ?? "");
-  const hasMessages = messages.length > 0;
+  const [sharing, setSharing] = useState(false);
+
+  const canShare = !!activeThread?.canShare;
+
+  const handleShare = async () => {
+    if (!activeThread || !canShare) return;
+    setSharing(true);
+    try {
+      await shareThread(activeThread.id);
+    } finally {
+      setSharing(false);
+    }
+  };
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-3">
-      <SidebarTrigger className="-ml-1" />
-      <div className="min-w-0 flex flex-1 flex-col gap-0.5">
-        <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+      <div className="min-w-0 flex flex-1 items-center gap-2">
+        <h2 className="shrink-0 text-sm font-semibold text-foreground">
           Agent
-        </span>
-        <span className="truncate text-xs text-muted-foreground">
+        </h2>
+        <span className="truncate text-sm text-muted-foreground">
           {workspaceName}
           {note ? ` · ${note.title || "Sem título"}` : ""}
+          {activeThread
+            ? ` · ${activeThread.title || "Nova conversa"}`
+            : ""}
         </span>
       </div>
       <div className="flex shrink-0 items-center gap-1">
-        {hasMessages ? (
+        {canShare ? (
           <Button
-            variant="ghost"
-            size="icon-sm"
+            variant="outline"
+            size="sm"
             rounded="xl"
-            onClick={clear}
-            aria-label="Limpar conversa"
+            className="gap-1.5"
+            disabled={sharing || isSharing}
+            onClick={() => void handleShare()}
           >
-            <Icon icon={Delete02Icon} />
+            <Icon icon={Share06Icon} className="size-3.5" />
+            {sharing || isSharing ? "Compartilhando…" : "Compartilhar"}
           </Button>
         ) : null}
         <Button

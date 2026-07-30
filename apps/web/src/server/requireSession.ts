@@ -29,6 +29,7 @@ type WorkspaceAccessResult =
   | {
       session: NonNullable<Awaited<ReturnType<typeof getSession>>>;
       workspaceId: string;
+      memberRole: string;
     }
   | { error: NextResponse };
 
@@ -58,5 +59,9 @@ export async function requireWorkspaceAccess(
     };
   }
 
-  return { session, workspaceId };
+  return { session, workspaceId, memberRole: member.role };
+}
+
+export function isWorkspaceAdmin(role: string): boolean {
+  return role === "owner" || role === "admin";
 }
