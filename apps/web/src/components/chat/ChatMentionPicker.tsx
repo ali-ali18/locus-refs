@@ -113,7 +113,7 @@ export function ChatMentionPicker({
     boardItems.length > 0;
 
   return (
-    <div className="absolute bottom-full left-0 z-50 mb-2 w-full max-w-sm overflow-hidden rounded-3xl border border-border bg-popover text-popover-foreground shadow-lg">
+    <div className="absolute bottom-full left-0 z-50 mb-2 w-full max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-border bg-popover text-popover-foreground shadow-lg">
       <Command shouldFilter={false} className="rounded-3xl p-1.5">
         <CommandList className="max-h-64 scrollbar-none">
           {!hasAny ? (

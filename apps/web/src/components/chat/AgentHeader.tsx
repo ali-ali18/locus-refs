@@ -1,6 +1,11 @@
 "use client";
 
-import { Cancel01Icon, Share06Icon } from "@hugeicons/core-free-icons";
+import {
+  Add01Icon,
+  Cancel01Icon,
+  Menu01FreeIcons,
+  Share06Icon,
+} from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import { useAgentSession } from "@/context/agentSession";
 import { useChatPanel } from "@/context/chatPanel";
@@ -9,9 +14,19 @@ import { useNote } from "@/hook/notes/useNotes";
 import { Icon } from "../shared/Icon";
 import { Button } from "../ui/button";
 
-export function AgentHeader() {
+export function AgentHeader({
+  onOpenThreads,
+}: {
+  onOpenThreads?: () => void;
+}) {
   const { setOpen } = useChatPanel();
-  const { noteId, activeThread, shareThread, isSharing } = useAgentSession();
+  const {
+    noteId,
+    activeThread,
+    shareThread,
+    isSharing,
+    startNewChat,
+  } = useAgentSession();
   const { workspaceName } = useWorkspace();
   const { data: note } = useNote(noteId ?? "");
   const [sharing, setSharing] = useState(false);
@@ -28,43 +43,111 @@ export function AgentHeader() {
     }
   };
 
+  const desktopSubtitle = [
+    workspaceName,
+    note ? note.title || "Sem título" : null,
+    activeThread ? activeThread.title || "Nova conversa" : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-3">
-      <div className="min-w-0 flex flex-1 items-center gap-2">
-        <h2 className="shrink-0 text-sm font-semibold text-foreground">
+    <header className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-linear-to-b from-background from-30% via-background/80 to-transparent px-3 pt-2 pb-10">
+      <div className="pointer-events-auto flex h-10 items-center gap-2">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        {onOpenThreads ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            rounded="full"
+            className="bg-background px-0 md:hidden"
+            aria-label="Abrir conversas"
+            onClick={onOpenThreads}
+          >
+            <Icon icon={Menu01FreeIcons} />
+          </Button>
+        ) : null}
+        <h2 className="hidden shrink-0 text-sm font-semibold text-foreground md:block">
           Agent
         </h2>
-        <span className="truncate text-sm text-muted-foreground">
-          {workspaceName}
-          {note ? ` · ${note.title || "Sem título"}` : ""}
-          {activeThread
-            ? ` · ${activeThread.title || "Nova conversa"}`
-            : ""}
-        </span>
+        {desktopSubtitle ? (
+          <span className="hidden truncate text-sm text-muted-foreground md:inline">
+            {desktopSubtitle}
+          </span>
+        ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-1">
+        {/* Mobile: nova conversa + compartilhar + fechar (pill único, sem divisor) */}
+        <div
+          role="group"
+          className="flex overflow-hidden rounded-full border border-border bg-background shadow-xs md:hidden"
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="rounded-none border-0 px-0 shadow-none"
+            aria-label="Nova conversa"
+            onClick={startNewChat}
+          >
+            <Icon icon={Add01Icon} className="size-4" />
+          </Button>
+          {canShare ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="rounded-none border-0 px-0 shadow-none"
+              disabled={sharing || isSharing}
+              aria-label={
+                sharing || isSharing ? "Compartilhando…" : "Compartilhar"
+              }
+              onClick={() => void handleShare()}
+            >
+              <Icon icon={Share06Icon} className="size-4" />
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="rounded-none border-0 px-0 shadow-none"
+            onClick={() => setOpen(false)}
+            aria-label="Fechar agent"
+          >
+            <Icon icon={Cancel01Icon} className="size-4" />
+          </Button>
+        </div>
+
+        {/* Desktop: compartilhar + fechar */}
         {canShare ? (
           <Button
             variant="outline"
             size="sm"
             rounded="xl"
-            className="gap-1.5"
+            className="hidden gap-1.5 bg-background md:inline-flex"
             disabled={sharing || isSharing}
             onClick={() => void handleShare()}
           >
             <Icon icon={Share06Icon} className="size-3.5" />
-            {sharing || isSharing ? "Compartilhando…" : "Compartilhar"}
+            <span>
+              {sharing || isSharing ? "Compartilhando…" : "Compartilhar"}
+            </span>
           </Button>
         ) : null}
+
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon-sm"
-          rounded="xl"
+          rounded="full"
+          className="hidden bg-background md:inline-flex"
           onClick={() => setOpen(false)}
           aria-label="Fechar agent"
         >
           <Icon icon={Cancel01Icon} />
         </Button>
+      </div>
       </div>
     </header>
   );

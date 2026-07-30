@@ -2,6 +2,7 @@
 
 import {
   Add01Icon,
+  Cancel01Icon,
   Delete02Icon,
   Globe02Icon,
   LockIcon,
@@ -39,7 +40,7 @@ function ThreadPreview({
     >
       <button
         type="button"
-        className="flex w-full flex-col gap-0.5 text-left"
+        className="flex w-full flex-col gap-0.5 pr-10 text-left"
         onClick={onSelect}
       >
         <div className="flex items-center gap-2">
@@ -71,9 +72,9 @@ function ThreadPreview({
         <Button
           type="button"
           variant="ghost"
-          size="icon-xs"
+          size="icon-sm"
           rounded="xl"
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100"
+          className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100"
           aria-label="Excluir conversa"
           onClick={(e) => {
             e.stopPropagation();
@@ -87,7 +88,17 @@ function ThreadPreview({
   );
 }
 
-export function AgentThreadList() {
+export function AgentThreadList({
+  variant = "embedded",
+  onThreadSelect,
+  onClose,
+}: {
+  variant?: "embedded" | "sheet";
+  /** Chamado após selecionar/criar conversa (ex.: fechar Sheet no mobile). */
+  onThreadSelect?: () => void;
+  /** Fechar o Sheet (só no modo sheet). */
+  onClose?: () => void;
+}) {
   const {
     threads,
     isThreadsLoading,
@@ -106,20 +117,53 @@ export function AgentThreadList() {
     );
   }, [query, threads]);
 
+  const handleSelect = (id: string) => {
+    setActiveThreadId(id);
+    onThreadSelect?.();
+  };
+
+  const handleNewChat = () => {
+    startNewChat();
+    onThreadSelect?.();
+  };
+
   return (
-    <aside className="flex h-full min-h-0 w-[min(100%,20rem)] shrink-0 flex-col border-r border-border bg-background">
-      <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border px-3">
-        <h2 className="text-sm font-semibold text-foreground">Conversas</h2>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          rounded="xl"
-          aria-label="Nova conversa"
-          onClick={startNewChat}
-        >
-          <Icon icon={Add01Icon} className="size-4" />
-        </Button>
+    <aside
+      className={cn(
+        "flex h-full min-h-0 shrink-0 flex-col bg-background",
+        variant === "embedded"
+          ? "w-[min(100%,20rem)] border-r border-border"
+          : "w-full",
+      )}
+    >
+      <div className="flex h-14 shrink-0 items-center gap-2 px-3">
+        {variant === "sheet" && onClose ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            rounded="full"
+            aria-label="Fechar conversas"
+            onClick={onClose}
+          >
+            <Icon icon={Cancel01Icon} className="size-4" />
+          </Button>
+        ) : null}
+        <h2 className="min-w-0 flex-1 text-sm font-semibold text-foreground">
+          Conversas
+        </h2>
+        {variant === "embedded" ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            rounded="xl"
+            aria-label="Nova conversa"
+            onClick={handleNewChat}
+          >
+            <Icon icon={Add01Icon} className="size-4" />
+          </Button>
+        ) : null}
       </div>
 
       <div className="shrink-0 px-3 py-2">
@@ -139,7 +183,7 @@ export function AgentThreadList() {
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {isThreadsLoading ? (
-          <div className="space-y-2 p-3">
+          <div className="flex flex-col gap-2 p-3">
             {["a", "b", "c", "d"].map((k) => (
               <Skeleton key={k} className="h-14 w-full rounded-xl" />
             ))}
@@ -156,7 +200,7 @@ export function AgentThreadList() {
               key={thread.id}
               thread={thread}
               isActive={thread.id === threadId}
-              onSelect={() => setActiveThreadId(thread.id)}
+              onSelect={() => handleSelect(thread.id)}
               onDelete={
                 thread.canDelete
                   ? () => {
