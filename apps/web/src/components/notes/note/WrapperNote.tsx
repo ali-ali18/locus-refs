@@ -2,11 +2,13 @@
 
 import { ArrowLeftIcon, ConfusedIcon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { EmptyApp } from "@/components/base/EmptyApp";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWorkspace } from "@/context/workspace";
+import { useNotePinMutations } from "@/hook/notes/useNotePins";
 import { useNote } from "@/hook/notes/useNotes";
 import { useSession } from "@/lib/auth-client";
 import { getCollabColor } from "@/lib/collabColor";
@@ -25,6 +27,15 @@ export function WrapperNote({ id }: Props) {
   const { status, handleContentChange } = useNoteContentStatus({ id });
   const { provider } = useCollabProvider({ noteId: id, workspaceId });
   const { data: session } = useSession();
+  const { recordOpen } = useNotePinMutations();
+  const recordedOpenFor = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!note?.id) return;
+    if (recordedOpenFor.current === note.id) return;
+    recordedOpenFor.current = note.id;
+    recordOpen(note.id);
+  }, [note?.id, recordOpen]);
 
   const collabUser = session?.user
     ? {

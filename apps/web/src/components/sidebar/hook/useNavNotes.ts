@@ -1,10 +1,11 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useWorkspace } from "@/context/workspace";
 import { useCollections } from "@/hook/collections/useCollections";
 import { useNoteMutations } from "@/hook/notes/useNote";
+import { useNotePinMutations, useNotePins } from "@/hook/notes/useNotePins";
 import { useNotes } from "@/hook/notes/useNotes";
 
 export function useNavNotes() {
@@ -15,6 +16,8 @@ export function useNavNotes() {
     deleteCollection,
   } = useCollections();
   const { deleteNote, updateNote } = useNoteMutations();
+  const { data: pins } = useNotePins();
+  const { setFavorite } = useNotePinMutations();
   const { workspaceSlug } = useWorkspace();
   const pathname = usePathname();
   const router = useRouter();
@@ -35,6 +38,11 @@ export function useNavNotes() {
   } | null>(null);
   const [openCollections, setOpenCollections] = useState<Set<string>>(
     new Set(),
+  );
+
+  const favoriteIds = useMemo(
+    () => new Set((pins?.favorites ?? []).map((item) => item.id)),
+    [pins?.favorites],
   );
 
   const toggleCollection = (id: string) => {
@@ -71,6 +79,10 @@ export function useNavNotes() {
     await deleteCollection(id);
   };
 
+  const handleToggleFavorite = async (id: string) => {
+    await setFavorite({ noteId: id, favorite: !favoriteIds.has(id) });
+  };
+
   return {
     notes,
     collectionsWithNotes,
@@ -91,6 +103,8 @@ export function useNavNotes() {
     toggleCollection,
     handleDeleteNote,
     handleDeleteCollection,
+    handleToggleFavorite,
+    favoriteIds,
     updateNote,
     workspaceSlug,
     pathname,

@@ -1,15 +1,17 @@
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { ChatPanel } from "@/components/chat/ChatPanel";
+import { CommandPalette } from "@/components/command-palette/CommandPalette";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { SettingsDialog } from "@/components/workspace/SettingsDialog";
 import { SessionGuard } from "@/components/workspace/SessionGuard";
+import { SettingsDialog } from "@/components/workspace/SettingsDialog";
 import { WorkspaceShell } from "@/components/workspace/WorkspaceShell";
+import { AgentSessionProvider } from "@/context/agentSession";
 import { ChatPanelProvider } from "@/context/chatPanel";
+import { CommandPaletteProvider } from "@/context/commandPalette";
 import { NoteEditorProvider } from "@/context/noteEditor";
+import { NoteTrailProvider } from "@/context/noteTrail";
 import { SettingsDialogProvider } from "@/context/settingsDialog";
-import { SidebarTabProvider } from "@/context/sidebarTab";
 import { WorkspaceProvider } from "@/context/workspace";
 import prisma from "@/lib/prisma";
 import { requireSession } from "@/server/requireSession";
@@ -49,18 +51,22 @@ export default async function WorkspaceLayout({ children, params }: Props) {
         workspaceLogo={workspace.logo}
       >
         <NoteEditorProvider>
-          <ChatPanelProvider>
-            <SettingsDialogProvider>
-              <SidebarTabProvider>
-                <SidebarProvider>
-                  <SessionGuard />
-                  <WorkspaceShell>{children}</WorkspaceShell>
-                  <ChatPanel />
-                  <SettingsDialog />
-                </SidebarProvider>
-              </SidebarTabProvider>
-            </SettingsDialogProvider>
-          </ChatPanelProvider>
+          <NoteTrailProvider>
+            <ChatPanelProvider>
+              <AgentSessionProvider>
+                <SettingsDialogProvider>
+                  <CommandPaletteProvider>
+                    <SidebarProvider>
+                      <SessionGuard />
+                      <WorkspaceShell>{children}</WorkspaceShell>
+                      <SettingsDialog />
+                      <CommandPalette />
+                    </SidebarProvider>
+                  </CommandPaletteProvider>
+                </SettingsDialogProvider>
+              </AgentSessionProvider>
+            </ChatPanelProvider>
+          </NoteTrailProvider>
         </NoteEditorProvider>
       </WorkspaceProvider>
     </ThemeProvider>

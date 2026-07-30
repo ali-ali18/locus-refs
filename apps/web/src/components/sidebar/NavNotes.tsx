@@ -15,6 +15,7 @@ import {
   ChevronDown,
   Folder01Icon,
   Folder02Icon,
+  StarIcon,
   MinusSignIcon,
   MoreHorizontalCircle01Icon,
   NoteEditIcon,
@@ -66,8 +67,10 @@ interface DraggableNoteProps {
   note: Note;
   workspaceSlug: string;
   pathname: string;
+  isFavorite?: boolean;
   onSelect: () => void;
   onEdit: () => void;
+  onToggleFavorite?: () => void;
   onDelete: () => void;
   sub?: boolean;
 }
@@ -76,8 +79,10 @@ function DraggableNote({
   note,
   workspaceSlug,
   pathname,
+  isFavorite = false,
   onSelect,
   onEdit,
+  onToggleFavorite,
   onDelete,
   sub = false,
 }: DraggableNoteProps) {
@@ -142,6 +147,16 @@ function DraggableNote({
               <Icon icon={PencilEdit01Icon} />
               <span>Editar</span>
             </DropdownMenuItem>
+            {onToggleFavorite ? (
+              <DropdownMenuItem onClick={onToggleFavorite}>
+                <Icon icon={StarIcon} />
+                <span>
+                  {isFavorite
+                    ? "Remover dos favoritos"
+                    : "Adicionar aos favoritos"}
+                </span>
+              </DropdownMenuItem>
+            ) : null}
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
               onClick={onDelete}
@@ -173,6 +188,8 @@ interface DroppableCollectionProps {
   onSelectNote: () => void;
   onEditNote: (note: Note) => void;
   onDeleteNote: (id: string) => void;
+  onToggleFavorite: (id: string) => void;
+  favoriteIds: Set<string>;
 }
 
 function DroppableCollection({
@@ -186,6 +203,8 @@ function DroppableCollection({
   onSelectNote,
   onEditNote,
   onDeleteNote,
+  onToggleFavorite,
+  favoriteIds,
 }: DroppableCollectionProps) {
   const { setNodeRef, isOver } = useDroppable({ id: collection.id });
   const hasNotes = collection.notes.length > 0;
@@ -266,8 +285,10 @@ function DroppableCollection({
                   note={note}
                   workspaceSlug={workspaceSlug}
                   pathname={pathname}
+                  isFavorite={favoriteIds.has(note.id)}
                   onSelect={onSelectNote}
                   onEdit={() => onEditNote(note)}
+                  onToggleFavorite={() => onToggleFavorite(note.id)}
                   onDelete={() => onDeleteNote(note.id)}
                   sub
                 />
@@ -301,6 +322,8 @@ export function NavNotes() {
     toggleCollection,
     handleDeleteNote,
     handleDeleteCollection,
+    handleToggleFavorite,
+    favoriteIds,
     updateNote,
     workspaceSlug,
     pathname,
@@ -412,6 +435,8 @@ export function NavNotes() {
                   })
                 }
                 onDeleteNote={handleDeleteNote}
+                onToggleFavorite={handleToggleFavorite}
+                favoriteIds={favoriteIds}
               />
             ))}
 
@@ -421,6 +446,7 @@ export function NavNotes() {
                 note={note}
                 workspaceSlug={workspaceSlug}
                 pathname={pathname}
+                isFavorite={favoriteIds.has(note.id)}
                 onSelect={() => setOpenMobile(!openMobile)}
                 onEdit={() =>
                   setNoteToRename({
@@ -429,6 +455,7 @@ export function NavNotes() {
                     icon: note.icon ?? undefined,
                   })
                 }
+                onToggleFavorite={() => handleToggleFavorite(note.id)}
                 onDelete={() => handleDeleteNote(note.id)}
               />
             ))}

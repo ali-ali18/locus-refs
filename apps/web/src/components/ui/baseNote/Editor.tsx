@@ -22,8 +22,11 @@ import { EmojiDropdownMenu } from "../../tiptap-ui/emoji-dropdown-menu";
 import { DropdownNote } from "./DropdownNote/DropdownNote";
 import { ImageDialog } from "./imageBlock/ImageDialog";
 import { useImageUpload } from "./imageBlock/useImageUpload";
+import { NoteEditorSurface } from "./NoteEditorSurface";
 import { PluginDialog } from "./pluginBlock/PluginDialog";
 import { SlashCommand } from "./SlashCommand/SlashCommand";
+import { WikiLinkSuggestion } from "./WikiLink/WikiLinkSuggestion";
+import { DEFAULT_NOTE_LINK_BACKGROUND } from "./WikiLink/noteLinkStyle";
 
 interface EditorProps {
   noteId: string;
@@ -173,6 +176,46 @@ export function Editor({
       if (!editor)
         return { status: "error", reason: "Editor não inicializado." };
 
+      if (op.name === "insertWikiLinks") {
+        try {
+          const nodes: JSONContent[] = [];
+          if (op.input.intro?.trim()) {
+            nodes.push({
+              type: "paragraph",
+              content: [{ type: "text", text: op.input.intro.trim() }],
+            });
+          }
+
+          const linkInline: JSONContent[] = [];
+          for (const [index, link] of op.input.links.entries()) {
+            if (index > 0) {
+              linkInline.push({ type: "text", text: " " });
+            }
+            linkInline.push({
+              type: "noteLink",
+              attrs: {
+                id: link.noteId,
+                title: link.title || "Sem título",
+                icon: link.icon ?? null,
+                color: null,
+                backgroundColor: DEFAULT_NOTE_LINK_BACKGROUND,
+              },
+            });
+          }
+          nodes.push({ type: "paragraph", content: linkInline });
+
+          const end = editor.state.doc.content.size;
+          editor.chain().focus().insertContentAt(end, nodes).run();
+          return { status: "applied" };
+        } catch (error) {
+          return {
+            status: "error",
+            reason:
+              error instanceof Error ? error.message : "Falha ao inserir links.",
+          };
+        }
+      }
+
       const doc = markdownToDoc(op.input.content);
       const content = doc?.content ?? [];
       const isDeletion =
@@ -319,7 +362,11 @@ export function Editor({
 
   return (
     <EditorContext.Provider value={{ editor }}>
-      <EditorContent editor={editor} />
+      {editor ? (
+        <NoteEditorSurface editor={editor} noteId={noteId} />
+      ) : (
+        <EditorContent editor={editor} />
+      )}
       {editor && (
         <SlashCommand
           editor={editor}
@@ -327,6 +374,7 @@ export function Editor({
           onOpenPluginDialog={openPluginDialog}
         />
       )}
+      {editor && <WikiLinkSuggestion editor={editor} noteId={noteId} />}
       {editor && <EmojiDropdownMenu char=":" />}
       {editor && (
         <DropdownNote

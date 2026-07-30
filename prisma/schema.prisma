@@ -13,21 +13,24 @@ datasource db {
 }
 
 model User {
-  id            String       @id
+  id            String          @id
   name          String
   email         String
-  emailVerified Boolean      @default(false)
+  emailVerified Boolean         @default(false)
   image         String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   sessions      Session[]
   accounts      Account[]
   collections   Collection[]
   categories    Category[]
   notes         Note[]
+  noteUserStates NoteUserState[]
   members       Member[]
   invitations   Invitation[]
   boards        Board[]
+  databases     Database[]
+  agentThreads  AgentThread[]
 
   @@unique([email])
   @@map("user")
@@ -147,8 +150,28 @@ model Note {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  linkedTo   NoteLink[] @relation("source")
-  linkedFrom NoteLink[] @relation("target")
+  linkedTo       NoteLink[]      @relation("source")
+  linkedFrom     NoteLink[]      @relation("target")
+  userStates     NoteUserState[]
+}
+
+/// Estado por usuário (favorito + recente). Pessoal — não compartilha entre membros.
+model NoteUserState {
+  userId       String
+  noteId       String
+  isFavorite   Boolean   @default(false)
+  favoritedAt  DateTime?
+  lastOpenedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@id([userId, noteId])
+  @@index([userId, isFavorite, favoritedAt])
+  @@index([userId, lastOpenedAt])
+  @@map("note_user_state")
 }
 
 model NoteLink {
@@ -175,7 +198,9 @@ model Organization {
   categories  Category[]
   notes       Note[]
   boards      Board[]
+  databases   Database[]
   aiSettings  WorkspaceAiSettings?
+  agentThreads AgentThread[]
 
   @@unique([slug])
   @@map("organization")
@@ -190,6 +215,31 @@ model WorkspaceAiSettings {
   updatedAt      DateTime     @updatedAt
 
   @@map("workspace_ai_settings")
+}
+
+enum AgentThreadVisibility {
+  private
+  workspace
+}
+
+/// Conversas do Agent (privada ou compartilhada no workspace).
+model AgentThread {
+  id           String                @id @default(cuid())
+  workspaceId  String
+  workspace    Organization          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdById  String
+  createdBy    User                  @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  visibility   AgentThreadVisibility @default(private)
+  title        String?
+  /// Snapshot UIMessage[] (AI SDK).
+  messages     Json                  @default("[]")
+  lastOpenedAt DateTime?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  @@index([workspaceId, visibility, updatedAt])
+  @@index([workspaceId, createdById])
+  @@map("agent_thread")
 }
 
 model Member {
@@ -241,4 +291,37 @@ model Board {
   @@index([workspaceId])
   @@index([createdById])
   @@index([lastOpenedAt])
+}
+
+/// Database block / table (Yjs-backed). Soft-deletable workspace resource.
+model Database {
+  id          String         @id @default(uuid())
+  name        String
+  icon        String?
+  description String?
+  workspaceId String
+  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User           @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  properties  Json           @default("[]")
+  ydoc        Bytes          @default("")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+  rows        DatabaseRow[]
+
+  @@index([workspaceId])
+  @@index([createdById])
+}
+
+model DatabaseRow {
+  id         String   @id @default(uuid())
+  databaseId String
+  database   Database @relation(fields: [databaseId], references: [id], onDelete: Cascade)
+  values     Json     @default("{}")
+  position   Float    @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([databaseId])
 }

@@ -16,6 +16,7 @@ import { RoadmapBlock } from "@/lib/extension/RoadmapBlock";
 import { CustomCode } from "./extension/CustomCode";
 import { CustomTaskItem } from "./extension/CustomTaskItem";
 import { CustomTaskList } from "./extension/CustomTaskList";
+import { NoteLink } from "./extension/NoteLink";
 
 const CustomHeading = Heading.extend({
   renderHTML({ node, HTMLAttributes }) {
@@ -30,7 +31,7 @@ const CustomHeading = Heading.extend({
 });
 
 export const NOTES_EDITOR_PLACEHOLDER =
-  "Digite ' / ' para abrir o menu de atalhos e ' : ' para abrir o menu de emojis...";
+  "Digite ' / ' para atalhos, ' : ' para emojis e ' [[ ' para linkar notas...";
 
 export interface CollabUser {
   name: string;
@@ -135,6 +136,8 @@ export function getNotesEditorExtensions(
       autolink: true,
       openOnClick: false,
     }),
+
+    NoteLink,
 
     CustomTaskList,
     CustomTaskItem.configure({ nested: true }),

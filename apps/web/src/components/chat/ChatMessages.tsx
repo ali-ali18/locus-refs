@@ -1,31 +1,25 @@
 "use client";
 
-import { Cancel01Icon, QuoteUpIcon } from "@hugeicons/core-free-icons";
 import { isToolUIPart, type ToolUIPart } from "ai";
-import { BrainIcon } from "lucide-react";
-import { toast } from "sonner";
+import { ReplyIcon } from "lucide-react";
 import {
   Conversation,
   ConversationContent,
-  ConversationEmptyState,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import {
-  Message,
-  MessageContent,
-  MessageResponse,
-} from "@/components/ai-elements/message";
+import { MessageResponse } from "@/components/ai-elements/message";
 import {
   Reasoning,
   ReasoningContent,
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
-import { Button } from "@/components/ui/button";
-import { useChatPanel } from "@/context/chatPanel";
-import { useNoteEditor } from "@/context/noteEditor";
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import type { NoteEditToolName, NoteEditToolResult } from "@/lib/ai/tools";
-import { cn } from "@/lib/utils";
-import { Icon } from "../shared/Icon";
+import { NOTE_EDIT_TOOLS } from "./agentToolLabels";
+import {
+  ChatDeleteConfirmation,
+  isDeleteApprovalTool,
+} from "./ChatDeleteConfirmation";
 import { ChatToolPlanCard } from "./ChatToolPlanCard";
 import type { AiUIMessage } from "./hook/useAiChat";
 
@@ -38,38 +32,11 @@ interface ChatMessagesProps {
     toolCallId: string;
     output: NoteEditToolResult;
   }) => void;
-}
-
-interface PlanToNoteActionProps {
-  noteId: string;
-  text: string;
-}
-
-function PlanToNoteAction({ noteId, text }: PlanToNoteActionProps) {
-  const { canInsertIntoNote, queueProposalReview } = useNoteEditor();
-
-  if (!canInsertIntoNote(noteId) || !text.trim()) return null;
-
-  const handleClick = () => {
-    const queued = queueProposalReview(noteId, text);
-    if (queued) {
-      toast.success("Plano enviado para revisão na nota.");
-      return;
-    }
-    toast.error("Não foi possível abrir a revisão na nota.");
-  };
-
-  return (
-    <Button
-      variant="outline"
-      size="xs"
-      rounded="xl"
-      className="mt-2"
-      onClick={handleClick}
-    >
-      Transformar em nota
-    </Button>
-  );
+  addToolApprovalResponse: (args: {
+    id: string;
+    approved: boolean;
+    reason?: string;
+  }) => void | PromiseLike<void>;
 }
 
 function getMessageText(message: AiUIMessage): string {
@@ -86,13 +53,30 @@ function getReasoningText(message: AiUIMessage): string {
     .join("");
 }
 
+function AttachedSelectionQuote({ text }: { text: string }) {
+  const preview =
+    text.length > 280 ? `${text.slice(0, 280).trimEnd()}…` : text;
+
+  return (
+    <div className="mb-1.5 flex max-w-[85%] items-start gap-2 self-end rounded-2xl border border-border/60 bg-muted/50 px-3 py-2 text-left">
+      <ReplyIcon
+        className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
+        aria-hidden
+      />
+      <p className="min-w-0 flex-1 break-words text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground [overflow-wrap:anywhere]">
+        {preview}
+      </p>
+    </div>
+  );
+}
+
 export function ChatMessages({
   messages,
   isStreaming,
   noteId,
   addToolOutput,
+  addToolApprovalResponse,
 }: ChatMessagesProps) {
-  const { attachedSelection, clearAttachedSelection } = useChatPanel();
   const lastMessage = messages.at(-1);
   const isLastAssistantStreaming =
     isStreaming &&
@@ -100,98 +84,90 @@ export function ChatMessages({
     lastMessage.role === "assistant" &&
     getMessageText(lastMessage).length === 0;
 
-  if (messages.length === 0) {
-    return (
-      <Conversation className="flex-1">
-        <ConversationContent className="items-center justify-center">
-          <ConversationEmptyState
-            title="Como posso ajudar?"
-            description="Pergunte sobre suas notas, peca resumos, sugestoes ou qualquer coisa."
-            icon={
-              <div className="flex size-14 items-center justify-center rounded-2xl bg-sidebar-accent">
-                <BrainIcon className="size-6 text-sidebar-foreground/70" />
-              </div>
-            }
-          />
-        </ConversationContent>
-      </Conversation>
-    );
-  }
-
   return (
-    <Conversation className="flex-1">
-      <ConversationContent>
-        {attachedSelection ? (
-          <div className="mx-3 mb-2 flex items-center gap-2 rounded-xl border border-sidebar-border bg-sidebar-accent/50 px-3 py-1.5 text-xs text-sidebar-foreground">
-            <Icon icon={QuoteUpIcon} className="size-3.5 shrink-0" />
-            <span className="truncate">
-              {attachedSelection.text.length > 40
-                ? `${attachedSelection.text.slice(0, 40)}…`
-                : attachedSelection.text}
-            </span>
-            <button
-              type="button"
-              onClick={clearAttachedSelection}
-              className="ml-auto rounded-full p-0.5 text-sidebar-foreground/60 hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground"
-              aria-label="Remover trecho anexado"
-            >
-              <Icon icon={Cancel01Icon} className="size-3" />
-            </button>
-          </div>
-        ) : null}
-
+    <Conversation className="h-full min-h-0 min-w-0">
+      <ConversationContent className="mx-auto w-full max-w-3xl gap-6 px-4 py-6">
         {messages.map((message) => {
           const isUser = message.role === "user";
-          const intent = message.metadata?.intent;
           const reasoningText = isUser ? "" : getReasoningText(message);
+          const userText = isUser ? getMessageText(message).trim() : "";
+          const attachedQuote = isUser
+            ? message.metadata?.attachedSelection?.text?.trim()
+            : undefined;
 
           return (
-            <div key={message.id} className="flex flex-col gap-2">
+            <div key={message.id} className="flex min-w-0 flex-col gap-3">
               {reasoningText ? (
                 <Reasoning
                   key={`${message.id}-${isLastAssistantStreaming ? "streaming" : "done"}`}
                   isStreaming={isStreaming && isLastAssistantStreaming}
-                  className="px-3"
                 >
                   <ReasoningTrigger />
                   <ReasoningContent>{reasoningText}</ReasoningContent>
                 </Reasoning>
               ) : null}
 
-              <Message from={message.role}>
-                <MessageContent
-                  className={cn(
-                    isUser
-                      ? "rounded-2xl rounded-br-sm bg-primary px-3.5 py-2.5 text-primary-foreground"
-                      : "w-full text-sm",
-                  )}
-                >
+              {isUser ? (
+                userText || attachedQuote ? (
+                  <div className="flex w-full flex-col items-end gap-1.5">
+                    {attachedQuote ? (
+                      <AttachedSelectionQuote text={attachedQuote} />
+                    ) : null}
+                    {userText ? (
+                      <Bubble
+                        variant="default"
+                        align="end"
+                        className="max-w-[85%] min-w-0"
+                      >
+                        <BubbleContent className="rounded-2xl break-words whitespace-pre-wrap [overflow-wrap:anywhere]">
+                          {userText}
+                        </BubbleContent>
+                      </Bubble>
+                    ) : null}
+                  </div>
+                ) : null
+              ) : (
+                <div className="min-w-0 overflow-x-hidden text-sm leading-relaxed text-foreground">
                   {message.parts.map((part, idx) => {
                     if (part.type === "text") {
                       if (!part.text.trim()) return null;
-                      if (isUser) {
-                        return (
-                          <span key={`${message.id}-t-${idx}`}>
-                            {part.text}
-                          </span>
-                        );
-                      }
                       return (
                         <MessageResponse key={`${message.id}-t-${idx}`}>
                           {part.text}
                         </MessageResponse>
                       );
                     }
-                    if (isToolUIPart(part) && noteId) {
+
+                    if (isToolUIPart(part)) {
                       const toolPart = part as ToolUIPart;
+                      const toolName = toolPart.type.replace(/^tool-/, "");
+
+                      if (isDeleteApprovalTool(toolName)) {
+                        return (
+                          <ChatDeleteConfirmation
+                            key={toolPart.toolCallId}
+                            part={toolPart}
+                            onRespond={(approvalId, approved) => {
+                              void addToolApprovalResponse({
+                                id: approvalId,
+                                approved,
+                              });
+                            }}
+                          />
+                        );
+                      }
+
+                      if (!NOTE_EDIT_TOOLS.has(toolName) || !noteId) {
+                        return null;
+                      }
                       return (
                         <ChatToolPlanCard
                           key={toolPart.toolCallId}
                           part={toolPart}
                           noteId={noteId}
-                          onResolve={(toolCallId, toolName, result) =>
+                          onResolve={(toolCallId, resolvedName, result) =>
                             addToolOutput({
-                              tool: toolName,
+                              tool: resolvedName,
                               toolCallId,
                               output: result,
                             })
@@ -199,30 +175,25 @@ export function ChatMessages({
                         />
                       );
                     }
+
                     return null;
                   })}
-
-                  {!isUser && noteId && !isStreaming && intent === "plan" ? (
-                    <PlanToNoteAction
-                      noteId={noteId}
-                      text={getMessageText(message)}
-                    />
-                  ) : null}
-                </MessageContent>
-              </Message>
+                </div>
+              )}
             </div>
           );
         })}
 
         {isLastAssistantStreaming ? (
-          <span className="text-muted-foreground px-3 inline-flex items-center gap-1 py-1">
-            <span className="size-1.5 rounded-full bg-current animate-bounce [animation-delay:0ms]" />
-            <span className="size-1.5 rounded-full bg-current animate-bounce [animation-delay:150ms]" />
-            <span className="size-1.5 rounded-full bg-current animate-bounce [animation-delay:300ms]" />
-          </span>
+          <p className="text-sm text-muted-foreground animate-pulse">
+            Pensando…
+          </p>
         ) : null}
       </ConversationContent>
-      <ConversationScrollButton />
+      <ConversationScrollButton
+        className="rounded-full border-border bg-background shadow-sm"
+        aria-label="Ir para o final"
+      />
     </Conversation>
   );
 }

@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { extractNoteLinkIds } from "@/lib/note-links";
 import prisma from "@/lib/prisma";
 import { requireWorkspaceAccess } from "@/server/requireSession";
 import { deleteObjects } from "@/server/upload";
@@ -33,7 +34,7 @@ export async function GET(
 ) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { workspaceId } = auth;
+  const { session, workspaceId } = auth;
   const { id } = await params;
 
   try {
@@ -47,6 +48,11 @@ export async function GET(
         linkedFrom: {
           select: { source: { select: { id: true, title: true, icon: true } } },
         },
+        userStates: {
+          where: { userId: session.user.id },
+          select: { isFavorite: true },
+          take: 1,
+        },
       },
     });
 
@@ -54,7 +60,11 @@ export async function GET(
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
-    return NextResponse.json(note);
+    const { userStates, ...rest } = note;
+    return NextResponse.json({
+      ...rest,
+      isFavorite: userStates[0]?.isFavorite ?? false,
+    });
   } catch (_error) {
     return NextResponse.json({ error: "Failed to get note" }, { status: 500 });
   }
@@ -118,6 +128,40 @@ export async function PATCH(
 
     if (orphanedKeys.length > 0) {
       deleteObjects(orphanedKeys).catch(console.error);
+    }
+
+    if (content !== undefined) {
+      const linkedIds = extractNoteLinkIds(content as TiptapNode).filter(
+        (targetId) => targetId !== id,
+      );
+
+      const validTargets = linkedIds.length
+        ? await prisma.note.findMany({
+            where: { workspaceId, id: { in: linkedIds } },
+            select: { id: true },
+          })
+        : [];
+      const validTargetIds = validTargets.map((note) => note.id);
+
+      await prisma.$transaction([
+        prisma.noteLink.deleteMany({
+          where: {
+            sourceId: id,
+            ...(validTargetIds.length > 0
+              ? { targetId: { notIn: validTargetIds } }
+              : {}),
+          },
+        }),
+        ...validTargetIds.map((targetId) =>
+          prisma.noteLink.upsert({
+            where: {
+              sourceId_targetId: { sourceId: id, targetId },
+            },
+            create: { sourceId: id, targetId },
+            update: {},
+          }),
+        ),
+      ]);
     }
 
     return NextResponse.json(

@@ -10,7 +10,15 @@ const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 });
 
-const prisma = globalThis.__prisma ?? new PrismaClient({ adapter });
+function createPrismaClient(): PrismaClient {
+  return new PrismaClient({ adapter });
+}
+
+const cached = globalThis.__prisma;
+const prisma =
+  cached && "agentThread" in cached && cached.agentThread
+    ? cached
+    : createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalThis.__prisma = prisma;

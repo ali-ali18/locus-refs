@@ -18,17 +18,22 @@ import { ChatMessages } from "./ChatMessages";
 import { useAiChat } from "./hook/useAiChat";
 
 function ChatPanelContent({ noteId }: { noteId?: string }) {
-  const { messages, isStreaming, status, send, clear, stop, addToolOutput } =
-    useAiChat({ noteId });
+  const { messages, isStreaming, status, send, stop, addToolOutput } =
+    useAiChat({ noteId, threadId: null });
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col bg-sidebar text-sidebar-foreground">
-      <ChatHeader onClear={clear} hasMessages={messages.length > 0} />
+      <ChatHeader
+        onClear={() => undefined}
+        hasMessages={messages.length > 0}
+        noteId={noteId}
+      />
       <ChatMessages
         messages={messages}
         isStreaming={isStreaming}
         noteId={noteId}
         addToolOutput={addToolOutput}
+        addToolApprovalResponse={() => undefined}
       />
       <ChatInput onSend={send} onStop={stop} status={status} noteId={noteId} />
     </div>
@@ -41,9 +46,6 @@ export function ChatPanel() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
-  // Painel puramente client-interativo (dados do TanStack Query, sem valor de
-  // SSR). Renderiza null no SSR e na 1ª hidratação pra evitar mismatch de
-  // hidratação no id auto-gerado do Base UI (Dialog do seletor de modelo).
   useEffect(() => setMounted(true), []);
 
   const noteIdMatch = pathname.match(/\/notes\/([^/]+)$/);
@@ -67,9 +69,9 @@ export function ChatPanel() {
           className="w-full p-0 sm:max-w-md [&>button]:hidden"
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>Assistente IA</SheetTitle>
+            <SheetTitle>Agent</SheetTitle>
             <SheetDescription>
-              Painel de chat com o assistente de IA do workspace.
+              Agent do workspace ativo para notas e acoes.
             </SheetDescription>
           </SheetHeader>
           <ChatPanelContent noteId={noteId} />

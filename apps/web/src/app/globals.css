@@ -304,6 +304,16 @@
   vertical-align: middle;
 }
 
+/* Seleção do wiki-link: troca o outline azul padrão do TipTap pelo token do tema */
+.tiptap .node-noteLink.ProseMirror-selectednode {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: 2px;
+}
+
+.tiptap .node-noteLink.ProseMirror-selectednode [data-node-view-wrapper] {
+  outline: none;
+}
+
 /* Só imagens de emoji — não aplicar a thumbs/imagens de bloco */
 .tiptap span[data-emoji] img,
 .tiptap img.emoji {
@@ -422,6 +432,18 @@
     &::-webkit-scrollbar-thumb {
       background-color: var(--border);
     }
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+
+  &::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
   }
 }
 
