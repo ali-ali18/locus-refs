@@ -65,16 +65,11 @@ export function AiNoteReview({ noteId }: AiNoteReviewProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            rounded="xl"
-            onClick={handleDiscard}
-          >
+          <Button variant="outline" size="sm" onClick={handleDiscard}>
             <Icon icon={Cancel01Icon} />
             Descartar
           </Button>
-          <Button size="sm" rounded="xl" onClick={handleApply}>
+          <Button size="sm" onClick={handleApply}>
             <Icon icon={CheckmarkCircle02Icon} />
             Aplicar
           </Button>

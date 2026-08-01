@@ -32,7 +32,6 @@ export function NavActions() {
           <Button
             variant="ghost"
             size="icon-sm"
-            rounded="xl"
             className="data-open:bg-accent"
             aria-label="Ações"
           >
@@ -44,7 +43,6 @@ export function NavActions() {
         <div className="flex flex-col gap-0.5">
           <Button
             variant="ghost"
-            rounded="xl"
             className="w-full justify-start gap-2"
             onClick={() => {
               setOpen(false);
@@ -56,7 +54,6 @@ export function NavActions() {
           </Button>
           <Button
             variant="ghost"
-            rounded="xl"
             className="w-full justify-start gap-2"
             onClick={() => {
               setOpen(false);

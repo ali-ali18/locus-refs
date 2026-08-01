@@ -33,7 +33,7 @@ export function PageHeader() {
           open={openCreate}
           onOpenChange={setOpenCreate}
           trigger={
-            <Button variant="outline" rounded={"xl"}>
+            <Button variant="outline">
               <Icon icon={PlusSignIcon} /> Nova categoria
             </Button>
           }

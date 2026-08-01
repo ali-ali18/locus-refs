@@ -42,13 +42,13 @@ export function ResourceDialogStepUrlForm({
         lastElement={
           <Button
             type="submit"
-            rounded="full"
             variant="secondary"
             size="icon-sm"
             disabled={formState.isSubmitting || isFetchingMetadata}
             aria-label={
               isFetchingMetadata ? "Buscando metadados..." : "Buscar metadados"
             }
+            className="rounded-full"
           >
             {isFetchingMetadata ? (
               <Icon
@@ -71,8 +71,8 @@ export function ResourceDialogStepUrlForm({
         <Button
           type="button"
           variant="secondary"
-          rounded="full"
           onClick={onCancel}
+          className="rounded-full"
         >
           Cancelar
         </Button>

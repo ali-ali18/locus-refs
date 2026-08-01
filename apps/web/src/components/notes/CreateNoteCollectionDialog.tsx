@@ -115,13 +115,17 @@ export function CreateNoteCollectionDialog({ open, onOpenChange }: Props) {
             <Button
               type="button"
               variant="secondary"
-              rounded="full"
               onClick={() => onOpenChange(false)}
               disabled={isCreating}
+              className="rounded-full"
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isCreating} rounded="full">
+            <Button
+              type="submit"
+              disabled={isCreating}
+              className="rounded-full"
+            >
               {isCreating ? (
                 <>
                   <Icon

@@ -38,16 +38,16 @@ export function FormDeleteCategories({
         <Button
           type="button"
           variant="secondary"
-          rounded="full"
           onClick={() => onSuccess()}
+          className="rounded-full"
         >
           Cancelar
         </Button>
         <Button
           type="submit"
           disabled={isLoading || !form.formState.isValid}
-          rounded="full"
           variant={"destructive"}
+          className="rounded-full"
         >
           {isLoading ? (
             <>

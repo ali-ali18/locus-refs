@@ -38,7 +38,6 @@ export function ImagePopover({
         className={buttonVariants({
           variant: "ghost",
           size: "icon",
-          rounded: "xl",
         })}
         type="button"
       >

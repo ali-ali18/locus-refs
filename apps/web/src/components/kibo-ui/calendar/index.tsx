@@ -499,7 +499,6 @@ export const CalendarDatePagination = ({
         onClick={handlePreviousMonth}
         size="icon"
         variant="ghost"
-        rounded={"xl"}
       >
         <ChevronLeftIcon size={16} />
       </Button>
@@ -508,7 +507,6 @@ export const CalendarDatePagination = ({
         onClick={handleNextMonth}
         size="icon"
         variant="ghost"
-        rounded={"xl"}
       >
         <ChevronRightIcon size={16} />
       </Button>

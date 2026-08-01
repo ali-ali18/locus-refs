@@ -39,7 +39,7 @@ export function QuickCreate() {
             open={openNote}
             onOpenChange={setOpenNote}
             trigger={
-              <Button rounded="xl">
+              <Button>
                 <Icon icon={Note01FreeIcons} />
                 <span>Nota</span>
               </Button>
@@ -54,7 +54,7 @@ export function QuickCreate() {
             open={openCollection}
             onOpenChange={setOpenCollection}
             trigger={
-              <Button rounded="xl">
+              <Button>
                 <Icon icon={Folder} />
                 <span>Coleção</span>
               </Button>
@@ -65,12 +65,12 @@ export function QuickCreate() {
             <FormCreateCollection onSuccess={() => setOpenCollection(false)} />
           </DialogApp>
 
-          <Button rounded="xl" disabled>
+          <Button disabled>
             <Icon icon={Users} />
             <span>Convite</span>
           </Button>
 
-          <Button rounded="xl" disabled>
+          <Button disabled>
             <Icon icon={Tag} />
             <span>Categoria</span>
           </Button>

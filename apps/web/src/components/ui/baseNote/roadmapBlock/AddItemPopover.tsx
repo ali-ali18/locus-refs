@@ -125,7 +125,6 @@ export function AddItemPopover({ statuses, onAdd }: AddItemPopoverProps) {
             disabled={!newItemName.trim()}
             onClick={handleAdd}
             size="default"
-            rounded={"xl"}
           >
             Adicionar
           </Button>

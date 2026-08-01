@@ -62,9 +62,9 @@ export function DeleteBoardDialog({
           <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
           <Button
             variant="destructive"
-            rounded="full"
             onClick={handleConfirm}
             disabled={isPending}
+            className="rounded-full"
           >
             {isPending ? (
               <>

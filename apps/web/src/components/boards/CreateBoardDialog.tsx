@@ -113,16 +113,16 @@ export function CreateBoardDialog({ open, onOpenChange }: Props) {
             <Button
               type="button"
               variant="ghost"
-              rounded="full"
               onClick={() => onOpenChange(false)}
               disabled={createBoard.isPending}
+              className="rounded-full"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              rounded="full"
               disabled={createBoard.isPending}
+              className="rounded-full"
             >
               {createBoard.isPending ? (
                 <>

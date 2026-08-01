@@ -53,7 +53,6 @@ export function ResourceHeader({
             <Button
               variant={activeCategorySlug === null ? "secondary" : "ghost"}
               size="sm"
-              rounded="xl"
               onClick={() => onCategoryChange?.(null)}
             >
               Todos
@@ -65,7 +64,6 @@ export function ResourceHeader({
                   activeCategorySlug === category.slug ? "secondary" : "ghost"
                 }
                 size="sm"
-                rounded="xl"
                 onClick={() => onCategoryChange?.(category.slug)}
               >
                 {category.name}
@@ -95,9 +93,9 @@ export function ResourceHeader({
 
         <Button
           variant="secondary"
-          rounded="full"
           size="lg"
           onClick={handleOpenDialogCreateResource}
+          className="rounded-full"
         >
           <Icon icon={Plus} className="size-4" /> Novo Recurso
         </Button>

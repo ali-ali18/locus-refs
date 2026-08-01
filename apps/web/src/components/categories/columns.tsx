@@ -26,7 +26,6 @@ export const columnsCategories = ({
       <Button
         variant="ghost"
         size="sm"
-        rounded={"xl"}
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Nome
@@ -50,7 +49,6 @@ export const columnsCategories = ({
       <Button
         variant="ghost"
         size="sm"
-        rounded={"xl"}
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Recusos

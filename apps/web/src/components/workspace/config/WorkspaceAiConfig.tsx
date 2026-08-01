@@ -118,7 +118,6 @@ export function WorkspaceAiConfig() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  rounded="xl"
                   onClick={() => setSystemPrompt("")}
                 >
                   Usar padrão
@@ -126,7 +125,6 @@ export function WorkspaceAiConfig() {
               )}
               <Button
                 size="sm"
-                rounded="xl"
                 onClick={handleSaveSystemPrompt}
                 disabled={isPending || !promptDirty}
                 className="ml-auto"

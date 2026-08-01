@@ -19,7 +19,6 @@ export function CollectionItem({
   return (
     <Button
       variant="ghost"
-      rounded="xl"
       size="lg"
       onClick={onClick}
       className={cn(

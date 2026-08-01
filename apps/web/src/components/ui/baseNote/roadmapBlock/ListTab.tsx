@@ -78,7 +78,6 @@ function ListItemRow({
                 className="size-7 p-0"
                 size="icon"
                 variant="ghost"
-                rounded={"xl"}
               >
                 <Icon icon={Edit} />
               </Button>
@@ -87,7 +86,6 @@ function ListItemRow({
               className="size-7 p-0 text-destructive hover:text-destructive"
               size="icon"
               variant="ghost"
-              rounded={"xl"}
               onClick={() => onDeleteItemAction(item.id)}
             >
               <Icon icon={Trash2} />

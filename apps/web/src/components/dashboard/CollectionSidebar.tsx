@@ -30,9 +30,9 @@ export function CollectionSidebar({
         action={
           <Button
             variant="secondary"
-            rounded="full"
             size="lg"
             onClick={handleDialog}
+            className="rounded-full"
           >
             <Icon icon={Plus} /> Nova Collection
           </Button>

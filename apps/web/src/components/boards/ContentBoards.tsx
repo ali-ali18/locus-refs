@@ -50,8 +50,11 @@ export function ContentBoards() {
   return (
     <>
       {hasBoards && (
-        <Item variant="muted" >
-          <ItemMedia variant="icon" className="bg-primary/10 text-primary rounded p-1.5">
+        <Item variant="muted">
+          <ItemMedia
+            variant="icon"
+            className="bg-primary/10 text-primary rounded p-1.5"
+          >
             <Icon icon={DashboardSquare01Icon} />
           </ItemMedia>
           <ItemContent>
@@ -166,7 +169,10 @@ function BoardCard({
       <Link href={href} className="flex-1 p-4 sm:pr-10">
         <Item className="border-0 p-0">
           <ItemMedia variant="icon" className="bg-muted rounded-xl p-2 size-9">
-            <Icon icon={ResolvedIcon} className="size-5 text-muted-foreground" />
+            <Icon
+              icon={ResolvedIcon}
+              className="size-5 text-muted-foreground"
+            />
           </ItemMedia>
           <ItemContent className="min-w-0">
             <ItemTitle>{board.title}</ItemTitle>
@@ -184,16 +190,11 @@ function BoardCard({
         </span>
 
         <div className="flex items-center gap-2 sm:hidden">
-          <Button variant="secondary" size="sm" rounded="xl" onClick={onEdit}>
+          <Button variant="secondary" size="sm" onClick={onEdit}>
             <Icon icon={PencilEdit01Icon} className="size-4" />
             Editar
           </Button>
-          <Button
-            size="sm"
-            rounded="xl"
-            nativeButton={false}
-            render={<Link href={href} />}
-          >
+          <Button size="sm" nativeButton={false} render={<Link href={href} />}>
             Abrir
             <Icon icon={ArrowUpRight01Icon} className="size-4" />
           </Button>
@@ -205,7 +206,6 @@ function BoardCard({
           nativeButton={false}
           render={<Link href={href} />}
           size="default"
-          rounded="xl"
         >
           <Icon icon={ArrowUpRight01Icon} className="size-4" />
           Abrir

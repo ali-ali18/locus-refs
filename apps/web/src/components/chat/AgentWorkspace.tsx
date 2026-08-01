@@ -46,7 +46,7 @@ export function AgentWorkspace() {
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <AgentHeader onOpenThreads={() => setThreadsOpen(true)} />
         {showChatSkeleton ? (
-          <div className="flex flex-1 items-center justify-center p-6 pt-16">
+          <div className="flex flex-1 items-center justify-center p-6 pt-16 md:pt-6">
             <Skeleton className="h-40 w-full max-w-md rounded-xl" />
           </div>
         ) : isEmpty ? (
@@ -63,7 +63,7 @@ export function AgentWorkspace() {
                   addToolApprovalResponse={addToolApprovalResponse}
                 />
               </div>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-background from-40% via-background/85 to-transparent px-3 pt-10 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-4 md:pb-4">
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-background from-50% via-background/90 to-transparent px-3 pt-10 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:from-background md:from-55% md:via-background md:to-transparent md:px-4 md:pb-4">
                 <div className="pointer-events-auto mx-auto w-full max-w-3xl">
                   <ChatInput
                     onSend={send}

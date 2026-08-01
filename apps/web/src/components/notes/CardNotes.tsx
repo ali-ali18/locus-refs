@@ -57,7 +57,7 @@ export function CardNotes({
       </div>
 
       <div className="flex justify-end px-4 gap-2">
-        <Button size="default" variant="outline" rounded="xl">
+        <Button size="default" variant="outline">
           <span>Abrir nota</span>
           <Icon icon={ArrowRight01FreeIcons} />
         </Button>

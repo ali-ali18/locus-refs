@@ -72,7 +72,6 @@ export function RemoveMemberDialog({
             <Button
               variant="secondary"
               type="button"
-              rounded={"xl"}
               onClick={handleCopy}
               className="break-all px-1.5 h-8"
             >

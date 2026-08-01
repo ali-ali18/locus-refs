@@ -65,7 +65,6 @@ export function WrapperNote({ id }: Props) {
         action={
           <Button
             variant="outline"
-            rounded="xl"
             nativeButton={false}
             render={
               <Link href="/dashboard/notes">

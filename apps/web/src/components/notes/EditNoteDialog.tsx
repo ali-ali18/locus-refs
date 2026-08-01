@@ -111,13 +111,13 @@ export function EditNoteDialog({
             <Button
               type="button"
               variant="secondary"
-              rounded="full"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
+              className="rounded-full"
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading} rounded="full">
+            <Button type="submit" disabled={isLoading} className="rounded-full">
               {isLoading ? (
                 <>
                   <Icon

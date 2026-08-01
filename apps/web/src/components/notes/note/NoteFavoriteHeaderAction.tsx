@@ -29,7 +29,6 @@ export function NoteFavoriteHeaderAction() {
       type="button"
       variant="ghost"
       size="icon-sm"
-      rounded="xl"
       disabled={isUpdatingFavorite}
       aria-label={
         isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"

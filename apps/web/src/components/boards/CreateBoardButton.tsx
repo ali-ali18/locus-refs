@@ -27,7 +27,7 @@ export function CreateBoardButton() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Button rounded="xl" onClick={() => setOpen(true)}>
+      <Button onClick={() => setOpen(true)}>
         <Icon icon={Plus} className="size-4" />
         <span>Novo board</span>
       </Button>
@@ -113,13 +113,17 @@ function CreateBoardDialogContent({ onClose }: { onClose: () => void }) {
           <Button
             type="button"
             variant="ghost"
-            rounded="full"
             onClick={onClose}
             disabled={create.isPending}
+            className="rounded-full"
           >
             Cancelar
           </Button>
-          <Button type="submit" rounded="full" disabled={create.isPending}>
+          <Button
+            type="submit"
+            disabled={create.isPending}
+            className="rounded-full"
+          >
             {create.isPending ? (
               <>
                 <Icon

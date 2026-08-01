@@ -162,8 +162,8 @@ export function ResourceDialogStepDetailsForm({
             type="button"
             variant="ghost"
             size="sm"
-            rounded="full"
             onClick={onOpenCreateCategory}
+            className="rounded-full"
           >
             + Criar nova categoria
           </Button>
@@ -175,12 +175,12 @@ export function ResourceDialogStepDetailsForm({
         <Button
           type="button"
           variant="secondary"
-          rounded="full"
           onClick={onBack}
+          className="rounded-full"
         >
           Voltar
         </Button>
-        <Button type="submit" rounded="full" disabled={isCreating}>
+        <Button type="submit" disabled={isCreating} className="rounded-full">
           {isCreating ? (
             <>
               <Icon icon={Loading02Icon} className="mr-2 size-4 animate-spin" />

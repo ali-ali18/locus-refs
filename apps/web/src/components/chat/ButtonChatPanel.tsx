@@ -12,7 +12,6 @@ export function ButtonChatPanel() {
     <Button
       variant="ghost"
       size="icon-sm"
-      rounded="xl"
       onClick={toggle}
       aria-label="Abrir assistente IA"
       data-state={open ? "open" : "closed"}

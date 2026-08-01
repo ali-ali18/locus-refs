@@ -80,7 +80,8 @@ export function ChatInput({
         onError={(err) => toast.error(err.message)}
         onSubmit={handleSubmit}
         className={cn(
-          "rounded-3xl border-border bg-card shadow-sm",
+          // dark:bg-card sobrescreve dark:bg-input/30 do InputGroup
+          "rounded-3xl border-border bg-card shadow-sm dark:bg-card",
           variant === "hero" && "shadow-md",
         )}
       >

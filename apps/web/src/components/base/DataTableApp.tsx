@@ -108,7 +108,6 @@ export function DataTableApp<TData, TValue>({
                 nativeButton={false}
                 variant="outline"
                 size="icon"
-                rounded={"xl"}
                 suppressHydrationWarning
                 render={
                   <span>
@@ -208,7 +207,6 @@ export function DataTableApp<TData, TValue>({
           <Button
             variant="outline"
             size="icon"
-            rounded={"xl"}
             disabled={!table.getCanPreviousPage()}
             onClick={() => table.previousPage()}
           >
@@ -223,7 +221,6 @@ export function DataTableApp<TData, TValue>({
             size="icon"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            rounded={"xl"}
           >
             <Icon icon={ArrowRightIcon} />
           </Button>

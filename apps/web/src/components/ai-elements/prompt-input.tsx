@@ -111,7 +111,7 @@ const captureScreenshot = async (): Promise<File | null> => {
 
   let stream: MediaStream | null = null;
   const video = document.createElement("video");
-  video.muted = true;
+  muted = true;
   video.playsInline = true;
 
   try {

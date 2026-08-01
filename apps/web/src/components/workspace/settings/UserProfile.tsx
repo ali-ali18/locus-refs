@@ -1,7 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Camera01Icon, FloppyDiskIcon, Loading02Icon, UserIcon } from "@hugeicons/core-free-icons";
+import {
+  Camera01Icon,
+  FloppyDiskIcon,
+  Loading02Icon,
+  UserIcon,
+} from "@hugeicons/core-free-icons";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -61,10 +66,9 @@ export function UserProfile() {
       if (pendingFile) {
         const formData = new FormData();
         formData.append("file", pendingFile);
-        const { data: upload } = await api.post<{ data: { publicUrl: string } }>(
-          "/api/user/avatar",
-          formData,
-        );
+        const { data: upload } = await api.post<{
+          data: { publicUrl: string };
+        }>("/api/user/avatar", formData);
         imageUrl = upload.data.publicUrl;
         setPendingFile(null);
       }
@@ -83,7 +87,10 @@ export function UserProfile() {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-1">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="flex flex-col gap-1"
+    >
       <input
         ref={fileInputRef}
         type="file"
@@ -138,7 +145,7 @@ export function UserProfile() {
       </SettingsRow>
 
       <div className="mt-4 flex justify-end">
-        <Button type="submit" rounded="full" disabled={isSaving}>
+        <Button type="submit" disabled={isSaving} className="rounded-full">
           {isSaving ? (
             <>
               <Icon icon={Loading02Icon} className="size-4 animate-spin" />

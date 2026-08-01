@@ -49,7 +49,7 @@ export function AgentEmptyState() {
     : "Como posso ajudar?";
 
   return (
-    <div className="scrollbar-none flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 pt-16 pb-[max(4rem,env(safe-area-inset-bottom))]">
+    <div className="scrollbar-none flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 pt-16 pb-[max(4rem,env(safe-area-inset-bottom))] md:pt-6">
       <div className="flex w-full max-w-2xl flex-col items-center gap-8">
         <h1 className="text-center font-serif text-3xl tracking-tight text-foreground md:text-4xl">
           {greeting}

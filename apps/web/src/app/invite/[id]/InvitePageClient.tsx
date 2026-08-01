@@ -158,7 +158,6 @@ export function InvitePageClient({
             </p>
             <Button
               variant="ghost"
-              rounded="xl"
               className="w-full text-muted-foreground"
               onClick={() => router.push("/")}
             >
@@ -170,7 +169,6 @@ export function InvitePageClient({
         {!vm.isInvalid && !sessionEmail && (
           <div className="w-full flex flex-col gap-3">
             <Button
-              rounded="xl"
               className="w-full"
               onClick={() => {
                 setInviteRedirectCookie(`/invite/${invitation.id}`);
@@ -210,7 +208,7 @@ export function InvitePageClient({
             {error && (
               <p className="text-xs text-destructive text-center">{error}</p>
             )}
-            <Button rounded="xl" className="w-full" onClick={handleVerifyEmail}>
+            <Button className="w-full" onClick={handleVerifyEmail}>
               Verificar email
             </Button>
             <button
@@ -227,7 +225,6 @@ export function InvitePageClient({
         {vm.isAlreadyAccepted && (
           <div className="w-full flex flex-col gap-3">
             <Button
-              rounded="xl"
               className="w-full"
               onClick={() => router.push(`/${invitation.organizationSlug}`)}
             >
@@ -242,7 +239,6 @@ export function InvitePageClient({
               <p className="text-sm text-destructive text-center">{error}</p>
             )}
             <Button
-              rounded="xl"
               className="w-full"
               disabled={isPending}
               onClick={handleAccept}

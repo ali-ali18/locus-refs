@@ -168,15 +168,15 @@ export function EditResourceDialog({
             <Button
               type="button"
               variant="secondary"
-              rounded="full"
               onClick={() => onOpenChange(false)}
+              className="rounded-full"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              rounded="full"
               disabled={isUpdatingResource || !resource}
+              className="rounded-full"
             >
               {isUpdatingResource ? (
                 <>

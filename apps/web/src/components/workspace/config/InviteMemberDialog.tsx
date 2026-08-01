@@ -52,9 +52,7 @@ export function InviteMemberDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={<Button variant="default" rounded="xl" type="button" />}
-      >
+      <DialogTrigger render={<Button variant="default" type="button" />}>
         <Icon icon={Users} /> Criar um convite
       </DialogTrigger>
       <DialogContent>
@@ -102,7 +100,7 @@ export function InviteMemberDialog() {
             />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={isInviting} rounded="xl">
+            <Button type="submit" disabled={isInviting}>
               {isInviting ? "Enviando..." : "Enviar convite"}{" "}
             </Button>
           </DialogFooter>

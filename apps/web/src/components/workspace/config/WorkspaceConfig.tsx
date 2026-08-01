@@ -151,7 +151,6 @@ export function WorkspaceConfig() {
           <Button
             type="submit"
             disabled={isUpdating || !isFormDirty}
-            rounded={"xl"}
           >
             {isUpdating ? "Salvando..." : "Salvar"}
           </Button>
@@ -171,7 +170,7 @@ export function WorkspaceConfig() {
           <AlertDialog>
             <AlertDialogTrigger
               render={
-                <Button variant="destructive" type="button" rounded={"xl"} />
+                <Button variant="destructive" type="button" />
               }
             >
               Deletar

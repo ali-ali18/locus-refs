@@ -44,7 +44,7 @@ export function ChatMessages({
 
   return (
     <Conversation className="h-full min-h-0 min-w-0">
-      <ConversationContent className="mx-auto w-full max-w-3xl gap-6 px-4 pt-16 pb-28">
+      <ConversationContent className="mx-auto w-full max-w-3xl gap-6 px-4 pt-16 pb-[max(11.5rem,calc(10rem+env(safe-area-inset-bottom)))] md:pt-6 md:pb-36">
         {messages.map((message) => {
           const isUser = message.role === "user";
           const isThisAssistantStreaming =

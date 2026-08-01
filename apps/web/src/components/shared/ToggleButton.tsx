@@ -69,7 +69,6 @@ export function ButtonTheme() {
     <Button
       variant={"ghost"}
       size={"icon-sm"}
-      rounded={"xl"}
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
     >
       {theme === "light" ? (

@@ -123,7 +123,6 @@ export function EditItemPopover({
             className="h-8 flex-1"
             variant="outline"
             size="sm"
-            rounded="xl"
             onClick={() => setOpen(false)}
           >
             Cancelar
@@ -133,7 +132,6 @@ export function EditItemPopover({
             disabled={!name.trim()}
             onClick={handleSave}
             size="sm"
-            rounded="xl"
           >
             Salvar
           </Button>

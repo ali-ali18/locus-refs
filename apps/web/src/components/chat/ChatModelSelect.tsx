@@ -1,5 +1,6 @@
 "use client";
 
+import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { CheckIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -12,10 +13,18 @@ import {
   ModelSelectorList,
   ModelSelectorLogo,
   ModelSelectorName,
-  ModelSelectorSeparator,
   ModelSelectorTrigger,
 } from "@/components/ai-elements/model-selector";
 import { PromptInputButton } from "@/components/ai-elements/prompt-input";
+import { Icon } from "@/components/shared/Icon";
+import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import {
   HoverCard,
   HoverCardContent,
@@ -29,6 +38,7 @@ import {
   useUpdateAiSettings,
 } from "@/hook/ai/useAiSettings";
 import { useIsMobile } from "@/hook/use-mobile";
+import { cn } from "@/lib/utils";
 
 type ModelOption = NonNullable<ReturnType<typeof useAiModels>["data"]>[number];
 
@@ -95,6 +105,157 @@ function ModelHoverDetails({
   );
 }
 
+function RaciocinioSwitcher({
+  checked,
+  onToggle,
+}: {
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="flex w-full items-center justify-between gap-3 px-1 py-1 text-left outline-none"
+      onClick={(event) => {
+        event.stopPropagation();
+        onToggle();
+      }}
+      aria-pressed={checked}
+    >
+      <span className="text-sm text-foreground">Raciocínio</span>
+      <Switch checked={checked} tabIndex={-1} className="pointer-events-none" />
+    </button>
+  );
+}
+
+function MobileModelRow({
+  model,
+  selected,
+  thinkingEnabled,
+  onSelect,
+  onToggleThinking,
+}: {
+  model: ModelOption;
+  selected: boolean;
+  thinkingEnabled: boolean;
+  onSelect: () => void;
+  onToggleThinking: () => void;
+}) {
+  if (selected) {
+    return (
+      <div className="rounded-2xl bg-muted/60 p-3.5">
+        <button
+          type="button"
+          className="flex w-full items-start gap-2.5 text-left outline-none"
+          onClick={onSelect}
+        >
+          <ModelSelectorLogo
+            provider={model.provider}
+            className="mt-0.5 size-4"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="truncate text-sm font-medium text-foreground">
+                {model.label}
+              </span>
+              <CheckIcon className="ml-auto size-4 shrink-0 text-primary" />
+            </div>
+            {model.description ? (
+              <p className="mt-1 text-xs leading-snug text-muted-foreground">
+                {model.description}
+              </p>
+            ) : null}
+          </div>
+        </button>
+        {model.supportsThinking ? (
+          <>
+            <Separator className="my-3" />
+            <RaciocinioSwitcher
+              checked={thinkingEnabled}
+              onToggle={onToggleThinking}
+            />
+          </>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className="flex w-full items-center gap-2.5 rounded-xl px-3.5 py-3 text-left outline-none transition-colors hover:bg-muted/50 active:bg-muted"
+      onClick={onSelect}
+    >
+      <ModelSelectorLogo provider={model.provider} className="size-4" />
+      <span className="min-w-0 flex-1 truncate text-sm text-foreground">
+        {model.label}
+      </span>
+    </button>
+  );
+}
+
+function MobileModelDrawer({
+  open,
+  onOpenChange,
+  grouped,
+  currentModelId,
+  thinkingEnabled,
+  onSelectModel,
+  onToggleThinking,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  grouped: [string, ModelOption[]][];
+  currentModelId?: string;
+  thinkingEnabled: boolean;
+  onSelectModel: (id: string) => void;
+  onToggleThinking: () => void;
+}) {
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange} showSwipeHandle>
+      <DrawerContent className="data-[swipe-direction=down]:rounded-t-3xl">
+        <DrawerHeader className="flex-row items-center justify-between gap-3 px-4 pt-1 pb-3 text-left">
+          <DrawerTitle>Modelos</DrawerTitle>
+          <DrawerClose
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="rounded-full"
+                aria-label="Fechar"
+              />
+            }
+          >
+            <Icon icon={Cancel01Icon} className="size-4" />
+          </DrawerClose>
+        </DrawerHeader>
+
+        <div className="scrollbar-none min-h-0 flex-1 overflow-y-auto px-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          {grouped.map(([provider, list]) => (
+            <div key={provider} className="mb-4">
+              <p className="px-3.5 pb-1.5 text-xs font-medium text-muted-foreground">
+                {providerLabel(provider)}
+              </p>
+              <div className="flex flex-col gap-0.5">
+                {list.map((model) => (
+                  <MobileModelRow
+                    key={model.id}
+                    model={model}
+                    selected={currentModelId === model.id}
+                    thinkingEnabled={thinkingEnabled}
+                    onSelect={() => onSelectModel(model.id)}
+                    onToggleThinking={onToggleThinking}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
 export function ChatModelSelect() {
   const { data: models } = useAiModels();
   const { data: settings } = useAiSettings();
@@ -120,18 +281,69 @@ export function ChatModelSelect() {
 
   const handleSelect = useCallback(
     (id: string) => {
-      updateSettings({ defaultModelId: id });
-      if (isMobile) {
-        const model = models?.find((m) => m.id === id);
-        if (!model?.supportsThinking) {
-          setOpen(false);
-        }
-        return;
+      const model = models?.find((m) => m.id === id);
+      updateSettings({
+        defaultModelId: id,
+        ...(model?.supportsThinking ? {} : { thinkingEnabled: false }),
+      });
+      if (!isMobile) {
+        setOpen(false);
       }
-      setOpen(false);
     },
     [isMobile, models, updateSettings],
   );
+
+  const handleToggleThinking = useCallback(() => {
+    updateSettings({ thinkingEnabled: !thinkingEnabled });
+  }, [thinkingEnabled, updateSettings]);
+
+  const trigger = (
+    <PromptInputButton
+      className="gap-1.5 text-xs"
+      size="sm"
+      onClick={isMobile ? () => setOpen(true) : undefined}
+      type="button"
+    >
+      {currentModel ? (
+        <ModelSelectorLogo provider={currentModel.provider} />
+      ) : null}
+      <span
+        className={cn(
+          "max-w-28 truncate sm:max-w-none",
+          !currentModel && "text-muted-foreground",
+        )}
+      >
+        {currentModel?.label ?? "Modelo"}
+      </span>
+      {thinkingEnabled && currentModel?.supportsThinking ? (
+        <span className="hidden shrink-0 text-muted-foreground sm:inline">
+          Thinking
+        </span>
+      ) : null}
+      {thinkingEnabled && currentModel?.supportsThinking ? (
+        <span className="shrink-0 text-muted-foreground sm:hidden">
+          Raciocínio
+        </span>
+      ) : null}
+    </PromptInputButton>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        {trigger}
+        <MobileModelDrawer
+          open={open}
+          onOpenChange={setOpen}
+          grouped={grouped}
+          currentModelId={settings?.defaultModelId}
+          thinkingEnabled={thinkingEnabled}
+          onSelectModel={handleSelect}
+          onToggleThinking={handleToggleThinking}
+        />
+      </>
+    );
+  }
 
   return (
     <ModelSelector
@@ -150,9 +362,7 @@ export function ChatModelSelect() {
       }}
       open={open}
     >
-      <ModelSelectorTrigger
-        render={<PromptInputButton className="gap-1.5 text-xs" size="sm" />}
-      >
+      <ModelSelectorTrigger render={<PromptInputButton className="gap-1.5 text-xs" size="sm" />}>
         {currentModel ? (
           <ModelSelectorLogo provider={currentModel.provider} />
         ) : null}
@@ -160,9 +370,7 @@ export function ChatModelSelect() {
           {currentModel?.label ?? "Modelo"}
         </ModelSelectorName>
         {thinkingEnabled && currentModel?.supportsThinking ? (
-          <span className="hidden shrink-0 text-muted-foreground sm:inline">
-            Thinking
-          </span>
+          <span className="shrink-0 text-muted-foreground">Thinking</span>
         ) : null}
       </ModelSelectorTrigger>
       <ModelSelectorContent title="Selecionar modelo">
@@ -181,30 +389,6 @@ export function ChatModelSelect() {
                   thinkingEnabled &&
                   Boolean(model.supportsThinking);
 
-                const item = (
-                  <>
-                    <ModelSelectorLogo provider={model.provider} />
-                    <ModelSelectorName>{model.label}</ModelSelectorName>
-                    {isSelected ? (
-                      <CheckIcon className="ml-auto size-4 shrink-0" />
-                    ) : (
-                      <div className="ml-auto size-4 shrink-0" />
-                    )}
-                  </>
-                );
-
-                if (isMobile) {
-                  return (
-                    <ModelSelectorItem
-                      key={model.id}
-                      onSelect={() => handleSelect(model.id)}
-                      value={`${providerLabel(model.provider)} ${model.label} ${model.id}`}
-                    >
-                      {item}
-                    </ModelSelectorItem>
-                  );
-                }
-
                 return (
                   <HoverCard key={model.id}>
                     <HoverCardTrigger
@@ -217,7 +401,18 @@ export function ChatModelSelect() {
                         />
                       }
                     >
-                      {item}
+                      <ModelSelectorLogo provider={model.provider} />
+                      <ModelSelectorName>{model.label}</ModelSelectorName>
+                      {modelThinkingOn ? (
+                        <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                          Thinking
+                        </span>
+                      ) : null}
+                      {isSelected ? (
+                        <CheckIcon className="ml-auto size-4 shrink-0" />
+                      ) : (
+                        <div className="ml-auto size-4 shrink-0" />
+                      )}
                     </HoverCardTrigger>
                     <ModelHoverDetails
                       model={model}
@@ -235,19 +430,6 @@ export function ChatModelSelect() {
             </ModelSelectorGroup>
           ))}
         </ModelSelectorList>
-        {isMobile && currentModel?.supportsThinking ? (
-          <>
-            <ModelSelectorSeparator />
-            <div className="overflow-hidden">
-              <ThinkingToggleRow
-                checked={thinkingEnabled}
-                onToggle={() => {
-                  updateSettings({ thinkingEnabled: !thinkingEnabled });
-                }}
-              />
-            </div>
-          </>
-        ) : null}
       </ModelSelectorContent>
     </ModelSelector>
   );

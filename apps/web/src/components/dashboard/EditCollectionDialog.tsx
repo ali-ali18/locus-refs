@@ -136,13 +136,17 @@ export function EditCollectionDialog({
             <Button
               type="button"
               variant="secondary"
-              rounded="full"
               onClick={() => onOpenChange(false)}
               disabled={isUpdating}
+              className="rounded-full"
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isUpdating} rounded="full">
+            <Button
+              type="submit"
+              disabled={isUpdating}
+              className="rounded-full"
+            >
               {isUpdating ? (
                 <>
                   <Icon

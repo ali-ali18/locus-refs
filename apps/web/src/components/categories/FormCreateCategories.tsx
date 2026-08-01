@@ -34,13 +34,13 @@ export function FormCreateCategories({ onSuccess }: FormCreateCategoriesProps) {
         <Button
           type="button"
           variant="secondary"
-          rounded="full"
           disabled={isLoading}
           onClick={() => form.reset()}
+          className="rounded-full"
         >
           Limpar
         </Button>
-        <Button type="submit" disabled={isLoading} rounded="full">
+        <Button type="submit" disabled={isLoading} className="rounded-full">
           {isLoading ? (
             <>
               <Icon icon={Loading02Icon} className="mr-2 size-4 animate-spin" />

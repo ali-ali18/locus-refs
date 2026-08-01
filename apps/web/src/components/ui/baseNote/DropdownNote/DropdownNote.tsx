@@ -73,9 +73,7 @@ export function DropdownNote({ editor, noteId, onOpenPluginDialog }: Props) {
 
       return {
         bold: noteLink ? Boolean(noteLink.bold) : editor.isActive("bold"),
-        italic: noteLink
-          ? Boolean(noteLink.italic)
-          : editor.isActive("italic"),
+        italic: noteLink ? Boolean(noteLink.italic) : editor.isActive("italic"),
         underline: noteLink
           ? Boolean(noteLink.underline)
           : editor.isActive("underline"),
@@ -123,7 +121,6 @@ export function DropdownNote({ editor, noteId, onOpenPluginDialog }: Props) {
               key={action.label}
               variant="ghost"
               size="icon"
-              rounded="xl"
               className={
                 isActive(action.mark) ? "bg-muted dark:bg-muted/50" : undefined
               }
@@ -149,7 +146,6 @@ export function DropdownNote({ editor, noteId, onOpenPluginDialog }: Props) {
           <Button
             variant="ghost"
             size="icon"
-            rounded="xl"
             nativeButton={false}
             aria-label="Adicionar ao chat"
             title="Adicionar ao chat"
@@ -167,7 +163,6 @@ export function DropdownNote({ editor, noteId, onOpenPluginDialog }: Props) {
             <Button
               variant="ghost"
               size="icon"
-              rounded="xl"
               type="button"
               nativeButton={false}
               render={

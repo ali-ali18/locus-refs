@@ -55,7 +55,6 @@ export function IconPicker({ value, onChange, trigger }: IconPickerProps) {
     <Button
       type="button"
       variant="outline"
-      rounded="xl"
       className="w-full justify-between"
       onClick={() => setOpen(true)}
     >
@@ -133,7 +132,6 @@ export function IconPicker({ value, onChange, trigger }: IconPickerProps) {
           <CommandSeparator />
           <div className="flex items-center justify-between px-3 py-2 text-xs text-muted-foreground">
             <Button
-              rounded={"xl"}
               type="button"
               variant={"ghost"}
               onClick={() => setPage((prev) => Math.max(0, prev - 1))}
@@ -146,7 +144,6 @@ export function IconPicker({ value, onChange, trigger }: IconPickerProps) {
               Página {currentPage + 1} de {totalPages}
             </span>
             <Button
-              rounded={"xl"}
               variant={"ghost"}
               type="button"
               onClick={() =>

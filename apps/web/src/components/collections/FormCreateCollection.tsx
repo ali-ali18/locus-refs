@@ -57,14 +57,18 @@ export function FormCreateCollection({ onSuccess }: Props) {
       <DialogFooter>
         <DialogClose
           render={
-            <Button variant="outline" rounded="full" disabled={isCreating}>
+            <Button
+              variant="outline"
+              disabled={isCreating}
+              className="rounded-full"
+            >
               Cancelar
             </Button>
           }
         >
           Cancelar
         </DialogClose>
-        <Button type="submit" rounded="full" disabled={isCreating}>
+        <Button type="submit" disabled={isCreating} className="rounded-full">
           {isCreating ? (
             <>
               <Icon icon={Loading02Icon} className="mr-2 size-4 animate-spin" />

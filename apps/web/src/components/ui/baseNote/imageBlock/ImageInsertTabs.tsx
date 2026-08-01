@@ -81,7 +81,6 @@ export function ImageInsertTabs({ uploadImage, onInsert }: Props) {
             <Button
               size="icon-sm"
               variant="secondary"
-              rounded="xl"
               type="button"
               onClick={handleUrlInsert}
             >

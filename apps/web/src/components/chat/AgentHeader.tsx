@@ -52,7 +52,7 @@ export function AgentHeader({
     .join(" · ");
 
   return (
-    <header className="pointer-events-none absolute inset-x-0 top-0 z-20 px-3 pt-2">
+    <header className="pointer-events-none absolute inset-x-0 top-0 z-20 px-3 pt-2 md:pointer-events-auto md:relative md:inset-auto md:shrink-0 md:border-b md:border-border md:bg-background md:px-4 md:pt-2.5 md:pb-2.5">
       <div className="pointer-events-auto flex h-10 items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {onOpenThreads ? (
@@ -60,8 +60,7 @@ export function AgentHeader({
               type="button"
               variant="outline"
               size="icon"
-              rounded="full"
-              className="bg-background px-0 md:hidden"
+              className="rounded-full bg-background px-0 shadow-xs dark:bg-background md:hidden"
               aria-label="Abrir conversas"
               onClick={onOpenThreads}
             >
@@ -80,7 +79,7 @@ export function AgentHeader({
         <div className="flex shrink-0 items-center gap-1">
           {/* Mobile: nova conversa + compartilhar + fechar (pill único, sem divisor) */}
           <div
-            className="flex overflow-hidden rounded-full border border-border bg-background shadow-xs md:hidden"
+            className="flex overflow-hidden rounded-full border border-border bg-background shadow-xs dark:bg-background md:hidden"
           >
             <Button
               type="button"
@@ -124,8 +123,7 @@ export function AgentHeader({
             <Button
               variant="outline"
               size="sm"
-              rounded="xl"
-              className="hidden gap-1.5 bg-background md:inline-flex"
+              className="hidden gap-1.5 md:inline-flex"
               disabled={sharing || isSharing}
               onClick={() => void handleShare()}
             >
@@ -139,8 +137,7 @@ export function AgentHeader({
           <Button
             variant="outline"
             size="icon-sm"
-            rounded="full"
-            className="hidden bg-background md:inline-flex"
+            className="rounded-full hidden md:inline-flex"
             onClick={() => setOpen(false)}
             aria-label="Fechar agent"
           >

@@ -127,7 +127,7 @@ export function WorkspaceUserList() {
                   <DropdownMenuTrigger
                     className={"rounded-xl"}
                     render={
-                      <Button variant={"ghost"} rounded={"xl"}>
+                      <Button variant={"ghost"}>
                         <Icon icon={MoreHorizontalIcon} />
                       </Button>
                     }
@@ -200,10 +200,10 @@ export function WorkspaceUserList() {
                 <ItemActions>
                   <Button
                     variant="ghost"
-                    rounded="full"
                     type="button"
                     disabled={isCancelling}
                     onClick={() => cancelInvitation(inv.id)}
+                    className="rounded-full"
                   >
                     <Icon icon={Cancel01Icon} />
                     <span className="sr-only">Cancelar convite</span>

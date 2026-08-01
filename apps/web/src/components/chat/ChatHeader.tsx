@@ -13,11 +13,7 @@ interface ChatHeaderProps {
   noteId?: string;
 }
 
-export function ChatHeader({
-  onClear,
-  hasMessages,
-  noteId,
-}: ChatHeaderProps) {
+export function ChatHeader({ onClear, hasMessages, noteId }: ChatHeaderProps) {
   const { setOpen } = useChatPanel();
   const { workspaceName } = useWorkspace();
   const { data: note } = useNote(noteId ?? "");
@@ -38,7 +34,6 @@ export function ChatHeader({
           <Button
             variant="ghost"
             size="icon-sm"
-            rounded="xl"
             onClick={onClear}
             aria-label="Limpar conversa"
           >
@@ -48,7 +43,6 @@ export function ChatHeader({
         <Button
           variant="ghost"
           size="icon-sm"
-          rounded="xl"
           onClick={() => setOpen(false)}
           aria-label="Fechar agent"
         >

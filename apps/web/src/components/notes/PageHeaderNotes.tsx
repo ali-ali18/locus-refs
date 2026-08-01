@@ -35,7 +35,6 @@ export function PageHeaderNotes() {
         <ItemActions>
           <Button
             variant="outline"
-            rounded={"xl"}
             onClick={() => setOpenCreate(true)}
           >
             <Icon icon={PlusSignIcon} />

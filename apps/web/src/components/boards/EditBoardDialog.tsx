@@ -136,16 +136,16 @@ export function EditBoardDialog({
             <Button
               type="button"
               variant="secondary"
-              rounded="full"
               onClick={() => onOpenChange(false)}
               disabled={updateBoard.isPending}
+              className="rounded-full"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={updateBoard.isPending}
-              rounded="full"
+              className="rounded-full"
             >
               {updateBoard.isPending ? (
                 <>

@@ -91,7 +91,6 @@ export function PluginDialog({ editor, open, onOpenChange }: Props) {
               <Button
                 size="icon-sm"
                 variant="secondary"
-                rounded="xl"
                 type="button"
                 onClick={handleInsert}
               >

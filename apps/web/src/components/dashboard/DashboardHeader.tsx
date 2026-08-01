@@ -38,9 +38,8 @@ export function DashboardHeader({ handleDialog }: DashboardHeaderProps) {
         <div>
           <Button
             variant="secondary"
-            rounded="full"
             size="lg"
-            className="font-medium shadow-lg hover:bg-secondary/85"
+            className="rounded-full font-medium shadow-lg hover:bg-secondary/85"
             onClick={handleDialog}
           >
             <Icon icon={Plus} className="size-5 mr-2" />

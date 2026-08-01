@@ -60,16 +60,16 @@ export function CreateCategoryInlineDialog({
           <Button
             type="button"
             variant="secondary"
-            rounded="full"
             onClick={() => onOpenChange(false)}
+            className="rounded-full"
           >
             Cancelar
           </Button>
           <Button
             type="button"
-            rounded="full"
             disabled={!newCategoryName.trim() || isCreating}
             onClick={onCreate}
+            className="rounded-full"
           >
             {isCreating ? (
               <>

@@ -74,7 +74,7 @@ export function LinkPopover({ editor, onOpenChange, isActive }: Props) {
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger
         className={cn(
-          buttonVariants({ variant: "ghost", size: "icon", rounded: "xl" }),
+          buttonVariants({ variant: "ghost", size: "icon" }),
           isActive && "bg-muted dark:bg-muted/50",
         )}
         type="button"
@@ -109,7 +109,6 @@ export function LinkPopover({ editor, onOpenChange, isActive }: Props) {
             <Button
               size="icon-sm"
               variant={"secondary"}
-              rounded="xl"
               type="button"
               onClick={handleApply}
             >
@@ -122,7 +121,6 @@ export function LinkPopover({ editor, onOpenChange, isActive }: Props) {
           <Button
             variant="destructive"
             size="sm"
-            rounded="xl"
             type="button"
             onClick={handleRemove}
           >

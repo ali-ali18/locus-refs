@@ -211,7 +211,9 @@ export function Editor({
           return {
             status: "error",
             reason:
-              error instanceof Error ? error.message : "Falha ao inserir links.",
+              error instanceof Error
+                ? error.message
+                : "Falha ao inserir links.",
           };
         }
       }

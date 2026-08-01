@@ -73,7 +73,6 @@ function ThreadPreview({
           type="button"
           variant="ghost"
           size="icon-sm"
-          rounded="xl"
           className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100"
           aria-label="Excluir conversa"
           onClick={(e) => {
@@ -142,9 +141,9 @@ export function AgentThreadList({
             type="button"
             variant="ghost"
             size="icon-sm"
-            rounded="full"
             aria-label="Fechar conversas"
             onClick={onClose}
+            className="rounded-full"
           >
             <Icon icon={Cancel01Icon} className="size-4" />
           </Button>
@@ -157,7 +156,6 @@ export function AgentThreadList({
             type="button"
             variant="ghost"
             size="icon-sm"
-            rounded="xl"
             aria-label="Nova conversa"
             onClick={handleNewChat}
           >
