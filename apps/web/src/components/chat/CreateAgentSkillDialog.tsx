@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { FieldGroupApp } from "@/components/base";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -109,19 +109,37 @@ export function CreateAgentSkillDialog({
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-4"
         >
-          <FieldGroupApp<CreateSkillSchema>
+          <Controller
             control={form.control}
             name="title"
-            label="Nome"
-            placeholder="Ex: Revisar tom"
-            className="rounded-xl"
+            render={({ field, fieldState }) => (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="skill-title">Nome</Label>
+                <Input
+                  id="skill-title"
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  placeholder="Ex: Revisar tom"
+                  className="rounded-xl"
+                  aria-invalid={fieldState.invalid || undefined}
+                />
+                {fieldState.error ? (
+                  <p className="text-sm text-destructive">
+                    {fieldState.error.message}
+                  </p>
+                ) : null}
+              </div>
+            )}
           />
 
           <Controller
             control={form.control}
             name="description"
             render={({ field }) => (
-              <div className="space-y-1.5">
+              <div className="flex flex-col gap-1.5">
                 <Label htmlFor="skill-description">Descrição</Label>
                 <Textarea
                   id="skill-description"
@@ -138,7 +156,7 @@ export function CreateAgentSkillDialog({
             control={form.control}
             name="prompt"
             render={({ field, fieldState }) => (
-              <div className="space-y-1.5">
+              <div className="flex flex-col gap-1.5">
                 <Label htmlFor="skill-prompt">Prompt</Label>
                 <Textarea
                   id="skill-prompt"
@@ -162,7 +180,7 @@ export function CreateAgentSkillDialog({
             render={({ field }) => {
               const value = field.value ?? "personal";
               return (
-                <div className="space-y-1.5">
+                <div className="flex flex-col gap-1.5">
                   <Label>Visibilidade</Label>
                   <Select value={value} onValueChange={field.onChange}>
                     <SelectTrigger className="w-full rounded-xl">

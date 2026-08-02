@@ -1,0 +1,8 @@
+# Copie para `.dev.vars` (gitignored) com o mesmo secret do apps/web:
+#
+#   cp .dev.vars.example .dev.vars
+#
+# O `wrangler dev` só lê secrets locais via `.dev.vars` (não usa `.env`).
+# Sem isso o connect do board retorna 401.
+
+COLLAB_JWT_SECRET=
