@@ -19,7 +19,7 @@ import {
   NOTE_EDIT_TOOL_PROMPT,
   ROADMAP_BLOCK_PROMPT,
 } from "@/lib/ai/prompts";
-import { getAgentSkill } from "@/lib/ai/skills";
+import { resolveAgentSkill } from "@/lib/ai/skills/resolve-skill";
 import { noteEditTools } from "@/lib/ai/tools";
 import { createWorkspaceTools } from "@/lib/ai/workspace-tools";
 import prisma from "@/lib/prisma";
@@ -149,6 +149,7 @@ function buildAgentSystemPrompt(params: {
   mentionsContext: string;
   attachmentsContext: string;
   skillLabel: string | null;
+  skillPrompt: string | null;
   hasOpenNote: boolean;
 }): string {
   const parts: string[] = [
@@ -160,7 +161,13 @@ function buildAgentSystemPrompt(params: {
 
   if (params.skillLabel) {
     parts.push(
-      `## Skill ativa\nO usuario disparou a skill "${params.skillLabel}". Siga esse objetivo.`,
+      [
+        `## Skill ativa: "${params.skillLabel}"`,
+        "Siga o objetivo desta skill. Se o usuario escreveu texto adicional, trate-o como contexto/complemento.",
+        params.skillPrompt ? `\n### Instrucoes da skill\n${params.skillPrompt}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
     );
   }
 
@@ -374,7 +381,11 @@ export async function POST(request: NextRequest) {
 
     const resolvedModelId = modelId ?? aiSettings?.defaultModelId;
     const model = getModel(resolvedModelId);
-    const skill = getAgentSkill(skillId);
+    const skill = await resolveAgentSkill({
+      skillId: typeof skillId === "string" ? skillId : undefined,
+      userId: session.user.id,
+      workspaceId,
+    });
 
     let noteContext = "";
     let enumeratedBlocks = "";
@@ -457,6 +468,7 @@ export async function POST(request: NextRequest) {
       mentionsContext,
       attachmentsContext,
       skillLabel: skill?.label ?? null,
+      skillPrompt: skill?.prompt ?? null,
       hasOpenNote,
     });
 

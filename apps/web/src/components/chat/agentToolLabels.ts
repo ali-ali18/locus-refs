@@ -59,6 +59,8 @@ export function getToolPendingLabel(toolPart: ToolUIPart): string {
       return "Criando coleção…";
     case "createResource":
       return "Criando recurso…";
+    case "createAgentSkill":
+      return "Criando skill…";
     case "deleteNote":
       return "Excluindo nota…";
     case "deleteCollection":
@@ -108,6 +110,12 @@ export function getToolDoneLabel(toolPart: ToolUIPart): string {
       return resource?.title
         ? `Criou recurso “${resource.title}”`
         : "Criou recurso";
+    }
+    case "createAgentSkill": {
+      const skill = output?.skill as { title?: string } | undefined;
+      return skill?.title
+        ? `Criou skill “${skill.title}”`
+        : "Criou skill";
     }
     case "deleteResource": {
       const resource = output?.resource as { title?: string } | undefined;
@@ -241,6 +249,10 @@ export function getToolCardTitle(toolPart: ToolUIPart): string {
         | undefined;
       return resource?.title?.trim() || resource?.url || "Novo recurso";
     }
+    case "createAgentSkill": {
+      const skill = output?.skill as { title?: string } | undefined;
+      return skill?.title?.trim() || "Nova skill";
+    }
     case "getNoteBacklinks":
       return "Backlinks";
     case "listNoteCollections":
@@ -313,6 +325,15 @@ export function getToolCardSnippet(toolPart: ToolUIPart): string | null {
       const collection = output.collection as { name?: string } | undefined;
       return collection?.name ? `Criada: ${collection.name}` : "Coleção criada";
     }
+    case "createAgentSkill": {
+      const skill = output.skill as
+        | { title?: string; visibility?: string }
+        | undefined;
+      if (!skill?.title) return "Skill criada";
+      const scope =
+        skill.visibility === "workspace" ? "workspace" : "pessoal";
+      return `${skill.title} (${scope})`;
+    }
     case "getNoteBacklinks": {
       const linked = output.linkedFrom as Array<{ title?: string }> | undefined;
       if (!linked?.length) return "Sem backlinks";
@@ -331,6 +352,7 @@ export function getToolDomainLabel(toolPart: ToolUIPart): string {
   if (name.includes("Resource") || name === "listResources") return "Recurso";
   if (name.includes("Collection")) return "Coleção";
   if (name.includes("Board")) return "Board";
+  if (name.includes("Skill") || name === "createAgentSkill") return "Skill";
   if (name.includes("Note") || name === "searchNotes" || name === "listNotes") {
     return "Nota";
   }

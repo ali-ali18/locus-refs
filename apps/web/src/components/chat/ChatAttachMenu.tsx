@@ -1,6 +1,12 @@
 "use client";
 
-import { FileTextIcon, ImageIcon, PlusIcon } from "lucide-react";
+import {
+  FileTextIcon,
+  ImageIcon,
+  PlusIcon,
+  SparklesIcon,
+  Settings2Icon,
+} from "lucide-react";
 import {
   type ChangeEvent,
   type RefObject,
@@ -20,35 +26,57 @@ import {
   PromptInputButton,
   usePromptInputAttachments,
 } from "@/components/ai-elements/prompt-input";
+import { Icon } from "@/components/shared/Icon";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSettingsDialog } from "@/context/settingsDialog";
+import { useAgentSkills } from "@/hook/ai/useAgentSkills";
 import { useIsMobile } from "@/hook/use-mobile";
+import type { AgentSkill } from "@/types/agent-skill.type";
+import { Scroll01Icon } from "@hugeicons/core-free-icons";
+import { CreateAgentSkillDialog } from "./CreateAgentSkillDialog";
 
 const IMAGE_ACCEPT =
   "image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif";
 const FILE_ACCEPT = "application/pdf,.pdf,text/plain,.txt";
 const ATTACH_MENU_GAP_PX = 20;
+const SKILLS_SUBMENU_LIMIT = 5;
 
 export function ChatAttachMenu({
   anchorRef,
   placement,
+  noteId,
+  onSelectSkill,
 }: {
   anchorRef: RefObject<HTMLElement | null>;
   /** Sem mensagens: abaixo do input. Com mensagens: acima. */
   placement: "below" | "above";
+  noteId?: string;
+  onSelectSkill?: (skill: AgentSkill) => void;
 }) {
   const isMobile = useIsMobile();
   const attachments = usePromptInputAttachments();
+  const { openSettings } = useSettingsDialog();
+  const { data: skills = [] } = useAgentSkills();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
   const [alignOffset, setAlignOffset] = useState(0);
   const [sideOffset, setSideOffset] = useState(ATTACH_MENU_GAP_PX);
+  const [createOpen, setCreateOpen] = useState(false);
+
+  const visibleSkills = skills
+    .filter((skill) => (skill.requiresNote ? !!noteId : true))
+    .slice(0, SKILLS_SUBMENU_LIMIT);
 
   useEffect(() => {
     if (isMobile) return;
@@ -171,8 +199,55 @@ export function ChatAttachMenu({
               <span className="text-xs text-muted-foreground">PDF ou TXT</span>
             </span>
           </DropdownMenuItem>
+
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="gap-3 rounded-2xl px-3 py-2.5">
+              <SparklesIcon className="size-4 shrink-0 text-muted-foreground" />
+              <span className="font-medium text-foreground">Skills</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="min-w-52 rounded-2xl border-border p-1.5">
+              {visibleSkills.length === 0 ? (
+                <div className="px-3 py-2 text-xs text-muted-foreground">
+                  Nenhuma skill ainda
+                </div>
+              ) : (
+                visibleSkills.map((skill) => (
+                  <DropdownMenuItem
+                    key={skill.id}
+                    className="gap-2 rounded-xl px-3 py-2"
+                    onClick={() => onSelectSkill?.(skill)}
+                  >
+                    <Icon
+                      icon={Scroll01Icon}
+                      className="size-3.5 shrink-0 text-muted-foreground"
+                    />
+                    <span className="truncate text-sm font-medium">
+                      {skill.title}
+                    </span>
+                  </DropdownMenuItem>
+                ))
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="rounded-xl px-3 py-2 gap-2"
+                onClick={() => openSettings("workspace-ai")}
+              >
+                <Settings2Icon className="size-3.5 shrink-0 text-muted-foreground" />
+                Gerenciar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="rounded-xl px-3 py-2 gap-2"
+                onClick={() => setCreateOpen(true)}
+              >
+                <PlusIcon className="size-3.5 shrink-0 text-muted-foreground" />
+                Criar skill
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <CreateAgentSkillDialog open={createOpen} onOpenChange={setCreateOpen} />
     </>
   );
 }

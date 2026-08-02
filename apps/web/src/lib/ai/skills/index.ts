@@ -1,4 +1,4 @@
-export type AgentSkillId =
+export type BuiltInAgentSkillId =
   | "summarize-note"
   | "continue-writing"
   | "extract-actions"
@@ -6,8 +6,11 @@ export type AgentSkillId =
   | "rewrite-tone"
   | "find-related";
 
+/** Built-in slug ou id de skill do usuário (cuid/uuid). */
+export type AgentSkillId = BuiltInAgentSkillId | (string & {});
+
 export interface AgentSkill {
-  id: AgentSkillId;
+  id: BuiltInAgentSkillId;
   label: string;
   description: string;
   /** Prompt canônico enviado como mensagem do usuário. */

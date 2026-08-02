@@ -12,6 +12,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useChatPanel } from "@/context/chatPanel";
 import { useNoteEditor } from "@/context/noteEditor";
 import { useWorkspace } from "@/context/workspace";
+import { agentSkillKeys } from "@/hook/ai/agentSkillKeys";
 import { agentThreadKeys } from "@/hook/ai/agentThreadKeys";
 import { useAgentThread, useAgentThreadMutations } from "@/hook/ai/useAgentThreads";
 import { noteKeys } from "@/hook/notes/noteKeys";
@@ -269,6 +270,11 @@ export function useAiChat({
                 queryKey: ["resources", output.resource.collectionId],
               });
             }
+            break;
+          case "tool-createAgentSkill":
+            void queryClient.invalidateQueries({
+              queryKey: agentSkillKeys.all(workspaceId),
+            });
             break;
           default:
             break;
