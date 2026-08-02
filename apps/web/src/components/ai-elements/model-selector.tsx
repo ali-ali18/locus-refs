@@ -43,7 +43,7 @@ export const ModelSelectorContent = ({
   <DialogContent
     aria-describedby={undefined}
     className={cn(
-      "outline! border-none! p-0 outline-border! outline-solid!",
+      "overflow-hidden rounded-xl! border-none p-0 ring-foreground/5",
       className,
     )}
     showCloseButton={false}

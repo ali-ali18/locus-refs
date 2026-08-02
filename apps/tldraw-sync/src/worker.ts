@@ -175,6 +175,15 @@ async function handleBoardConnect(
     });
   }
 
+  if (!env.COLLAB_JWT_SECRET) {
+    console.error(
+      "[tldraw-sync] COLLAB_JWT_SECRET ausente. Em local, crie apps/tldraw-sync/.dev.vars",
+    );
+    return new Response("Server misconfigured: COLLAB_JWT_SECRET", {
+      status: 500,
+    });
+  }
+
   const payload = await verifyBoardToken(token, env.COLLAB_JWT_SECRET);
   if (!payload) {
     return new Response("Invalid or expired token", { status: 401 });

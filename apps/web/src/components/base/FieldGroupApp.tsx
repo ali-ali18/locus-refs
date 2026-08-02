@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 import {
   type Control,
   Controller,
@@ -46,15 +46,19 @@ export function FieldGroupApp<T extends FieldValues>({
   align = "inline-start",
   className,
 }: FieldGroupAppProps<T>) {
+  const id = useId();
+  const inputId = `${id}-${String(name).replace(/\./g, "-")}`;
+
   return (
     <Controller<T>
       name={name}
       control={control}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid}>
-          <FieldLabel>{label}</FieldLabel>
+          <FieldLabel htmlFor={inputId}>{label}</FieldLabel>
           <InputGroupApp
             {...field}
+            id={inputId}
             className={cn(className)}
             firstElement={firstElement}
             lastElement={lastElement}

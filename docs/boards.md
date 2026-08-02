@@ -349,14 +349,17 @@ pnpm exec wrangler deploy
 ## Desenvolvimento local
 
 ```bash
-# Terminal 1 — Worker (porta 8787)
+# 1. Secret local do Worker (obrigatório — wrangler NÃO lê apps/web/.env)
 cd apps/tldraw-sync
-pnpm dev
+cp .dev.vars.example .dev.vars
+# Cole o mesmo COLLAB_JWT_SECRET de apps/web/.env
 
-# Terminal 2 — Web app (porta 3000)
-cd apps/web
+# 2. Subir tudo (web + collab + tldraw-sync)
+# na raiz:
 pnpm dev
 ```
+
+O `wrangler dev` sobe em `ws://127.0.0.1:8787`. Sem `.dev.vars`, o connect responde **401**.
 
 O `wrangler dev` simula Durable Objects e R2 localmente. O `.env` do web app já aponta para `ws://127.0.0.1:8787` por padrão.
 

@@ -1,19 +1,32 @@
 "use client";
 
 import {
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
   BubbleChatIcon,
+  Cancel01Icon,
   Config,
   UserIcon,
   UserListFreeIcons,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import {
   type SettingsTabId,
   useSettingsDialog,
 } from "@/context/settingsDialog";
+import { useIsMobile } from "@/hook/use-mobile";
 import { useWorkspaceMembers } from "@/hook/workspace/useWorkspaceMembers";
 import { cn } from "@/lib/utils";
 import { WorkspaceAiConfig } from "./config/WorkspaceAiConfig";
@@ -26,7 +39,6 @@ interface NavEntry {
   id: SettingsTabId;
   label: string;
   icon: IconSvgElement;
-  content: ReactNode;
   headerTitle: string;
   headerDescription?: string;
 }
@@ -34,12 +46,11 @@ interface NavEntry {
 const USER_SECTION = "Usuário";
 const WORKSPACE_SECTION = "Workspace";
 
-const ALL_ENTRIES: Record<SettingsTabId, NavEntry> = {
+const NAV_ENTRIES: Record<SettingsTabId, NavEntry> = {
   profile: {
     id: "profile",
     label: "Perfil",
     icon: UserIcon,
-    content: <UserProfile />,
     headerTitle: "Perfil",
     headerDescription: "Suas informações pessoais e preferências da conta.",
   },
@@ -47,7 +58,6 @@ const ALL_ENTRIES: Record<SettingsTabId, NavEntry> = {
     id: "workspace-general",
     label: "Geral",
     icon: Config,
-    content: <WorkspaceConfig />,
     headerTitle: "Geral",
     headerDescription: "Informações e preferências do workspace.",
   },
@@ -55,142 +65,241 @@ const ALL_ENTRIES: Record<SettingsTabId, NavEntry> = {
     id: "workspace-members",
     label: "Membros",
     icon: UserListFreeIcons,
-    content: <WorkspaceUserList />,
     headerTitle: "Membros",
     headerDescription: "Gerencie os membros e convites do workspace.",
   },
   "workspace-ai": {
     id: "workspace-ai",
-    label: "Assistente IA",
+    label: "Agent",
     icon: BubbleChatIcon,
-    content: <WorkspaceAiConfig />,
-    headerTitle: "Assistente IA",
-    headerDescription: "Personalize o assistente de IA padrão deste workspace.",
+    headerTitle: "Agent",
+    headerDescription:
+      "Modelo, system prompt e skills do Agent neste workspace.",
   },
 };
+
+function SettingsTabContent({ id }: { id: SettingsTabId }) {
+  switch (id) {
+    case "profile":
+      return <UserProfile />;
+    case "workspace-general":
+      return <WorkspaceConfig />;
+    case "workspace-members":
+      return <WorkspaceUserList />;
+    case "workspace-ai":
+      return <WorkspaceAiConfig />;
+  }
+}
 
 function isWorkspaceTab(id: SettingsTabId): boolean {
   return id.startsWith("workspace-");
 }
 
-export function SettingsDialog() {
-  const { open, closeSettings, activeTabId, setActiveTab } =
-    useSettingsDialog();
+function useSettingsEntries() {
+  const { activeTabId, setActiveTab } = useSettingsDialog();
   const { currentMember, isLoading } = useWorkspaceMembers();
 
   const isAdminOrOwner =
     currentMember?.role === "admin" || currentMember?.role === "owner";
 
-  // Fallback silencioso: se um não-admin cair numa tab de workspace, joga pro perfil.
   useEffect(() => {
-    if (!isLoading && !isAdminOrOwner && isWorkspaceTab(activeTabId)) {
+    if (
+      !isLoading &&
+      !isAdminOrOwner &&
+      (activeTabId === "workspace-general" ||
+        activeTabId === "workspace-members")
+    ) {
       setActiveTab("profile");
     }
   }, [isLoading, isAdminOrOwner, activeTabId, setActiveTab]);
 
   const entries: NavEntry[] = [
-    ALL_ENTRIES.profile,
+    NAV_ENTRIES.profile,
     ...(isAdminOrOwner
-      ? [
-          ALL_ENTRIES["workspace-general"],
-          ALL_ENTRIES["workspace-members"],
-          ALL_ENTRIES["workspace-ai"],
-        ]
+      ? [NAV_ENTRIES["workspace-general"], NAV_ENTRIES["workspace-members"]]
       : []),
+    NAV_ENTRIES["workspace-ai"],
   ];
 
   const activeEntry = entries.find((e) => e.id === activeTabId) ?? entries[0];
 
-  // Fade na borda direita do nav mobile enquanto houver conteúdo para rolar.
-  const navRef = useRef<HTMLElement>(null);
-  const [canScrollRight, setCanScrollRight] = useState(false);
+  return { entries, activeEntry, setActiveTab, activeTabId };
+}
 
-  useEffect(() => {
-    const el = navRef.current;
-    if (!el) return;
+export function SettingsDialog() {
+  const isMobile = useIsMobile();
+  if (isMobile) return <SettingsMobileDrawer />;
+  return <SettingsDesktopDialog />;
+}
 
-    const update = () => {
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      setCanScrollRight(maxScroll > 1 && el.scrollLeft < maxScroll - 1);
-    };
-
-    update();
-    el.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      el.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, [entries.length]);
+function SettingsDesktopDialog() {
+  const { open, closeSettings } = useSettingsDialog();
+  const { entries, activeEntry, setActiveTab, activeTabId } =
+    useSettingsEntries();
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && closeSettings()}>
       <DialogContent
-        className="sm:max-w-2xl md:max-w-3xl p-0 gap-0 overflow-hidden"
-        style={{ display: "flex", flexDirection: "column", height: "min(85vh, 800px)" }}
+        className="w-[calc(100%-1.5rem)] gap-0 overflow-hidden p-0 sm:max-w-2xl md:max-w-4xl lg:max-w-5xl"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "min(90dvh, 880px)",
+          maxHeight: "90dvh",
+        }}
         showCloseButton
-        closeButtonClassName="top-2 md:top-4"
+        closeButtonClassName="top-4"
       >
         <DialogTitle className="sr-only">Configurações</DialogTitle>
-        <div className="flex flex-1 min-h-0 min-w-0 flex-col">
-          <div className="flex h-12 items-center justify-between px-4 pr-12 md:hidden">
-            <h2 className="text-base font-semibold">Configurações</h2>
-          </div>
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:grid md:grid-cols-[200px_1fr]">
-            <nav
-              ref={navRef}
-              className={cn(
-                "flex min-h-0 min-w-0 flex-row gap-1 overflow-x-auto p-2 border-t md:flex-col md:bg-sidebar md:overflow-x-visible md:overflow-y-auto md:border-b-0 md:border-r md:px-3 md:pb-3",
-                canScrollRight &&
-                  "mask-[linear-gradient(to_right,black_calc(100%-2rem),transparent)]",
-              )}
-            >
-              <SettingsSectionLabel
-                label={USER_SECTION}
-                className="hidden md:flex"
-              />
-              {entries
-                .filter((e) => !isWorkspaceTab(e.id))
-                .map((entry) => (
-                  <SettingsNavItem
-                    key={entry.id}
-                    entry={entry}
-                    isActive={activeTabId === entry.id}
-                    onSelect={setActiveTab}
-                  />
-                ))}
+        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[200px_1fr]">
+          <nav className="flex min-h-0 min-w-0 flex-col gap-1 overflow-y-auto border-r bg-sidebar px-3 pb-3">
+            <SettingsSectionLabel label={USER_SECTION} />
+            {entries
+              .filter((e) => !isWorkspaceTab(e.id))
+              .map((entry) => (
+                <SettingsNavItem
+                  key={entry.id}
+                  entry={entry}
+                  isActive={activeTabId === entry.id}
+                  onSelect={setActiveTab}
+                />
+              ))}
 
-              {isAdminOrOwner && (
-                <>
-                  <SettingsSectionLabel
-                    label={WORKSPACE_SECTION}
-                    className="mt-3 hidden md:flex"
-                  />
-                  {entries
-                    .filter((e) => isWorkspaceTab(e.id))
-                    .map((entry) => (
-                      <SettingsNavItem
-                        key={entry.id}
-                        entry={entry}
-                        isActive={activeTabId === entry.id}
-                        onSelect={setActiveTab}
-                      />
-                    ))}
-                </>
-              )}
-            </nav>
+            <SettingsSectionLabel label={WORKSPACE_SECTION} className="mt-3" />
+            {entries
+              .filter((e) => isWorkspaceTab(e.id))
+              .map((entry) => (
+                <SettingsNavItem
+                  key={entry.id}
+                  entry={entry}
+                  isActive={activeTabId === entry.id}
+                  onSelect={setActiveTab}
+                />
+              ))}
+          </nav>
 
-            <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4 md:p-6">
-              <WorkspaceHeaderConfig
-                title={activeEntry.headerTitle}
-                description={activeEntry.headerDescription}
-              />
-              {activeEntry.content}
-            </div>
+          <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-6">
+            <WorkspaceHeaderConfig
+              title={activeEntry.headerTitle}
+              description={activeEntry.headerDescription}
+            />
+            <SettingsTabContent id={activeEntry.id} />
           </div>
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function SettingsMobileDrawer() {
+  const { open, closeSettings, openAsDetail, setActiveTab } =
+    useSettingsDialog();
+  const { entries, activeEntry } = useSettingsEntries();
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setDetailOpen(false);
+      return;
+    }
+    setDetailOpen(openAsDetail);
+  }, [open, openAsDetail]);
+
+  const openDetail = (id: SettingsTabId) => {
+    setActiveTab(id);
+    setDetailOpen(true);
+  };
+
+  return (
+    <Drawer
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) closeSettings();
+      }}
+      showSwipeHandle
+    >
+      <DrawerContent className="data-[swipe-direction=down]:rounded-t-3xl">
+        <DrawerHeader className="flex-row! items-center justify-between gap-3 px-4 pt-1 pb-2 text-left!">
+          <DrawerTitle>Configurações</DrawerTitle>
+          <DrawerClose
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="rounded-full"
+                aria-label="Fechar"
+              />
+            }
+          >
+            <Icon icon={Cancel01Icon} />
+          </DrawerClose>
+        </DrawerHeader>
+
+        <div className="px-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <SettingsSectionLabel label={USER_SECTION} />
+          {entries
+            .filter((e) => !isWorkspaceTab(e.id))
+            .map((entry) => (
+              <SettingsMobileNavItem
+                key={entry.id}
+                entry={entry}
+                onSelect={openDetail}
+              />
+            ))}
+
+          <SettingsSectionLabel label={WORKSPACE_SECTION} className="mt-3" />
+          {entries
+            .filter((e) => isWorkspaceTab(e.id))
+            .map((entry) => (
+              <SettingsMobileNavItem
+                key={entry.id}
+                entry={entry}
+                onSelect={openDetail}
+              />
+            ))}
+        </div>
+
+        <Drawer
+          open={detailOpen}
+          onOpenChange={setDetailOpen}
+          showSwipeHandle
+        >
+          <DrawerContent className="data-[swipe-direction=down]:rounded-t-3xl data-[swipe-direction=down]:[--drawer-content-height:min(85dvh,720px)]">
+            <DrawerHeader className="relative w-full flex-row! items-center justify-between px-3 pt-1 pb-2 text-left!">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="relative z-10 shrink-0 rounded-xl"
+                onClick={() => setDetailOpen(false)}
+                aria-label="Voltar"
+              >
+                <Icon icon={ArrowLeft01Icon} />
+              </Button>
+              <DrawerTitle className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 truncate px-12 text-center leading-none">
+                {activeEntry.headerTitle}
+              </DrawerTitle>
+              {activeEntry.headerDescription ? (
+                <DrawerDescription className="sr-only">
+                  {activeEntry.headerDescription}
+                </DrawerDescription>
+              ) : null}
+              {/* Espelho do botão para equilibrar a altura da row */}
+              <div className="size-7 shrink-0" aria-hidden />
+            </DrawerHeader>
+
+            <div className="scrollbar-none flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+              {activeEntry.headerDescription ? (
+                <p className="text-sm text-muted-foreground">
+                  {activeEntry.headerDescription}
+                </p>
+              ) : null}
+              <SettingsTabContent id={activeEntry.id} />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </DrawerContent>
+    </Drawer>
   );
 }
 
@@ -227,14 +336,37 @@ function SettingsNavItem({
       type="button"
       onClick={() => onSelect(entry.id)}
       className={cn(
-        "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-left transition-colors whitespace-nowrap md:whitespace-normal",
+        "flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition-colors",
         isActive
-          ? "bg-accent text-accent-foreground font-medium"
+          ? "bg-accent font-medium text-accent-foreground"
           : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
       )}
     >
       <Icon icon={entry.icon} />
       {entry.label}
+    </button>
+  );
+}
+
+function SettingsMobileNavItem({
+  entry,
+  onSelect,
+}: {
+  entry: NavEntry;
+  onSelect: (id: SettingsTabId) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(entry.id)}
+      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-3 text-left text-sm text-foreground transition-colors hover:bg-accent/50"
+    >
+      <Icon icon={entry.icon} />
+      <span className="min-w-0 flex-1 font-medium">{entry.label}</span>
+      <Icon
+        icon={ArrowRight01Icon}
+        className="size-4 shrink-0 text-muted-foreground"
+      />
     </button>
   );
 }

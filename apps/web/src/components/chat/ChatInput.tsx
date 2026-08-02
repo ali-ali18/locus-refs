@@ -20,6 +20,7 @@ import { ChatInputNoteChip } from "./ChatInputNoteChip";
 import { ChatMentionDraft } from "./ChatMentionDraft";
 import { ChatMentionPicker } from "./ChatMentionPicker";
 import { ChatModelSelect } from "./ChatModelSelect";
+import { ChatSkillPicker } from "./ChatSkillPicker";
 import { CHAT_ACCEPT } from "./chatInputFiles";
 import type { AgentMention, ChatAttachment } from "./hook/useAiChat";
 import { useChatInputController } from "./hook/useChatInputController";
@@ -46,17 +47,20 @@ export function ChatInput({
   status,
   noteId,
   variant = "dock",
-  placeholder = "Pergunte alguma coisa… Digite @ para mencionar",
+  placeholder = "Pergunte… @ menciona, / skills",
 }: ChatInputProps) {
   const inputAnchorRef = useRef<HTMLDivElement>(null);
   const {
     draft,
     mentions,
     mentionQuery,
+    skillQuery,
     selectedIds,
+    attachedSkill,
     isUploading,
     handleTextChange,
     handleSelectMention,
+    handleSelectSkill,
     handleSubmit,
   } = useChatInputController({ onSend, status });
 
@@ -70,6 +74,13 @@ export function ChatInput({
           query={mentionQuery.query}
           selectedIds={selectedIds}
           onSelect={handleSelectMention}
+        />
+      ) : null}
+      {skillQuery && !mentionQuery ? (
+        <ChatSkillPicker
+          query={skillQuery.query}
+          noteId={noteId}
+          onSelect={handleSelectSkill}
         />
       ) : null}
 
@@ -89,7 +100,11 @@ export function ChatInput({
         <ChatPendingAttachments />
 
         <div className="relative w-full">
-          <ChatMentionDraft text={draft} mentions={mentions} />
+          <ChatMentionDraft
+            text={draft}
+            mentions={mentions}
+            skillTitle={attachedSkill?.title}
+          />
           <PromptInputTextarea
             className="relative z-10 max-h-32 min-h-14 bg-transparent px-4 pt-3.5 pb-2 text-transparent caret-foreground selection:bg-primary/20"
             placeholder={placeholder}
@@ -103,6 +118,8 @@ export function ChatInput({
             <ChatAttachMenu
               anchorRef={inputAnchorRef}
               placement={variant === "hero" ? "below" : "above"}
+              noteId={noteId}
+              onSelectSkill={handleSelectSkill}
             />
             {noteId ? <ChatInputNoteChip noteId={noteId} /> : null}
             <ChatModelSelect />

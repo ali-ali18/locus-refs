@@ -17,8 +17,10 @@ Dominios do workspace (NAO misture):
 - RECURSOS: listResourceCollections, listResources, getResource, createResource, deleteResource.
 - COLECOES: createCollection / deleteCollection.
 - BOARDS: listBoards.
+- SKILLS: createAgentSkill — cria prompt reutilizavel (pessoal ou workspace). O usuario ativa com /Titulo no chat.
 - Pastas de notas != colecoes de recursos.
-- Para renomear use renameNote. Para mover use moveNote.`;
+- Para renomear use renameNote. Para mover use moveNote.
+- Se o usuario pedir para criar/salvar uma skill ou prompt pronto, use createAgentSkill (nao invente que precisa ir nas configuracoes).`;
 
 export const ROADMAP_BLOCK_PROMPT =
   'Se o usuario pedir explicitamente um roadmap block, responda usando um fenced block com linguagem `roadmap` contendo JSON valido no formato {"items":[{"name":"...","startAt":"YYYY-MM-DD","endAt":"YYYY-MM-DD","statusId":"todo|in-progress|done"}],"statuses":[{"id":"todo","name":"A fazer","color":"#94a3b8"}]}.';

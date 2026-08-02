@@ -26,39 +26,52 @@ function escapeRegExp(value: string): string {
 export function ChatMentionDraft({
   text,
   mentions,
+  skillTitle,
 }: {
   text: string;
   mentions: AgentMention[];
+  /** Título da skill anexada — highlight de `/título` no draft. */
+  skillTitle?: string | null;
 }) {
   const nodes = useMemo(() => {
     if (!text) return null;
 
-    const titles = [
+    const mentionTitles = [
       ...new Set(mentions.map((m) => m.title).filter(Boolean)),
     ].sort((a, b) => b.length - a.length);
 
-    if (titles.length === 0) {
+    const tokens: string[] = [];
+    if (skillTitle) tokens.push(`/${skillTitle}`);
+    for (const title of mentionTitles) tokens.push(`@${title}`);
+    tokens.sort((a, b) => b.length - a.length);
+
+    if (tokens.length === 0) {
       return <span className="text-foreground">{text}</span>;
     }
 
     const pattern = new RegExp(
-      `(@(?:${titles.map(escapeRegExp).join("|")}))`,
+      `(${tokens.map(escapeRegExp).join("|")})`,
       "g",
     );
     const parts = text.split(pattern);
 
     return parts.map((part, index) => {
-      const isMention = titles.some((title) => part === `@${title}`);
+      const isSkill = !!skillTitle && part === `/${skillTitle}`;
+      const isMention = mentionTitles.some((title) => part === `@${title}`);
       return (
         <span
           key={`${index}-${part.slice(0, 12)}`}
-          className={isMention ? "font-medium text-primary" : "text-foreground"}
+          className={
+            isSkill || isMention
+              ? "font-medium text-primary"
+              : "text-foreground"
+          }
         >
           {part}
         </span>
       );
     });
-  }, [mentions, text]);
+  }, [mentions, skillTitle, text]);
 
   return (
     <div

@@ -13,24 +13,25 @@ datasource db {
 }
 
 model User {
-  id            String          @id
-  name          String
-  email         String
-  emailVerified Boolean         @default(false)
-  image         String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  collections   Collection[]
-  categories    Category[]
-  notes         Note[]
+  id             String          @id
+  name           String
+  email          String
+  emailVerified  Boolean         @default(false)
+  image          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+  collections    Collection[]
+  categories     Category[]
+  notes          Note[]
   noteUserStates NoteUserState[]
-  members       Member[]
-  invitations   Invitation[]
-  boards        Board[]
-  databases     Database[]
-  agentThreads  AgentThread[]
+  members        Member[]
+  invitations    Invitation[]
+  boards         Board[]
+  databases      Database[]
+  agentThreads   AgentThread[]
+  agentSkills    AgentSkill[]
 
   @@unique([email])
   @@map("user")
@@ -150,12 +151,11 @@ model Note {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  linkedTo       NoteLink[]      @relation("source")
-  linkedFrom     NoteLink[]      @relation("target")
-  userStates     NoteUserState[]
+  linkedTo   NoteLink[]      @relation("source")
+  linkedFrom NoteLink[]      @relation("target")
+  userStates NoteUserState[]
 }
 
-/// Estado por usuário (favorito + recente). Pessoal — não compartilha entre membros.
 model NoteUserState {
   userId       String
   noteId       String
@@ -186,21 +186,22 @@ model NoteLink {
 }
 
 model Organization {
-  id          String               @id
-  name        String
-  slug        String
-  logo        String?
-  createdAt   DateTime
-  metadata    String?
-  members     Member[]
-  invitations Invitation[]
-  collections Collection[]
-  categories  Category[]
-  notes       Note[]
-  boards      Board[]
-  databases   Database[]
-  aiSettings  WorkspaceAiSettings?
+  id           String               @id
+  name         String
+  slug         String
+  logo         String?
+  createdAt    DateTime
+  metadata     String?
+  members      Member[]
+  invitations  Invitation[]
+  collections  Collection[]
+  categories   Category[]
+  notes        Note[]
+  boards       Board[]
+  databases    Database[]
+  aiSettings   WorkspaceAiSettings?
   agentThreads AgentThread[]
+  agentSkills  AgentSkill[]
 
   @@unique([slug])
   @@map("organization")
@@ -211,7 +212,6 @@ model WorkspaceAiSettings {
   workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   defaultModelId  String       @default("claude-sonnet-4-6")
   systemPrompt    String?      @db.Text
-  /// Raciocínio (thinking) visível — só aplicado em modelos com supportsThinking.
   thinkingEnabled Boolean      @default(false)
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -224,7 +224,6 @@ enum AgentThreadVisibility {
   workspace
 }
 
-/// Conversas do Agent (privada ou compartilhada no workspace).
 model AgentThread {
   id           String                @id @default(cuid())
   workspaceId  String
@@ -295,20 +294,45 @@ model Board {
   @@index([lastOpenedAt])
 }
 
-/// Database block / table (Yjs-backed). Soft-deletable workspace resource.
+enum AgentSkillVisibility {
+  personal
+  workspace
+}
+
+model AgentSkill {
+  id           String               @id @default(uuid())
+  title        String
+  description  String?
+  prompt       String               @db.Text
+  requiresNote Boolean              @default(false)
+  visibility   AgentSkillVisibility @default(personal)
+
+  userId      String
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String?
+  workspace   Organization?         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, visibility])
+  @@index([workspaceId, visibility])
+  @@map("agent_skills")
+}
+
 model Database {
-  id          String         @id @default(uuid())
+  id          String        @id @default(uuid())
   name        String
   icon        String?
   description String?
   workspaceId String
-  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace   Organization  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   createdById String
-  createdBy   User           @relation(fields: [createdById], references: [id], onDelete: Cascade)
-  properties  Json           @default("[]")
-  ydoc        Bytes          @default("")
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  createdBy   User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  properties  Json          @default("[]")
+  ydoc        Bytes         @default("")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   deletedAt   DateTime?
   rows        DatabaseRow[]
 

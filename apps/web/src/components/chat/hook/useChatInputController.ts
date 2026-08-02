@@ -5,18 +5,25 @@ import { toast } from "sonner";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { useWorkspace } from "@/context/workspace";
 import { useAiModels, useAiSettings } from "@/hook/ai/useAiSettings";
+import type { AgentSkillId } from "@/lib/ai/skills";
 import { api } from "@/lib/api";
 import { deleteChatUploads } from "@/lib/chat-upload-cleanup";
+import type { AgentSkill } from "@/types/agent-skill.type";
 import {
   detectMentionQuery,
   type MentionQueryState,
 } from "../ChatMentionDraft";
+import {
+  detectSkillQuery,
+  type SkillQueryState,
+} from "../ChatSkillPicker";
 import { dataUrlToFile } from "../chatInputFiles";
 import type { AgentMention, ChatAttachment } from "./useAiChat";
 
 type SendFn = (
   text: string,
   options?: {
+    skillId?: AgentSkillId;
     mentions?: AgentMention[];
     attachments?: ChatAttachment[];
   },
@@ -37,7 +44,9 @@ export function useChatInputController({
   const [mentionQuery, setMentionQuery] = useState<MentionQueryState | null>(
     null,
   );
+  const [skillQuery, setSkillQuery] = useState<SkillQueryState | null>(null);
   const [draft, setDraft] = useState("");
+  const [attachedSkill, setAttachedSkill] = useState<AgentSkill | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const isStreaming = status === "submitted" || status === "streaming";
@@ -56,8 +65,26 @@ export function useChatInputController({
     setMentions((prev) =>
       prev.filter((mention) => value.includes(`@${mention.title}`)),
     );
+    setAttachedSkill((prev) =>
+      prev && value.includes(`/${prev.title}`) ? prev : null,
+    );
     const caret = event.target.selectionStart ?? value.length;
-    setMentionQuery(detectMentionQuery(value, caret));
+    const nextMention = detectMentionQuery(value, caret);
+    const nextSkill = detectSkillQuery(value, caret);
+
+    if (nextMention && nextSkill) {
+      if (nextMention.start >= nextSkill.start) {
+        setMentionQuery(nextMention);
+        setSkillQuery(null);
+      } else {
+        setSkillQuery(nextSkill);
+        setMentionQuery(null);
+      }
+      return;
+    }
+
+    setMentionQuery(nextMention);
+    setSkillQuery(nextSkill);
   };
 
   const handleSelectMention = (mention: AgentMention) => {
@@ -72,12 +99,62 @@ export function useChatInputController({
       prev.some((m) => m.id === mention.id) ? prev : [...prev, mention],
     );
     setMentionQuery(null);
+    setSkillQuery(null);
+  };
+
+  const handleSelectSkill = (skill: AgentSkill) => {
+    const token = `/${skill.title}`;
+    if (skillQuery) {
+      const before = draft.slice(0, skillQuery.start);
+      const after = draft.slice(
+        skillQuery.start + 1 + skillQuery.query.length,
+      );
+      setDraft(`${before}${token} ${after}`);
+    } else if (draft.includes(token)) {
+      // já no texto
+    } else {
+      const sep = draft && !draft.endsWith(" ") && !draft.endsWith("\n") ? " " : "";
+      setDraft(`${draft}${sep}${token} `);
+    }
+    setSkillQuery(null);
+    setMentionQuery(null);
+    setAttachedSkill(skill);
+  };
+
+  const handleClearSkill = () => {
+    setAttachedSkill((prev) => {
+      if (!prev) return null;
+      const token = `/${prev.title}`;
+      setDraft((d) =>
+        d
+          .replace(token, "")
+          .replace(/ {2,}/g, " ")
+          .trimStart(),
+      );
+      return null;
+    });
   };
 
   const handleSubmit = async (message: PromptInputMessage) => {
-    const trimmed = (message.text ?? draft).trim();
+    let trimmed = (message.text ?? draft).trim();
     const files = message.files ?? [];
-    if ((!trimmed && files.length === 0) || isStreaming || isUploading) return;
+    const hasSkill = !!attachedSkill;
+
+    if (attachedSkill) {
+      const token = `/${attachedSkill.title}`;
+      trimmed = trimmed
+        .replaceAll(token, "")
+        .replace(/ {2,}/g, " ")
+        .trim();
+    }
+
+    if (
+      (!trimmed && files.length === 0 && !hasSkill) ||
+      isStreaming ||
+      isUploading
+    ) {
+      return;
+    }
 
     const hasImages = files.some((f) =>
       (f.mediaType ?? "").startsWith("image/"),
@@ -116,16 +193,21 @@ export function useChatInputController({
       const activeMentions = mentions.filter((mention) =>
         trimmed.includes(`@${mention.title}`),
       );
-      onSend(
+
+      const text =
         trimmed ||
-          (uploaded.length ? "Analise o(s) arquivo(s) anexado(s)." : ""),
-        {
-          mentions: activeMentions.length ? activeMentions : undefined,
-          attachments: uploaded.length ? uploaded : undefined,
-        },
-      );
+        attachedSkill?.prompt ||
+        (uploaded.length ? "Analise o(s) arquivo(s) anexado(s)." : "");
+
+      onSend(text, {
+        skillId: attachedSkill?.id,
+        mentions: activeMentions.length ? activeMentions : undefined,
+        attachments: uploaded.length ? uploaded : undefined,
+      });
       setMentions([]);
       setMentionQuery(null);
+      setSkillQuery(null);
+      setAttachedSkill(null);
       setDraft("");
     } catch (error) {
       if (uploaded.length > 0) {
@@ -145,10 +227,14 @@ export function useChatInputController({
     draft,
     mentions,
     mentionQuery,
+    skillQuery,
     selectedIds,
+    attachedSkill,
     isUploading,
     handleTextChange,
     handleSelectMention,
+    handleSelectSkill,
+    handleClearSkill,
     handleSubmit,
   };
 }

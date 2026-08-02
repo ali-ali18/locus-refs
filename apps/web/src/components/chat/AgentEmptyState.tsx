@@ -11,19 +11,19 @@ import { Suggestion } from "@/components/ai-elements/suggestion";
 import { useAgentSession } from "@/context/agentSession";
 import { useSession } from "@/lib/auth-client";
 import {
-  type AgentSkillId,
+  type BuiltInAgentSkillId,
   listAgentSkills,
 } from "@/lib/ai/skills";
 import { ChatInput } from "./ChatInput";
 
-const FEATURED_SKILL_IDS: AgentSkillId[] = [
+const FEATURED_SKILL_IDS: BuiltInAgentSkillId[] = [
   "find-related",
   "summarize-note",
   "continue-writing",
   "plan-from-note",
 ];
 
-const SKILL_ICONS: Record<AgentSkillId, LucideIcon> = {
+const SKILL_ICONS: Record<BuiltInAgentSkillId, LucideIcon> = {
   "find-related": SearchIcon,
   "summarize-note": SparklesIcon,
   "continue-writing": PencilLineIcon,
@@ -62,7 +62,7 @@ export function AgentEmptyState() {
             status={status}
             noteId={noteId}
             variant="hero"
-            placeholder="Pergunte alguma coisa… Digite @ para mencionar"
+            placeholder="Pergunte… @ menciona, / skills"
           />
         </div>
 

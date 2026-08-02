@@ -931,6 +931,75 @@ export function createWorkspaceTools(params: {
         };
       },
     }),
+
+    createAgentSkill: tool({
+      description:
+        "Cria uma skill reutilizável do Agent (prompt nomeado). Use quando o usuário pedir para criar/salvar uma skill, um prompt pronto, ou um atalho `/Nome`. Skills pessoais ficam só com o autor; workspace ficam disponíveis ao time. O usuário ativa depois com `/Título` no chat.",
+      inputSchema: z.object({
+        title: z
+          .string()
+          .trim()
+          .min(1)
+          .max(150)
+          .describe("Nome curto da skill (aparece no /picker)"),
+        prompt: z
+          .string()
+          .trim()
+          .min(1)
+          .max(10000)
+          .describe(
+            "Instruções que o Agent deve seguir quando a skill for selecionada",
+          ),
+        description: z
+          .string()
+          .trim()
+          .max(500)
+          .optional()
+          .describe("Resumo curto opcional para a lista de skills"),
+        requiresNote: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Se true, a skill só faz sentido com uma nota aberta"),
+        visibility: z
+          .enum(["personal", "workspace"])
+          .optional()
+          .default("personal")
+          .describe("personal = só o usuário; workspace = time do workspace"),
+      }),
+      execute: async ({
+        title,
+        prompt,
+        description,
+        requiresNote,
+        visibility,
+      }) => {
+        const skill = await prisma.agentSkill.create({
+          data: {
+            title,
+            description: description?.trim() ? description.trim() : null,
+            prompt,
+            requiresNote: requiresNote ?? false,
+            visibility: visibility ?? "personal",
+            userId,
+            workspaceId: visibility === "workspace" ? workspaceId : null,
+          },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            requiresNote: true,
+            visibility: true,
+          },
+        });
+
+        return {
+          created: true,
+          skill,
+          message: `Skill "${skill.title}" criada (${skill.visibility === "workspace" ? "workspace" : "pessoal"}). Use /${skill.title} no chat para ativar.`,
+        };
+      },
+    }),
   } as const;
 }
 
