@@ -96,7 +96,7 @@ export function CreateAgentSkillDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-xl sm:max-w-lg">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEdit ? "Editar skill" : "Criar skill"}</DialogTitle>
           <DialogDescription>
