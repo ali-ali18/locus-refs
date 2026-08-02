@@ -129,9 +129,9 @@ export function AgentThreadList({
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 shrink-0 flex-col bg-background",
+        "flex h-full min-h-0 shrink-0 flex-col overflow-hidden bg-background",
         variant === "embedded"
-          ? "w-[min(100%,20rem)] border-r border-border"
+          ? "w-80 border-r border-border"
           : "w-full",
       )}
     >

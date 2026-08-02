@@ -39,7 +39,7 @@ export function AgentWorkspace() {
 
   return (
     <div className="flex h-full min-h-0 flex-1 overflow-hidden bg-background">
-      <div className="hidden h-full min-h-0 md:flex">
+      <div className="hidden h-full min-h-0 w-80 shrink-0 md:flex">
         <AgentThreadList variant="embedded" />
       </div>
 
