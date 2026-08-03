@@ -79,8 +79,8 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        "flex size-full min-h-40 flex-col divide-y overflow-hidden rounded-md border bg-secondary text-xs shadow-sm ring-2 transition-all",
-        isOver ? "ring-primary" : "ring-transparent",
+        "flex size-full min-h-40 flex-col overflow-hidden rounded-2xl bg-muted/70 text-xs ring-2 transition-all",
+        isOver ? "ring-primary/40" : "ring-transparent",
         className,
       )}
       ref={setNodeRef}
@@ -123,7 +123,7 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
       <div style={style} {...listeners} {...attributes} ref={setNodeRef}>
         <Card
           className={cn(
-            "cursor-grab gap-4 rounded-md p-3 shadow-sm",
+            "cursor-grab gap-0 rounded-2xl border-0 bg-background p-3.5 shadow-none ring-1 ring-foreground/5",
             isDragging && "pointer-events-none cursor-grabbing opacity-30",
             className,
           )}
@@ -135,7 +135,7 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
         <t.In>
           <Card
             className={cn(
-              "cursor-grab gap-4 rounded-md p-3 shadow-sm ring-2 ring-primary",
+              "cursor-grab gap-0 rounded-2xl border-0 bg-background p-3.5 shadow-none ring-2 ring-primary/30",
               isDragging && "cursor-grabbing",
               className,
             )}
@@ -167,7 +167,7 @@ export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
     <ScrollArea className="overflow-hidden">
       <SortableContext items={items}>
         <div
-          className={cn("flex flex-grow flex-col gap-2 p-2", className)}
+          className={cn("flex flex-grow flex-col gap-2.5 px-2.5 pb-1", className)}
           {...props}
         >
           {filteredData.map(children)}
@@ -181,7 +181,7 @@ export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
 export type KanbanHeaderProps = HTMLAttributes<HTMLDivElement>;
 
 export const KanbanHeader = ({ className, ...props }: KanbanHeaderProps) => (
-  <div className={cn("m-0 p-2 font-semibold text-sm", className)} {...props} />
+  <div className={cn("m-0 px-3 pt-3 pb-2 font-semibold text-sm", className)} {...props} />
 );
 
 export type KanbanProviderProps<
@@ -196,6 +196,7 @@ export type KanbanProviderProps<
   onDragStart?: (event: DragStartEvent) => void;
   onDragEnd?: (event: DragEndEvent) => void;
   onDragOver?: (event: DragOverEvent) => void;
+  trailing?: ReactNode;
 };
 
 export const KanbanProvider = <
@@ -210,13 +211,18 @@ export const KanbanProvider = <
   columns,
   data,
   onDataChange,
+  trailing,
   ...props
 }: KanbanProviderProps<T, C>) => {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor),
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 150, tolerance: 5 },
+    }),
     useSensor(KeyboardSensor),
   );
 
@@ -334,6 +340,7 @@ export const KanbanProvider = <
             )}
           >
             {columns.map((column) => children(column))}
+            {trailing}
           </div>
           {typeof window !== "undefined" &&
             createPortal(

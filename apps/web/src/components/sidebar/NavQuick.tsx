@@ -5,6 +5,7 @@ import {
   DashboardSquare01Icon,
   Folder01FreeIcons,
   Home01Icon,
+  KanbanIcon,
   Note01FreeIcons,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
@@ -46,6 +47,12 @@ export function NavQuick() {
       href: `/${workspaceSlug}/boards`,
       icon: DashboardSquare01Icon,
       label: "Boards",
+      match: "prefix" as const,
+    },
+    {
+      href: `/${workspaceSlug}/kanban`,
+      icon: KanbanIcon,
+      label: "Kanban",
       match: "prefix" as const,
     },
   ];

@@ -6,6 +6,7 @@ import {
   Folder01FreeIcons,
   Folder02Icon,
   Home01Icon,
+  KanbanIcon,
   Note01FreeIcons,
   PlusSignIcon,
   Search01Icon,
@@ -30,6 +31,7 @@ import { useSettingsDialog } from "@/context/settingsDialog";
 import { useWorkspace } from "@/context/workspace";
 import { useBoards } from "@/hook/boards/useBoards";
 import { useCollections } from "@/hook/collections/useCollections";
+import { useKanbanBoards } from "@/hook/kanban/useKanbanBoards";
 import { useNoteMutations } from "@/hook/notes/useNote";
 import { useNotes } from "@/hook/notes/useNotes";
 import { resolveIcon } from "@/lib/icons";
@@ -53,6 +55,7 @@ export function CommandPalette() {
   const { data: notes = [] } = useNotes();
   const { collections } = useCollections();
   const { data: boards = [] } = useBoards();
+  const { data: kanbanBoards = [] } = useKanbanBoards();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -118,6 +121,7 @@ export function CommandPalette() {
     .filter((collection) => !collection.isNoteCollection)
     .slice(0, LIST_LIMIT);
   const boardItems = boards.slice(0, LIST_LIMIT);
+  const kanbanItems = kanbanBoards.slice(0, LIST_LIMIT);
 
   return (
     <CommandDialog
@@ -159,6 +163,13 @@ export function CommandPalette() {
             >
               <Icon icon={DashboardSquare01Icon} />
               Boards
+            </CommandItem>
+            <CommandItem
+              value="kanban tarefas"
+              onSelect={() => navigate(`/${workspaceSlug}/kanban`)}
+            >
+              <Icon icon={KanbanIcon} />
+              Kanban
             </CommandItem>
           </CommandGroup>
 
@@ -264,6 +275,27 @@ export function CommandPalette() {
                     <Icon icon={resolveIcon(board.icon)} />
                   ) : (
                     <Icon icon={DashboardSquare01Icon} />
+                  )}
+                  <span className="truncate">{board.title}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+
+          {kanbanItems.length > 0 && (
+            <CommandGroup heading="Kanban">
+              {kanbanItems.map((board) => (
+                <CommandItem
+                  key={board.id}
+                  value={`kanban ${board.title}`}
+                  onSelect={() =>
+                    navigate(`/${workspaceSlug}/kanban/${board.id}`)
+                  }
+                >
+                  {board.icon ? (
+                    <Icon icon={resolveIcon(board.icon)} />
+                  ) : (
+                    <Icon icon={KanbanIcon} />
                   )}
                   <span className="truncate">{board.title}</span>
                 </CommandItem>
