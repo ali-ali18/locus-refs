@@ -6,14 +6,20 @@ import type {
   KanbanCard,
   KanbanUserSummary,
 } from "@refstash/shared";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { EditKanbanCardDialog } from "@/components/kanban/EditKanbanCardDialog";
+import {
+  type KanbanBoardFiltersState,
+  KanbanBoardToolbar,
+} from "@/components/kanban/KanbanBoardToolbar";
 import { KanbanColumnMenu } from "@/components/kanban/KanbanColumnMenu";
 import {
   KanbanBoard,
   KanbanCard as KanbanCardUi,
   KanbanCards,
+  KanbanColumnHandle,
+  KanbanColumnShell,
   KanbanHeader,
   KanbanProvider,
 } from "@/components/kibo-ui/kanban";
@@ -21,8 +27,12 @@ import { Icon } from "@/components/shared/Icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useCreateKanbanColumn } from "@/hook/kanban/useKanbanColumns";
+import {
+  useCreateKanbanColumn,
+  useUpdateKanbanColumn,
+} from "@/hook/kanban/useKanbanColumns";
 import { useMoveKanbanCard } from "@/hook/kanban/useKanbanCards";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 type CardDialogState =
@@ -39,6 +49,12 @@ type DnDItem = {
   assignee?: KanbanCard["assignee"];
 };
 
+type DnDColumn = {
+  id: string;
+  name: string;
+  color: string | null;
+};
+
 function toItems(board: KanbanBoardDetail): DnDItem[] {
   return [...board.cards]
     .sort((a, b) => a.position - b.position)
@@ -51,6 +67,67 @@ function toItems(board: KanbanBoardDetail): DnDItem[] {
       createdBy: card.createdBy,
       assignee: card.assignee,
     }));
+}
+
+function toColumns(board: KanbanBoardDetail): DnDColumn[] {
+  return [...board.columns]
+    .sort((a, b) => a.position - b.position)
+    .map((column) => ({
+      id: column.id,
+      name: column.name,
+      color: column.color,
+    }));
+}
+
+function matchesFilters(
+  item: DnDItem,
+  filters: KanbanBoardFiltersState,
+  currentUserId: string | undefined,
+): boolean {
+  const query = filters.query.trim().toLowerCase();
+  if (query) {
+    const inTitle = item.name.toLowerCase().includes(query);
+    const inDescription = (item.description ?? "")
+      .toLowerCase()
+      .includes(query);
+    if (!inTitle && !inDescription) return false;
+  }
+
+  if (
+    filters.columnIds.length > 0 &&
+    !filters.columnIds.includes(item.column)
+  ) {
+    return false;
+  }
+
+  if (filters.assigneeIds.length === 0) return true;
+
+  return filters.assigneeIds.some((token) => {
+    if (token === "unassigned") return item.assigneeId == null;
+    if (token === "me") {
+      return Boolean(currentUserId) && item.assigneeId === currentUserId;
+    }
+    return item.assigneeId === token;
+  });
+}
+
+/** Merge DnD result for visible cards back into the full item list. */
+function mergeVisibleItems(prev: DnDItem[], visibleNext: DnDItem[]): DnDItem[] {
+  const visibleIds = new Set(visibleNext.map((item) => item.id));
+  const hidden = prev.filter((item) => !visibleIds.has(item.id));
+
+  const columnIds = new Set([
+    ...prev.map((item) => item.column),
+    ...visibleNext.map((item) => item.column),
+  ]);
+
+  const merged: DnDItem[] = [];
+  for (const columnId of columnIds) {
+    const visibleInColumn = visibleNext.filter((item) => item.column === columnId);
+    const hiddenInColumn = hidden.filter((item) => item.column === columnId);
+    merged.push(...visibleInColumn, ...hiddenInColumn);
+  }
+  return merged;
 }
 
 function initials(name: string) {
@@ -113,33 +190,59 @@ interface Props {
 }
 
 export function KanbanBoardView({ board }: Props) {
+  const { data: session } = authClient.useSession();
+  const currentUserId = session?.user.id;
+
   const createColumn = useCreateKanbanColumn(board.id);
+  const updateColumn = useUpdateKanbanColumn(board.id);
   const moveCard = useMoveKanbanCard(board.id);
 
   const [items, setItems] = useState<DnDItem[]>(() => toItems(board));
+  const [columns, setColumns] = useState<DnDColumn[]>(() => toColumns(board));
   const itemsRef = useRef(items);
+  const columnsRef = useRef(columns);
   const draggingIdRef = useRef<string | null>(null);
+  const draggingKindRef = useRef<"card" | "column" | null>(null);
   const [cardDialog, setCardDialog] = useState<CardDialogState | null>(null);
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newColumnName, setNewColumnName] = useState("");
+  const [filters, setFilters] = useState<KanbanBoardFiltersState>({
+    query: "",
+    assigneeIds: [],
+    columnIds: [],
+  });
 
   useEffect(() => {
     if (draggingIdRef.current) return;
-    const next = toItems(board);
-    setItems(next);
-    itemsRef.current = next;
+    const nextItems = toItems(board);
+    const nextColumns = toColumns(board);
+    setItems(nextItems);
+    setColumns(nextColumns);
+    itemsRef.current = nextItems;
+    columnsRef.current = nextColumns;
   }, [board]);
 
-  const columns = [...board.columns]
-    .sort((a, b) => a.position - b.position)
-    .map((c) => ({ id: c.id, name: c.name, color: c.color }));
+  const visibleColumns = useMemo(() => {
+    if (filters.columnIds.length === 0) return columns;
+    return columns.filter((column) => filters.columnIds.includes(column.id));
+  }, [columns, filters.columnIds]);
+
+  const visibleItems = useMemo(
+    () => items.filter((item) => matchesFilters(item, filters, currentUserId)),
+    [items, filters, currentUserId],
+  );
+
+  const filtersActive =
+    filters.query.trim().length > 0 ||
+    filters.assigneeIds.length > 0 ||
+    filters.columnIds.length > 0;
 
   const editingCard =
     cardDialog?.mode === "edit"
       ? (board.cards.find((card) => card.id === cardDialog.cardId) ?? null)
       : null;
 
-  function persistMove(cardId: string) {
+  function persistCardMove(cardId: string) {
     const data = itemsRef.current;
     const card = data.find((c) => c.id === cardId);
     if (!card) return;
@@ -186,6 +289,39 @@ export function KanbanBoardView({ board }: Props) {
     );
   }
 
+  function persistColumnMove(columnId: string) {
+    const cols = columnsRef.current;
+    const index = cols.findIndex((c) => c.id === columnId);
+    if (index < 0) return;
+
+    const beforeColumnId = index > 0 ? cols[index - 1].id : null;
+    const afterColumnId =
+      index < cols.length - 1 ? cols[index + 1].id : null;
+
+    const serverOrder = [...board.columns]
+      .sort((a, b) => a.position - b.position)
+      .map((c) => c.id)
+      .join();
+    const localOrder = cols.map((c) => c.id).join();
+    if (localOrder === serverOrder) return;
+
+    updateColumn.mutate(
+      {
+        columnId,
+        beforeColumnId,
+        afterColumnId,
+      },
+      {
+        onError: () => {
+          toast.error("Não foi possível reordenar a coluna");
+          const reset = toColumns(board);
+          setColumns(reset);
+          columnsRef.current = reset;
+        },
+      },
+    );
+  }
+
   async function handleCreateColumn() {
     const name = newColumnName.trim();
     if (!name) return;
@@ -200,25 +336,60 @@ export function KanbanBoardView({ board }: Props) {
   }
 
   return (
-    <>
-      <div className="h-full min-h-0 overflow-x-auto p-5 pt-4">
+    <div className="flex h-full min-h-0 flex-col">
+      <KanbanBoardToolbar
+        value={filters}
+        onChange={setFilters}
+        columns={columns}
+        matchCount={visibleItems.length}
+        totalCount={items.length}
+      />
+
+      <div className="min-h-0 flex-1 overflow-x-auto p-5 pt-3">
       <KanbanProvider
         className="flex h-full min-h-0 w-max items-start gap-4 overflow-visible"
-        columns={columns}
-        data={items}
+        columns={visibleColumns}
+        data={visibleItems}
         onDataChange={(next) => {
-          setItems(next);
-          itemsRef.current = next;
+          const merged = filtersActive
+            ? mergeVisibleItems(itemsRef.current, next)
+            : next;
+          setItems(merged);
+          itemsRef.current = merged;
+        }}
+        onColumnsChange={(next) => {
+          const merged =
+            filters.columnIds.length === 0
+              ? next
+              : [
+                  ...next,
+                  ...columnsRef.current.filter(
+                    (column) => !next.some((c) => c.id === column.id),
+                  ),
+                ];
+          setColumns(merged);
+          columnsRef.current = merged;
         }}
         onDragStart={(event) => {
-          draggingIdRef.current = String(event.active.id);
+          const id = String(event.active.id);
+          draggingIdRef.current = id;
+          const type = event.active.data.current?.type;
+          if (type === "column" || columns.some((c) => c.id === id)) {
+            draggingKindRef.current = "column";
+          } else {
+            draggingKindRef.current = "card";
+          }
         }}
         onDragEnd={() => {
           const id = draggingIdRef.current;
+          const kind = draggingKindRef.current;
           draggingIdRef.current = null;
-          if (id) {
-            queueMicrotask(() => persistMove(id));
-          }
+          draggingKindRef.current = null;
+          if (!id) return;
+          queueMicrotask(() => {
+            if (kind === "column") persistColumnMove(id);
+            else persistCardMove(id);
+          });
         }}
         trailing={
           <div className="w-[260px] shrink-0 pt-0.5">
@@ -279,19 +450,24 @@ export function KanbanBoardView({ board }: Props) {
       >
         {(column) => {
           const columnData = board.columns.find((c) => c.id === column.id);
-          const meta = columns.find((c) => c.id === column.id);
-          const count = items.filter((i) => i.column === column.id).length;
+          const count = visibleItems.filter(
+            (i) => i.column === column.id,
+          ).length;
 
           return (
-            <div className="flex w-[300px] shrink-0 flex-col" key={column.id}>
+            <KanbanColumnShell
+              key={column.id}
+              id={column.id}
+              className="w-[300px] shrink-0"
+            >
               <KanbanBoard id={column.id} className="h-auto min-h-0 w-full">
                 <KanbanHeader className="px-3.5 pt-3.5 pb-2">
                   <div className="flex items-center gap-1.5">
-                    <div className="flex min-w-0 flex-1 items-center gap-2 px-1">
+                    <KanbanColumnHandle className="flex min-w-0 flex-1 items-center gap-2 rounded-xl px-1 py-0.5">
                       <span
                         className="size-2 shrink-0 rounded-full"
                         style={{
-                          backgroundColor: meta?.color ?? "#94a3b8",
+                          backgroundColor: column.color ?? "#94a3b8",
                         }}
                       />
                       <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
@@ -300,12 +476,14 @@ export function KanbanBoardView({ board }: Props) {
                       <span className="shrink-0 text-sm font-medium text-muted-foreground tabular-nums">
                         {count}
                       </span>
-                    </div>
+                    </KanbanColumnHandle>
                     {columnData ? (
                       <KanbanColumnMenu
                         boardId={board.id}
                         column={columnData}
-                        cardCount={count}
+                        cardCount={
+                          items.filter((i) => i.column === column.id).length
+                        }
                         canDelete={board.columns.length > 1}
                       />
                     ) : null}
@@ -372,7 +550,7 @@ export function KanbanBoardView({ board }: Props) {
                   </Button>
                 </div>
               </KanbanBoard>
-            </div>
+            </KanbanColumnShell>
           );
         }}
       </KanbanProvider>
@@ -387,6 +565,6 @@ export function KanbanBoardView({ board }: Props) {
           cardDialog?.mode === "create" ? cardDialog.columnId : null
         }
       />
-    </>
+    </div>
   );
 }
