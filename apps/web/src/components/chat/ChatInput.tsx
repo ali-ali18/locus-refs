@@ -20,7 +20,10 @@ import { ChatInputNoteChip } from "./ChatInputNoteChip";
 import { ChatMentionDraft } from "./ChatMentionDraft";
 import { ChatMentionPicker } from "./ChatMentionPicker";
 import { ChatModelSelect } from "./ChatModelSelect";
-import { ChatSkillPicker } from "./ChatSkillPicker";
+import {
+  ChatSkillPicker,
+  type ChatSkillPickerHandle,
+} from "./ChatSkillPicker";
 import { CHAT_ACCEPT } from "./chatInputFiles";
 import type { AgentMention, ChatAttachment } from "./hook/useAiChat";
 import { useChatInputController } from "./hook/useChatInputController";
@@ -50,6 +53,7 @@ export function ChatInput({
   placeholder = "Pergunte… @ menciona, / skills",
 }: ChatInputProps) {
   const inputAnchorRef = useRef<HTMLDivElement>(null);
+  const skillPickerRef = useRef<ChatSkillPickerHandle>(null);
   const {
     draft,
     mentions,
@@ -61,6 +65,7 @@ export function ChatInput({
     handleTextChange,
     handleSelectMention,
     handleSelectSkill,
+    handleCloseSkillPicker,
     handleSubmit,
   } = useChatInputController({ onSend, status });
 
@@ -78,9 +83,11 @@ export function ChatInput({
       ) : null}
       {skillQuery && !mentionQuery ? (
         <ChatSkillPicker
+          ref={skillPickerRef}
           query={skillQuery.query}
           noteId={noteId}
           onSelect={handleSelectSkill}
+          onClose={handleCloseSkillPicker}
         />
       ) : null}
 
@@ -110,6 +117,20 @@ export function ChatInput({
             placeholder={placeholder}
             onChange={handleTextChange}
             value={draft}
+            onKeyDown={(event) => {
+              if (!skillQuery || mentionQuery) return;
+              if (
+                event.key !== "ArrowDown" &&
+                event.key !== "ArrowUp" &&
+                event.key !== "Enter" &&
+                event.key !== "Escape"
+              ) {
+                return;
+              }
+              // Bloqueia submit do PromptInput mesmo se o ref ainda não montou
+              event.preventDefault();
+              skillPickerRef.current?.onKeyDown(event);
+            }}
           />
         </div>
 

@@ -146,7 +146,7 @@ export function CreateAgentSkillDialog({
                   value={field.value ?? ""}
                   onChange={field.onChange}
                   placeholder="Opcional — aparece na lista"
-                  className="min-h-16 rounded-xl resize-none"
+                  className="min-h-16 max-h-32 overflow-y-auto rounded-xl resize-none"
                 />
               </div>
             )}
@@ -163,7 +163,7 @@ export function CreateAgentSkillDialog({
                   value={field.value ?? ""}
                   onChange={field.onChange}
                   placeholder="Instruções que o Agent vai seguir…"
-                  className="min-h-28 rounded-xl resize-none font-mono text-sm"
+                  className="min-h-28 max-h-64 overflow-y-auto rounded-xl resize-none font-mono text-sm"
                 />
                 {fieldState.error ? (
                   <p className="text-sm text-destructive">

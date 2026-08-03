@@ -135,6 +135,10 @@ export function useChatInputController({
     });
   };
 
+  const handleCloseSkillPicker = () => {
+    setSkillQuery(null);
+  };
+
   const handleSubmit = async (message: PromptInputMessage) => {
     let trimmed = (message.text ?? draft).trim();
     const files = message.files ?? [];
@@ -196,7 +200,7 @@ export function useChatInputController({
 
       const text =
         trimmed ||
-        attachedSkill?.prompt ||
+        (attachedSkill ? `/${attachedSkill.title}` : "") ||
         (uploaded.length ? "Analise o(s) arquivo(s) anexado(s)." : "");
 
       onSend(text, {
@@ -235,6 +239,7 @@ export function useChatInputController({
     handleSelectMention,
     handleSelectSkill,
     handleClearSkill,
+    handleCloseSkillPicker,
     handleSubmit,
   };
 }
