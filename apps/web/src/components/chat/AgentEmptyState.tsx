@@ -74,7 +74,7 @@ export function AgentEmptyState() {
                 key={skill.id}
                 suggestion={skill.label}
                 className="gap-2 rounded-xl"
-                onClick={() => send(skill.prompt, { skillId: skill.id })}
+                onClick={() => send(skill.label, { skillId: skill.id })}
               >
                 <Icon className="size-3.5 shrink-0 opacity-70" />
                 {skill.label}
