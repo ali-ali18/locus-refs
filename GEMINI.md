@@ -1,53 +1,93 @@
-# Refstash Project Overview
+# Refstash — Agent / Gemini Guide
 
-Refstash is a modern web application built with **Next.js 16**, **React 19**, and **TypeScript**. It utilizes a robust stack including **Prisma** for database management, **Better Auth** for authentication, and **Tailwind CSS v4** for styling.
+Refstash is a **pnpm monorepo** for collaborative notes, resource collections, visual boards, and an in-app AI agent. Workspaces are Better Auth organizations (multi-tenant).
 
-## Tech Stack
+## Tech stack
 
-- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
-- **UI Library:** [React 19](https://react.dev/) (with React Compiler enabled)
-- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) with [@base-ui/react](https://base-ui.com/react)
-- **Database:** [Prisma](https://www.prisma.io/) (PostgreSQL)
-- **Authentication:** [Better Auth](https://www.better-auth.com/)
-- **Linting & Formatting:** [Biome](https://biomejs.dev/)
-- **Icons:** [Hugeicons](https://hugeicons.com/)
+- **Apps:** Next.js 16 (`apps/web`), Hocuspocus (`apps/collab`), Cloudflare Worker + tldraw sync (`apps/tldraw-sync`)
+- **Shared:** `@refstash/shared` (Zod schemas + types)
+- **UI:** React 19 (React Compiler), Tailwind CSS v4, shadcn/ui on [Base UI](https://base-ui.com/react), Hugeicons
+- **Data:** Prisma 7 + PostgreSQL (schema at repo root `prisma/`)
+- **Auth:** Better Auth
+- **Editors:** Tiptap (notes + Y.js collab), tldraw (boards)
+- **AI:** Vercel AI SDK (`apps/web/src/lib/ai/`, chat UI in `components/chat/`)
+- **Tooling:** Biome 2.2, Vitest, pnpm workspaces
 
-## Project Structure
+## Monorepo layout
 
-- `src/app/`: Next.js App Router (pages, layouts, and API routes).
-- `src/components/`:
-  - `ui/`: Shared UI components (shadcn-like, using Base UI).
-  - `auth/`: Authentication-specific components (Login, Register).
-  - `base/`: Core layout and structural components.
-  - `shared/`: Generic reusable components (Icons, ThemeProvider, etc.).
-- `src/lib/`: Core logic, including Prisma client (`prisma.ts`) and Auth configuration (`auth.ts`).
-- `src/types/`: TypeScript definitions and Zod schemas.
-- `prisma/`: Database schema and migrations.
-- `public/`: Static assets.
+```
+apps/web/              # @refstash/web — Next.js UI + API
+apps/collab/           # @refstash/collab — realtime notes
+apps/tldraw-sync/      # @refstash/tldraw-sync — board WebSocket worker
+packages/shared/       # @refstash/shared — schemas/types
+prisma/                # schema + migrations
+docs/                  # domain docs (ia.md, boards.md)
+.agents/skills/        # local agent skills
+```
 
-## Key Commands
+Prisma client outputs:
 
-- `pnpm dev`: Starts the development server.
-- `pnpm build`: Builds the application for production.
-- `pnpm start`: Starts the production server.
-- `pnpm lint`: Runs Biome check for linting and formatting.
-- `pnpm format`: Formats the codebase using Biome.
-- `npx prisma generate`: Generates the Prisma client (output to `src/generated/prisma`).
-- `npx prisma db push`: Pushes the schema changes to the database.
+- `apps/web/src/generated/prisma`
+- `apps/collab/src/generated/prisma`
 
-## Development Conventions
+Import via `apps/web/src/lib/prisma.ts` (web). Do not commit generated clients.
 
-- **Linting & Formatting:** Biome is the primary tool for linting and formatting. Ensure `pnpm lint` passes before committing.
-- **Component Organization:** Follow the existing structure in `src/components`. Use `src/components/ui` for primitive components.
-- **Type Safety:** Use TypeScript strictly. Define Zod schemas in `src/types` for validation.
-- **Prisma Client:** The Prisma client is generated into `src/generated/prisma`. Always import the client from `src/lib/prisma.ts`.
-- **Styling:** Use Tailwind CSS v4 utility classes. Prefer Vanilla CSS for complex animations or custom styles.
-- **Authentication:** Use `better-auth` for session management and authentication logic. Auth configuration is located in `src/lib/auth.ts`.
-- **React Compiler:** The project has `reactCompiler: true` enabled in `next.config.ts`. Write standard React 19 code; the compiler will handle optimizations.
+## Web app structure (`apps/web/src`)
 
-## Getting Started
+- `app/` — App Router (landing, auth, onboarding, `/[workspaceSlug]/*`, `/api/*`, docs MDX)
+- `components/` — feature UI (`notes`, `chat`, `boards`, `collections`, `ui`, …)
+- `hook/` — global TanStack Query hooks
+- `lib/` — auth, env, storage, Tiptap, AI, extensions
+- `server/` — session / ACL helpers
+- `types/` — web-only types and schemas
+- `context/` — React contexts
 
-1. Install dependencies: `pnpm install`
-2. Set up environment variables in `.env` (refer to `src/lib/auth.ts` for required variables like `BETTER_AUTH_URL`).
-3. Generate Prisma client: `npx prisma generate`
-4. Start the development server: `pnpm dev`
+Path alias: `@/*` → `./src/*` (within `apps/web`). Shared imports: `@refstash/shared`.
+
+## Key routes
+
+| Path | Purpose |
+|------|---------|
+| `/` | Landing |
+| `/login`, `/register` | Auth |
+| `/workspace/new` | Create workspace |
+| `/[workspaceSlug]/notes/[id]` | Note editor |
+| `/[workspaceSlug]/boards/[id]` | Board canvas |
+| `/[workspaceSlug]/collections` | Resource collections |
+| `/docs/*` | Product/tech docs |
+| `/api/ai/*` | Agent chat, skills, settings, models |
+
+## Commands (always `pnpm`)
+
+```bash
+pnpm install
+pnpm dev                 # web + collab + tldraw-sync
+pnpm dev:web
+pnpm build
+pnpm lint
+pnpm format
+pnpm test / pnpm test:run
+pnpm db:generate
+pnpm db:migrate
+pnpm commit
+```
+
+## Environment
+
+1. Root `.env` ← `.env.example` (`DATABASE_URL`)
+2. `apps/web/.env` ← `apps/web/.env.example` (auth, storage, collab URLs, `ANTHROPIC_API_KEY`, …)
+3. `apps/collab/.env` ← `apps/collab/.env.example`
+4. `apps/tldraw-sync/.dev.vars` ← `.dev.vars.example` (Wrangler local secrets; not `.env`)
+
+## Conventions
+
+- Prefer existing shadcn/ui components; Base UI underneath — do not reach for Radix directly
+- Semantic Tailwind colors only (no hardcoded `bg-blue-500`, etc.)
+- Follow primitive border-radius defaults (e.g. Button `rounded-2xl`); avoid ad-hoc radius overrides
+- Domain Zod schemas live in `packages/shared`; do not duplicate in the web app
+- Note content is Tiptap JSON; convert with `lib/ai/note-to-text.ts` / `lib/notes-html.ts` when needed
+- Search before creating new components, hooks, contexts, utils, or API routes
+- Never commit secrets, `.dev.vars`, or `**/src/generated/prisma`
+- Never skip git hooks (`--no-verify`)
+
+See also: `AGENTS.md` (PT, detailed), `CLAUDE.md` (architecture), `docs/ia.md`, `docs/boards.md`.

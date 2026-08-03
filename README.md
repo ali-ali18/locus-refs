@@ -1,24 +1,29 @@
 # Refstash
 
-Aplicação para gerenciar notas e coleções de recursos, com editor de texto rico, blocos customizados (Kanban, Gantt, Calendário) e upload de imagens.
+Aplicação colaborativa multi-tenant para notas, coleções de recursos, boards (canvas) e assistente de IA — monorepo pnpm.
 
 ## Stack
 
-- **Next.js 16** (App Router) + **React 19**
-- **TypeScript** (strict) + **Tailwind CSS v4** + **shadcn/ui**
-- **Tiptap** — editor de texto rico com extensões customizadas
-- **TanStack Query v5** — data fetching e cache
-- **Better Auth** — autenticação
-- **Prisma** + **PostgreSQL** — banco de dados
-- **S3-compatible storage** (testado com [Garage](https://garagehq.deuxfleurs.fr/)) — upload de imagens
-- **Biome** — lint e format | **Vitest** — testes
+- **Next.js 16** (App Router) + **React 19** — `apps/web`
+- **Hocuspocus / Y.js** — collab de notas (`apps/collab`)
+- **tldraw + Cloudflare Worker** — boards (`apps/tldraw-sync`)
+- **TypeScript** (strict) + **Tailwind CSS v4** + **shadcn/ui** (Base UI)
+- **Tiptap** — editor rico com extensões e colaboração
+- **TanStack Query v5** — data fetching
+- **Better Auth** — autenticação + organizations (workspaces)
+- **Prisma 7** + **PostgreSQL** — schema na raiz (`prisma/`)
+- **@refstash/shared** — schemas Zod e tipos compartilhados
+- **S3-compatible storage** — upload de imagens
+- **AI SDK** — agente no chat / editor
+- **Biome** — lint/format | **Vitest** — testes
 
 ## Requisitos
 
 - Node.js 20+
 - pnpm
 - PostgreSQL
-- Storage S3-compatible (Garage, MinIO, AWS S3, etc.)
+- Storage S3-compatible (Garage, MinIO, AWS S3, etc.) — opcional conforme features
+- Wrangler (dev de boards) — opcional
 
 ## Instalação
 
@@ -26,65 +31,76 @@ Aplicação para gerenciar notas e coleções de recursos, com editor de texto r
 pnpm install
 ```
 
-Configure as variáveis de ambiente copiando o exemplo:
+Configure as variáveis:
 
 ```bash
 cp .env.example .env
+cp apps/web/.env.example apps/web/.env
+cp apps/collab/.env.example apps/collab/.env
+# Boards (dev local do Worker):
+cp apps/tldraw-sync/.dev.vars.example apps/tldraw-sync/.dev.vars
 ```
 
-Rode as migrations do banco:
+Rode as migrations:
 
 ```bash
-pnpm exec prisma migrate dev
+pnpm db:migrate
 ```
 
-## Variáveis de ambiente
+## Variáveis de ambiente (web)
+
+Principais chaves em `apps/web/.env.example`:
 
 ```env
-# Banco de dados
 DATABASE_URL=postgresql://user:password@localhost:5432/refstash
-
-# Auth (Better Auth)
 BETTER_AUTH_SECRET=your-secret-here
 BETTER_AUTH_URL=http://localhost:3000
-
-# Storage S3-compatible
-STORAGE_ENDPOINT=http://localhost:3900
-STORAGE_REGION=garage          # ou us-east-1 para AWS
-STORAGE_ACCESS_KEY=your-access-key
-STORAGE_SECRET_KEY=your-secret-key
-STORAGE_BUCKET=refstash
-
-# URL pública da aplicação
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+STORAGE_ENDPOINT=...
+STORAGE_BUCKET=...
+STORAGE_ACCESS_KEY=...
+STORAGE_SECRET_KEY=...
+STORAGE_REGION=...
+NEXT_PUBLIC_COLLAB_WS_URL=ws://localhost:1234
+COLLAB_JWT_SECRET=...
+NEXT_PUBLIC_TLDRAW_SYNC_WS_URL=ws://127.0.0.1:8787
+ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-## Configuração do storage
-
-O upload de imagens passa pelo servidor Next.js (`POST /api/upload/notes`) e as imagens são servidas via proxy interno (`/storage/*` → Garage). O bucket não precisa ser público — basta configurar as variáveis de ambiente corretamente.
+Na raiz, `.env` precisa pelo menos de `DATABASE_URL` para o Prisma.
 
 ## Comandos
 
 ```bash
-pnpm dev        # Servidor de desenvolvimento
-pnpm build      # Build de produção
-pnpm start      # Servidor de produção
-pnpm lint       # Biome linter
-pnpm format     # Biome format
-pnpm test       # Vitest (watch)
-pnpm test:run   # Vitest (single run)
-pnpm commit     # Commitizen (commits estruturados)
+pnpm dev          # web + collab + tldraw-sync
+pnpm dev:web      # só Next.js
+pnpm build        # build do web
+pnpm start        # migrate deploy + start
+pnpm lint         # Biome
+pnpm format       # Biome format
+pnpm test         # Vitest (watch)
+pnpm test:run     # Vitest (single run)
+pnpm db:migrate   # migrations
+pnpm commit       # Commitizen
 ```
 
 ## Estrutura
 
 ```
-src/
-├── app/              # Next.js App Router (páginas e API routes)
-├── components/       # Componentes por feature
-│   └── ui/           # shadcn/ui + componentes globais
-├── hook/             # TanStack Query hooks globais
-├── lib/              # Utilitários, config do editor Tiptap, extensões
-├── server/           # Helpers server-side (auth, storage)
-└── types/            # Tipos TypeScript e schemas Zod
+apps/
+  web/src/           # Next.js — app/, components/, hook/, lib/, server/
+  collab/            # Hocuspocus
+  tldraw-sync/       # Worker tldraw
+packages/shared/     # schemas + types
+prisma/              # schema + migrations
+docs/                # ia.md, boards.md
 ```
+
+Rotas autenticadas usam `/[workspaceSlug]/…` (notes, collections, categories, boards).
+
+## Docs para agentes
+
+- [AGENTS.md](./AGENTS.md) — guia completo (PT)
+- [CLAUDE.md](./CLAUDE.md) — arquitetura e convenções
+- [GEMINI.md](./GEMINI.md) — overview rápido
+- [docs/ia.md](./docs/ia.md) — assistente de IA
+- [docs/boards.md](./docs/boards.md) — boards / tldraw

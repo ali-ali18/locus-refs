@@ -46,7 +46,7 @@ Os tipos de nó suportados incluem: `paragraph`, `heading` (h1–h3), `bulletLis
 
 ## Como o JSON vira texto para a IA
 
-A IA não recebe o JSON bruto. Um conversor interno (`src/lib/ai/note-to-text.ts`) percorre a árvore de nós e extrai o texto puro, seguindo a semântica de cada nó:
+A IA não recebe o JSON bruto. Um conversor interno (`apps/web/src/lib/ai/note-to-text.ts`) percorre a árvore de nós e extrai o texto puro, seguindo a semântica de cada nó:
 
 ```
 # Minha nota
@@ -69,7 +69,7 @@ Isso garante que a IA receba o contexto da nota de forma limpa, sem ruído de cl
 
 ## Como o HTML é gerado quando necessário
 
-Para casos como exportações, emails ou previews estáticas, o JSON pode ser convertido de volta para HTML de forma fiel usando `src/lib/notes-html.ts`:
+Para casos como exportações, emails ou previews estáticas, o JSON pode ser convertido de volta para HTML de forma fiel usando `apps/web/src/lib/notes-html.ts`:
 
 ```ts
 import { noteJsonToHtml } from "@/lib/notes-html";
@@ -83,7 +83,7 @@ A conversão usa as **mesmas extensões** do editor, garantindo que nós customi
 
 ## Modelos disponíveis
 
-Os modelos de IA estão registrados em `src/lib/ai/models.ts`. Cada modelo possui:
+Os modelos de IA estão registrados em `apps/web/src/lib/ai/models.ts`. Cada modelo possui:
 
 | Campo | Descrição |
 |-------|-----------|
@@ -100,7 +100,7 @@ Os modelos de IA estão registrados em `src/lib/ai/models.ts`. Cada modelo possu
 | `claude-sonnet-4-6` | Claude Sonnet 4.6 | Uso geral — equilíbrio entre qualidade e velocidade |
 | `claude-haiku-4-5` | Claude Haiku 4.5 | Tarefas rápidas e simples |
 
-Para adicionar um novo modelo, basta adicionar uma entrada no array `AI_MODELS` em `src/lib/ai/models.ts`.
+Para adicionar um novo modelo, basta adicionar uma entrada no array `AI_MODELS` em `apps/web/src/lib/ai/models.ts`.
 
 ---
 
@@ -109,7 +109,7 @@ Para adicionar um novo modelo, basta adicionar uma entrada no array `AI_MODELS` 
 Cada workspace pode escolher seu modelo padrão. Essa preferência é salva na tabela `WorkspaceAiSettings` (1:1 com `Organization`) e pode ser alterada via:
 
 - **API**: `PATCH /api/ai/settings` com `{ defaultModelId: "claude-sonnet-4-6" }`
-- **Hook**: `useUpdateAiSettings()` de `src/hook/ai/useAiSettings.ts`
+- **Hook**: `useUpdateAiSettings()` de `apps/web/src/hook/ai/useAiSettings.ts`
 
 Também é possível definir um **system prompt customizado** por workspace via o campo `systemPrompt`.
 

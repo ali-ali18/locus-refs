@@ -1,176 +1,117 @@
 # AGENTS.md - Guia para Agentes de Código
 
-Este documento fornece orientações para agentes de código que operam neste repositório.
+Orientações para agentes que operam neste repositório.
 
 ---
 
-## 1. Comandos de Build, Lint e Test
+## 1. Visão do Monorepo
 
-### Comandos Principais (usar SEMPRE pnpm)
+**Refstash** é um monorepo **pnpm workspaces** (versão `0.2.0-beta.1`) para notas, coleções, boards e assistente de IA em workspaces multi-tenant.
 
-```bash
-# Desenvolvimento
-pnpm dev          # Inicia servidor de desenvolvimento
-pnpm build        # Build de produção
-pnpm start        # Inicia servidor de produção
+| Pacote | Nome | Papel |
+|--------|------|-------|
+| `apps/web` | `@refstash/web` | Next.js 16 (App Router) — UI, API routes, auth |
+| `apps/collab` | `@refstash/collab` | Servidor Hocuspocus (Y.js) — collab de notas |
+| `apps/tldraw-sync` | `@refstash/tldraw-sync` | Cloudflare Worker — sync de boards (tldraw) |
+| `packages/shared` | `@refstash/shared` | Tipos e schemas Zod compartilhados |
+| `prisma/` | — | Schema e migrations na raiz (PostgreSQL) |
 
-# Lint e Formatação
-pnpm lint         # Executa Biome check (linter)
-pnpm format       # Executa Biome format --write
+Prisma gera clients em:
+- `apps/web/src/generated/prisma`
+- `apps/collab/src/generated/prisma`
 
-# Testes
-pnpm test         # Vitest em modo watch
-pnpm test:run     # Vitest executa uma vez
-
-# Rodar teste único
-pnpm test -- src/app/api/notes/route.test.ts
-pnpm test:run src/app/api/notes/route.test.ts
-```
-
-### Commit
-
-```bash
-pnpm commit        # Commitizen para commits estruturados
-```
+Sempre usar **pnpm** (nunca npm ou yarn).
 
 ---
 
-## 2. Código de Estilo e Convenções
+## 2. Comandos
 
-### Configurações do Projeto
+```bash
+# Desenvolvimento (web + collab + tldraw-sync em paralelo)
+pnpm dev
 
-- **Package Manager**: SEMPRE usar `pnpm` (não npm ou yarn)
-- **TypeScript**: Modo strict ativado (`strict: true` no tsconfig)
-- **Path Alias**: `@/*` pointing to `./src/*`
-- **Linter**: Biome 2.2.0
-- **Framework**: Next.js 16 (App Router)
+# Só o web
+pnpm dev:web
+pnpm collab:dev
 
-### Regras do Biome
+# Build / start
+pnpm build
+pnpm start                 # migrate deploy + start do web
 
-```json
-{
-  "formatter": {
-    "indentStyle": "space",
-    "indentWidth": 2
-  },
-  "linter": {
-    "recommended": true,
-    "domains": {
-      "next": "recommended",
-      "react": "recommended"
-    }
-  },
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
-  }
-}
+# Lint e formatação (Biome na raiz)
+pnpm lint
+pnpm format
+
+# Testes (Vitest no @refstash/web)
+pnpm test
+pnpm test:run
+pnpm test -- src/lib/ai/note-content-edit.test.ts
+pnpm --filter @refstash/web test:run src/app/api/notes/route.test.ts
+
+# Banco
+pnpm db:generate           # prisma generate
+pnpm db:migrate            # prisma migrate dev
+pnpm db:push
+
+# Commit estruturado
+pnpm commit
 ```
 
-### Imports
+Nunca use `--no-verify` em git. Se um hook falhar, corrija o problema.
 
-Ordem recomendada:
-1. Imports externos (React, Next.js, libs)
-2. Imports do projeto (`@/...`)
-3. Imports relativos (`../`, `./`)
+---
 
-O Biome está configurado para organizar imports automaticamente (`organizeImports`).
+## 3. Setup local
 
-### Convenções de Nomenclatura
+1. `pnpm install` (roda `prisma generate` no `postinstall`)
+2. Copiar envs:
+   - Raiz: `.env` a partir de `.env.example` (`DATABASE_URL`)
+   - Web: `apps/web/.env` a partir de `apps/web/.env.example`
+   - Collab: `apps/collab/.env` a partir de `apps/collab/.env.example`
+   - Tldraw (dev): `apps/tldraw-sync/.dev.vars` a partir de `.dev.vars.example` (não usa `.env`)
+3. `pnpm db:migrate`
+4. `pnpm dev`
 
-| Tipo | Convenção | Exemplo |
-|------|------------|---------|
-| Componentes | PascalCase | `Button.tsx`, `NoteEditor.tsx` |
-| Hooks | camelCase com prefixo `use` | `useNotes.ts`, `useNote.ts` |
-| Arquivos de tipos | `.type.ts` ou `.types.ts` | `note.type.ts`, `categories.type.ts` |
-| Schemas Zod | `.schema.ts` | `note.schema.ts`, `auth.schema.ts` |
-| Utilitários | camelCase | `utils.ts`, `api.ts` |
-| Testes | `.test.ts` | `route.test.ts` |
+Variáveis importantes do web: `DATABASE_URL`, `BETTER_AUTH_*`, storage S3, `NEXT_PUBLIC_COLLAB_WS_URL`, `COLLAB_JWT_SECRET`, `NEXT_PUBLIC_TLDRAW_SYNC_WS_URL`, `ANTHROPIC_API_KEY` (obrigatória), opcionais de email/Resend e `MINIMAX_API_KEY`.
 
-### Componentes UI
+---
 
-- **Base**: shadcn/ui (não usar Radix diretamente)
-- **Variantes**: Usar CVA (class-variance-authority)
-- **Estilização**: Tailwind CSS com classes utilitárias
-- **Nomenclatura de arquivos**: `.tsx` para componentes com JSX
+## 4. Arquitetura e data flow
 
-Exemplo de componente com CVA:
-```typescript
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils"
+```
+React (apps/web)
+  → TanStack Query (apps/web/src/hook/)
+    → Next.js API routes (apps/web/src/app/api/)
+      → Prisma (apps/web/src/lib/prisma.ts / src/server/)
+        → PostgreSQL
 
-const buttonVariants = cva("...", {
-  variants: {
-    variant: { default: "...", destructive: "..." },
-    size: { default: "...", sm: "...", lg: "..." }
-  },
-  defaultVariants: { variant: "default", size: "default" }
-})
+Notas em tempo real:
+  Tiptap Collaboration → Hocuspocus (apps/collab) → Y.js / DB
 
-function Button({ className, variant, ...props }: ButtonProps) {
-  return <Primitive className={cn(buttonVariants({ variant }), className)} />
-}
+Boards:
+  tldraw client → JWT (/api/collab/board-token) → Worker (apps/tldraw-sync) → Durable Object
 ```
 
-### Tipos e TypeScript
+### Rotas principais (web)
 
-- Sempre usar tipos explícitos para parâmetros de funções e retornos
-- Usar `type` para unions/intersections simples
-- Usar interfaces para objetos extensíveis
-- Zod para validação de dados (schemas em `src/types/schema/`)
+- `/` — landing
+- `/login`, `/register`, `/verify-email` — auth
+- `/workspace/new` — onboarding de workspace
+- `/invite/[id]` — convite
+- `/docs/*` — documentação interna (MDX)
+- `/[workspaceSlug]` — home do workspace
+- `/[workspaceSlug]/notes`, `/notes/[id]`
+- `/[workspaceSlug]/collections`, `/collections/[id]`
+- `/[workspaceSlug]/categories`
+- `/[workspaceSlug]/boards`, `/boards/[id]`
+- `/api/*` — API serverless
 
-```typescript
-// Bom
-async function getNotes(): Promise<Note[]> {
-  const { data } = await api.get<Note[]>("/api/notes")
-  return data
-}
+### Domínios de API
 
-// Bom - tipos para API routes
-interface ApiError {
-  error: string
-  code: string
-}
-```
+`ai` (chat, models, settings, skills, threads), `auth`, `categories`, `collab`, `collection`, `cron`, `docs`, `fetchMetadata`, `notes`, `resources`, `upload`, `user`, `workspace`.
 
-### TipTap (Editor de Notas)
+### Formato de resposta da API
 
-- Configurações do editor em `src/lib/notes-editor-config.ts`
-- Extensões customizadas em `src/lib/extension/`
-- Ícones do editor em `src/components/tiptap-icons/`
-
-### TanStack Query (Data Fetching)
-
-- Hooks globais de query em `src/hook/` (TanStack Query)
-- Hooks locais ficam dentro da feature correspondente (`components/notes/hook/`, `components/dashboard/hooks/`)
-- Keys de query centralizadas em arquivos `*Keys.ts`
-
-```typescript
-// Estrutura recomendada
-src/
-  hook/                      # Hooks globais (TanStack Query)
-    notes/
-      useNotes.ts
-      useNote.ts
-      noteKeys.ts
-
-  components/
-    notes/
-      hook/                 # Hooks locais de notas
-        useFormCreateNote.ts
-    dashboard/
-      hooks/                # Hooks locais do dashboard
-        useResourceMutations.ts
-      services/             # Services locais
-        useResource.ts
-```
-
-### tratamento de Erros em API Routes
-
-Retornar sempre no formato:
 ```typescript
 // Sucesso
 return Response.json({ message: "...", data: ... }, { status: 201 })
@@ -184,102 +125,133 @@ return Response.json(
 
 ---
 
-## 3. Regras de Code Review (do .cursor/rules/)
-
-**Em português** - Aplicar em todas as revisões:
-
-1. Execute `git status` para listar arquivos modificados
-2. Execute `git diff` para mudanças ainda não staged
-3. Execute `git diff --staged` para mudanças já staged
-4. Analise os diffs em busca de:
-   - Bugs e regressões lógicas
-   - Credenciais, tokens ou dados sensíveis expostos
-   - console.log, debugger ou print esquecidos
-   - Código morto, TODOs não resolvidos
-   - Imports não utilizados ou quebrados
-   - Problemas de performance óbvios
-5. Liste os problemas encontrados com: arquivo, linha e sugestão de correção
-6. Se nenhum problema for encontrado, confirme que está limpo para commitar
-
-**Regras Importantes:**
-- NUNCA use `--no-verify` em comandos git
-- NUNCA desabilite git hooks
-- Se um hook falhar, corrija o problema
-
----
-
-## 4. Estrutura de Diretórios
+## 5. Estrutura de diretórios
 
 ```
-src/
-├── app/                    # Next.js App Router
-│   ├── api/               # API Routes
-│   │   └── */route.test.ts
-│   ├── dashboard/        # Páginas autenticadas
-│   └── page.tsx          # Página pública
-├── components/
-│   ├── ui/               # Componentes shadcn/ui globais
-│   ├── base/             # Componentes base compartilhados
-│   ├── tiptap-icons/     # Ícones do Tiptap
-│   ├── tiptap-ui-utils/ # Utilitários UI do Tiptap
-│   ├── notes/            # Feature Notas
-│   │   ├── note/         # Componentes internos de nota
-│   │   │   └── hook/     # Hooks específicos de nota
-│   │   ├── hook/         # Hooks de notas (TanStack Query)
-│   │   └── *.tsx
-│   ├── dashboard/        # Feature Dashboard
-│   │   ├── hooks/        # Hooks locais do dashboard
-│   │   ├── services/     # Services locais
-│   │   └── *.tsx
-│   ├── categories/       # Feature Categorias
-│   └── auth/             # Feature Autenticação
-│       └── hook/         # Hooks de auth
-├── hook/                 # TanStack Query hooks globais
-│   ├── notes/
-│   └── categories/
-├── lib/                  # Utilitários e configurações
-│   ├── extension/       # Extensões Tiptap
-│   └── data/            # Dados estáticos
-├── types/
-│   ├── schema/          # Zod schemas
-│   └── *.type.ts        # TypeScript types
-└── server/              # Utilitários server-side
+apps/
+  web/src/
+    app/                 # App Router (páginas + api)
+    components/          # Features (notes, chat, boards, dashboard, …)
+      ui/                # shadcn/ui (Base UI)
+      base/              # Layout / estrutura compartilhada
+    hook/                # TanStack Query global (notes, ai, workspace, …)
+    lib/                 # auth, prisma, storage, ai/, extension/, collab utils
+    server/              # Helpers server-side (session, ACL)
+    context/             # Contextos React
+    types/               # Tipos locais + schemas específicos do web
+    generated/prisma/    # Client Prisma (não commitar)
+  collab/src/            # Hocuspocus server
+  tldraw-sync/src/       # Worker + Durable Object
+packages/shared/src/
+  schemas/               # Zod: note, category, collection, board, workspace
+  types/                 # Tipos compartilhados
+prisma/                  # schema.prisma + migrations
+docs/                    # Docs de domínio (ia.md, boards.md)
+.agents/skills/          # Skills locais (shadcn, building-components, workflow)
 ```
 
-### Padrão de Componentes por Feature
+### Path alias
 
-Componentes são organizados por **feature** (notes, dashboard, categories, auth). Cada feature pode ter:
-- **hook/** ou **hooks/**: Hooks locais (useFormCreateNote, useResourceMutations)
-- **services/**: Services locais (useResource, useCategory)
-- **Componentes .tsx**: Componentes específicos da feature
-- **hook/ dentro de subpasta**: Hooks específicos de um componente
+- `@/*` → `apps/web/src/*`
+- Pacote compartilhado: `@refstash/shared`
 
-Hooks globais de data fetching ficam em `src/hook/` (TanStack Query).
+### Onde colocar código
 
----
-
-## 5. Tecnologias Principais do Projeto
-
-| Categoria | Tecnologia |
-|-----------|------------|
-| Framework | Next.js 16 |
-| UI Components | shadcn/ui + Base UI |
-| Editor | Tiptap |
-| Styling | Tailwind CSS v4 |
-| State/Fetch | TanStack Query v5 |
-| Auth | Better Auth |
-| Database | Prisma + PostgreSQL |
-| Validation | Zod |
-| Testing | Vitest |
-| Linting | Biome |
+| Tipo | Onde |
+|------|------|
+| Schema/tipo de domínio compartilhado | `packages/shared` |
+| Schema só do web (auth, skill, resource) | `apps/web/src/types/schema/` |
+| Hook de data fetching global | `apps/web/src/hook/<feature>/` |
+| Hook local de UI/form | `apps/web/src/components/<feature>/hook/` |
+| Extensão Tiptap | `apps/web/src/lib/extension/` |
+| Lógica de IA | `apps/web/src/lib/ai/` |
+| UI do agente/chat | `apps/web/src/components/chat/` |
 
 ---
 
-## 6. Notas Adicionais
+## 6. Convenções
 
-- Sempre usar `"use client"` para componentes que usam state, hooks ou eventos do browser
-- Componentes de servidor (Server Components) não precisam de diretiva
-- Para data fetching em clientes, preferir React Query (TanStack Query)
-- Para mutations, usar React Query com invalidation de queries relacionadas
-- API routes são Serverless - evitar dependências de contexto global
-- Testes usam `vi.mock()` e `vi.hoisted()` do Vitest
+### Stack
+
+Next.js 16, React 19 (React Compiler), TypeScript strict, Tailwind CSS v4, shadcn/ui + **Base UI** (não Radix direto), Tiptap, tldraw, TanStack Query v5, Better Auth (organizations = workspaces), Prisma 7 + PostgreSQL, Zod, AI SDK, Biome 2.2, Vitest.
+
+### Nomenclatura
+
+| Tipo | Convenção | Exemplo |
+|------|-----------|---------|
+| Componentes | PascalCase | `NoteEditor.tsx` |
+| Hooks | `useXxx` | `useNotes.ts` |
+| Tipos | `*.type.ts` | `note.type.ts` |
+| Schemas Zod | `*.schema.ts` | `note.schema.ts` |
+| Testes | `*.test.ts` | co-localizados |
+
+### UI
+
+- Preferir componentes em `components/ui/` (shadcn). Só criar do zero se não houver equivalente.
+- Variantes com CVA + `cn()` de `@/lib/utils`.
+- **Cores:** nunca hardcodar (`bg-blue-500`, etc.). Usar tokens semânticos (`bg-background`, `text-muted-foreground`, `border-border`, …) de `globals.css`.
+- **Border radius:** seguir o padrão do primitive shadcn (ex.: Button usa `rounded-2xl`, Dialog usa tokens `--radius-*`). Não forçar `rounded-xl`/`rounded-md` ad hoc; evite sobrescrever radius sem motivo.
+- Ícones: Hugeicons (`@hugeicons/react`) quando já usado no fluxo.
+
+### TipTap / notas
+
+- Config: `apps/web/src/lib/notes-editor-config.ts`
+- Conteúdo persistido como **JSON Tiptap** (`Note.content`), não HTML
+- Collab via `@hocuspocus/provider` + `NEXT_PUBLIC_COLLAB_WS_URL`
+- IA: texto via `lib/ai/note-to-text.ts`; edição via `lib/ai/note-content-edit.ts`
+
+### IA / Agent
+
+- Chat: `POST /api/ai/chat` (streaming)
+- Skills: CRUD em `/api/ai/skills`, UI em `components/chat/`
+- Threads: privadas ou de workspace (`AgentThread`)
+- Settings por workspace: `WorkspaceAiSettings`
+- Docs de domínio: `docs/ia.md`, `docs/boards.md`
+
+### Antes de criar qualquer coisa
+
+Sempre buscar equivalente existente (`components/`, `hook/`, `lib/`, `api/`, `packages/shared`). Se cobrir ~80% da necessidade, estender em vez de duplicar.
+
+### Single responsibility
+
+Componente renderiza UI; hook cuida de uma preocupação; API route = uma ação de recurso; contexto = um slice de estado.
+
+---
+
+## 7. Code review (antes do commit)
+
+Em português:
+
+1. `git status`
+2. `git diff` (unstaged)
+3. `git diff --staged`
+4. Procurar: bugs, secrets, `console.log`/`debugger`, código morto, imports quebrados, perf óbvia
+5. Listar arquivo + linha + correção
+6. Se limpo, confirmar
+
+Nunca `--no-verify` / desabilitar hooks.
+
+---
+
+## 8. .gitignore
+
+Nunca commitar:
+
+- `.env`, `.env.*` (exceto `*.example`), `.dev.vars`
+- `**/src/generated/prisma`
+- `prisma/*.db*`
+- `.next/`, `node_modules/`, artefatos de build
+
+Ao adicionar ferramenta que gera arquivos, atualizar `.gitignore` **antes** do primeiro `git add`.
+
+---
+
+## 9. Notas para agentes
+
+- `"use client"` só com state, hooks ou eventos de browser
+- Data fetching no client → TanStack Query; mutations com invalidation
+- API routes são serverless — sem estado global em memória
+- Testes: `vi.mock()` / `vi.hoisted()` (Vitest)
+- Schemas de domínio preferir `@refstash/shared`; não duplicar no web
+- Skills do projeto em `.agents/skills/` (shadcn, building-components, workflow Vercel)
+- Documentação de produto/arquitetura em `docs/` e `/docs` (MDX no app)
