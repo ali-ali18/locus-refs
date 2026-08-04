@@ -13,6 +13,7 @@ allowBuilds:
   sharp: true
   workerd: true
   "@prisma/client": true
+  unrs-resolver: true
 
 # pnpm 11 default: bloqueia pacotes < 24h (quebra Docker/CI com lockfile recente)
 minimumReleaseAgeExclude:
