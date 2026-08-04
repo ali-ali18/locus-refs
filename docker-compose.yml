@@ -2,8 +2,9 @@
 # Build context = raiz do monorepo.
 # Redis NÃO entra aqui: use REDIS_URL apontando à instância externa.
 #
-# No Dokploy: Application type = Docker Compose
-# File = docker-compose.yml (esta raiz)
+# Não publica ports no host (evita conflito com apps antigos).
+# No Dokploy: domínio por service → Traefik aponta para a porta interna
+# (web 3000, collab 1234, realtime 4001).
 
 services:
   web:
@@ -11,7 +12,6 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        # Passar no painel / build args do Dokploy (baked no Next)
         NEXT_PUBLIC_COLLAB_WS_URL: ${NEXT_PUBLIC_COLLAB_WS_URL:-}
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-}
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
@@ -19,8 +19,8 @@ services:
         NEXT_PUBLIC_TLDRAW_LICENSE_KEY: ${NEXT_PUBLIC_TLDRAW_LICENSE_KEY:-}
         NEXT_PUBLIC_REALTIME_WS_URL: ${NEXT_PUBLIC_REALTIME_WS_URL:-}
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
@@ -49,8 +49,8 @@ services:
       context: .
       dockerfile: apps/collab/Dockerfile
     restart: unless-stopped
-    ports:
-      - "1234:1234"
+    expose:
+      - "1234"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       COLLAB_JWT_SECRET: ${COLLAB_JWT_SECRET}
@@ -61,8 +61,8 @@ services:
       context: .
       dockerfile: apps/realtime/Dockerfile
     restart: unless-stopped
-    ports:
-      - "4001:4001"
+    expose:
+      - "4001"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
