@@ -2,12 +2,14 @@
 
 import {
   Folder,
+  KanbanIcon,
   Note01FreeIcons,
   Tag,
   Users,
 } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import { FormCreateCollection } from "@/components/collections/FormCreateCollection";
+import { CreateKanbanBoardDialog } from "@/components/kanban/CreateKanbanBoardDialog";
 import { FormCreateNote } from "@/components/notes/FormCreateNote";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,7 @@ import { DialogApp } from "../../base/DialogApp";
 export function QuickCreate() {
   const [openNote, setOpenNote] = useState(false);
   const [openCollection, setOpenCollection] = useState(false);
+  const [openKanban, setOpenKanban] = useState(false);
 
   return (
     <Card className="rounded-xl">
@@ -65,6 +68,11 @@ export function QuickCreate() {
             <FormCreateCollection onSuccess={() => setOpenCollection(false)} />
           </DialogApp>
 
+          <Button onClick={() => setOpenKanban(true)}>
+            <Icon icon={KanbanIcon} />
+            <span>Kanban</span>
+          </Button>
+
           <Button disabled>
             <Icon icon={Users} />
             <span>Convite</span>
@@ -76,6 +84,8 @@ export function QuickCreate() {
           </Button>
         </div>
       </CardContent>
+
+      <CreateKanbanBoardDialog open={openKanban} onOpenChange={setOpenKanban} />
     </Card>
   );
 }

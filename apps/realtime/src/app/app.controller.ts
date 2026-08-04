@@ -1,0 +1,12 @@
+import { Controller, Get, Inject } from "@nestjs/common";
+import { AppService } from "./app.service";
+
+@Controller()
+export class AppController {
+  constructor(@Inject(AppService) private readonly appService: AppService) {}
+
+  @Get("/health")
+  getHealth(): { status: string; timestampISO: string; timestampMs: number } {
+    return this.appService.getHealth();
+  }
+}

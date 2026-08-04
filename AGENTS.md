@@ -12,6 +12,7 @@ Orientações para agentes que operam neste repositório.
 |--------|------|-------|
 | `apps/web` | `@refstash/web` | Next.js 16 (App Router) — UI, API routes, auth |
 | `apps/collab` | `@refstash/collab` | Servidor Hocuspocus (Y.js) — collab de notas |
+| `apps/realtime` | `@refstash/realtime` | Nest + Socket.io — fan-out Kanban (Redis) |
 | `apps/tldraw-sync` | `@refstash/tldraw-sync` | Cloudflare Worker — sync de boards (tldraw) |
 | `packages/shared` | `@refstash/shared` | Tipos e schemas Zod compartilhados |
 | `prisma/` | — | Schema e migrations na raiz (PostgreSQL) |
@@ -33,6 +34,7 @@ pnpm dev
 # Só o web
 pnpm dev:web
 pnpm collab:dev
+pnpm dev:realtime          # Nest Socket.io Kanban (:4001)
 
 # Build / start
 pnpm build

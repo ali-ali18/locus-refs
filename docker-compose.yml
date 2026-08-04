@@ -1,0 +1,70 @@
+# Dokploy / VPS — um app, um deploy, vários containers.
+# Build context = raiz do monorepo.
+# Redis NÃO entra aqui: use REDIS_URL apontando à instância externa.
+#
+# No Dokploy: Application type = Docker Compose
+# File = docker-compose.yml (esta raiz)
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Passar no painel / build args do Dokploy (baked no Next)
+        NEXT_PUBLIC_COLLAB_WS_URL: ${NEXT_PUBLIC_COLLAB_WS_URL:-}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+        NEXT_PUBLIC_TLDRAW_SYNC_WS_URL: ${NEXT_PUBLIC_TLDRAW_SYNC_WS_URL:-}
+        NEXT_PUBLIC_TLDRAW_LICENSE_KEY: ${NEXT_PUBLIC_TLDRAW_LICENSE_KEY:-}
+        NEXT_PUBLIC_REALTIME_WS_URL: ${NEXT_PUBLIC_REALTIME_WS_URL:-}
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      COLLAB_JWT_SECRET: ${COLLAB_JWT_SECRET}
+      REALTIME_JWT_SECRET: ${REALTIME_JWT_SECRET}
+      REDIS_URL: ${REDIS_URL}
+      NEXT_PUBLIC_COLLAB_WS_URL: ${NEXT_PUBLIC_COLLAB_WS_URL}
+      NEXT_PUBLIC_REALTIME_WS_URL: ${NEXT_PUBLIC_REALTIME_WS_URL}
+      NEXT_PUBLIC_TLDRAW_SYNC_WS_URL: ${NEXT_PUBLIC_TLDRAW_SYNC_WS_URL}
+      NEXT_PUBLIC_TLDRAW_LICENSE_KEY: ${NEXT_PUBLIC_TLDRAW_LICENSE_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-}
+      STORAGE_REGION: ${STORAGE_REGION:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+    depends_on:
+      - collab
+      - realtime
+
+  collab:
+    build:
+      context: .
+      dockerfile: apps/collab/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "1234:1234"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      COLLAB_JWT_SECRET: ${COLLAB_JWT_SECRET}
+      PORT: ${COLLAB_PORT:-1234}
+
+  realtime:
+    build:
+      context: .
+      dockerfile: apps/realtime/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "4001:4001"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      REALTIME_JWT_SECRET: ${REALTIME_JWT_SECRET}
+      PORT: ${REALTIME_PORT:-4001}

@@ -10,6 +10,7 @@ const ROUTE_LABELS: Record<string, string> = {
   resources: "Recursos",
   boards: "Boards",
   config: "Configuração",
+  kanban: "Kanban",
 };
 
 type ResolvedSegment = { label: string; icon?: string | null };
@@ -43,6 +44,13 @@ const resolvers: Record<string, ResolverFn> = {
       select: { title: true },
     });
     return row ? { label: row.title } : null;
+  },
+  kanban: async (id) => {
+    const row = await prisma.kanbanBoard.findUnique({
+      where: { id },
+      select: { title: true, icon: true },
+    });
+    return row ? { label: row.title, icon: row.icon } : null;
   },
 };
 

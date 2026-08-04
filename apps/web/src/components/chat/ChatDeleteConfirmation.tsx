@@ -16,6 +16,7 @@ const DELETE_TOOLS = new Set([
   "deleteNote",
   "deleteCollection",
   "deleteResource",
+  "deleteKanbanBoard",
 ]);
 
 export function isDeleteApprovalTool(toolName: string): boolean {
@@ -33,6 +34,8 @@ function describeDelete(part: ToolUIPart): string {
       return `Excluir a coleção${typeof input?.collectionId === "string" ? ` (${input.collectionId.slice(0, 8)}…)` : ""} e o conteúdo em cascata?`;
     case "deleteResource":
       return `Excluir o recurso${typeof input?.resourceId === "string" ? ` (${input.resourceId.slice(0, 8)}…)` : ""}?`;
+    case "deleteKanbanBoard":
+      return `Excluir o board Kanban${typeof input?.boardId === "string" ? ` (${input.boardId.slice(0, 8)}…)` : ""}?`;
     default:
       return "Confirmar esta exclusão?";
   }

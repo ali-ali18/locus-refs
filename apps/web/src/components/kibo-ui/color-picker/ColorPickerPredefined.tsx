@@ -13,6 +13,7 @@ const PREDEFINED_COLORS = [
   "#6366f1", // indigo
   "#a855f7", // purple
   "#ec4899", // pink
+  "#94a3b8", // slate
   "#6b7280", // gray
 ];
 
