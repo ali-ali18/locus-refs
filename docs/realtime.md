@@ -62,6 +62,16 @@ Envs obrigatórias no container:
 
 No web de produção: `NEXT_PUBLIC_REALTIME_WS_URL` apontando para o host/porta públicos deste serviço + `REDIS_URL` + mesmo `REALTIME_JWT_SECRET`.
 
+## Deploy unificado (Dokploy Compose)
+
+Em vez de um projeto por serviço, use **um** app Docker Compose na raiz:
+
+- Arquivo: [`docker-compose.yml`](../docker-compose.yml)
+- Serviços: `web` + `collab` + `realtime` (Redis continua externo via `REDIS_URL`)
+- Um push no git → um deploy → sobe/atualiza os três containers
+
+Trade-off: qualquer alteração no monorepo rebuilda os três (mais simples de operar; deploys um pouco mais lentos).
+
 ## Dev
 
 ```bash
