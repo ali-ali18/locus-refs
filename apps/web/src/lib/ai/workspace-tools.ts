@@ -12,12 +12,21 @@ import {
 import {
   noteJsonToText,
 } from "@/lib/ai/note-to-text";
-import { formatKanbanDueDateInput, parseKanbanDueDate } from "@/lib/kanban/due-date";
+import { DEFAULT_KANBAN_COLUMNS } from "@/lib/kanban/defaults";
+import {
+  cardMatchesDueFilter,
+  formatKanbanDueDateInput,
+  isKanbanDueDateOverdue,
+  parseKanbanDueDate,
+  rangeForDueFilterPreset,
+  type KanbanDueFilterPreset,
+} from "@/lib/kanban/due-date";
 import {
   computeFractionalPosition,
   nextAppendPosition,
 } from "@/lib/kanban/position";
 import prisma from "@/lib/prisma";
+import { isWorkspaceAdmin } from "@/server/requireSession";
 
 const NOTE_TEXT_LIMIT = 4000;
 
@@ -25,6 +34,22 @@ const dueDateInputSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD")
   .nullable()
+  .optional();
+
+const dueDateYmdSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD");
+
+const kanbanDueFilterSchema = z
+  .enum([
+    "today",
+    "this_week",
+    "this_month",
+    "last_month",
+    "overdue",
+    "no_due",
+    "custom",
+  ])
   .optional();
 
 function truncate(text: string, max = NOTE_TEXT_LIMIT): string {
@@ -273,6 +298,55 @@ export function createWorkspaceTools(params: {
       },
     }),
 
+    createKanbanBoard: tool({
+      description:
+        "Cria um board Kanban no workspace com 3 colunas padrão (A fazer, Em andamento, Concluído). Use quando o usuário pedir um novo board/quadro de tarefas.",
+      inputSchema: z.object({
+        title: z.string().min(1).max(120),
+        description: z.string().max(1000).optional(),
+        icon: z.string().max(60).optional(),
+      }),
+      execute: async ({ title, description, icon }) => {
+        const board = await prisma.kanbanBoard.create({
+          data: {
+            title,
+            description: description ?? null,
+            icon: icon ?? null,
+            workspaceId,
+            createdById: userId,
+            columns: {
+              create: DEFAULT_KANBAN_COLUMNS.map((column) => ({
+                name: column.name,
+                color: column.color,
+                position: column.position,
+              })),
+            },
+          },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            icon: true,
+            columns: {
+              orderBy: { position: "asc" },
+              select: {
+                id: true,
+                name: true,
+                color: true,
+                position: true,
+              },
+            },
+          },
+        });
+
+        return {
+          created: true,
+          board,
+          message: `Board Kanban "${board.title}" criado com ${board.columns.length} colunas.`,
+        };
+      },
+    }),
+
     getKanbanBoard: tool({
       description:
         "Carrega um board Kanban com colunas e cards. Use listKanbanBoards para achar o id.",
@@ -325,6 +399,171 @@ export function createWorkspaceTools(params: {
               dueDate: serializeKanbanDueDate(card.dueDate),
             })),
           },
+        };
+      },
+    }),
+
+    listKanbanCards: tool({
+      description:
+        "Lista/filtra cards de um board Kanban. Use dueFilter para prazo (today, this_week, this_month, last_month, overdue, no_due, custom). Para custom, informe from e to em YYYY-MM-DD. Prefira esta tool em vez de getKanbanBoard quando o usuário perguntar por prazos, atrasados ou cards de um período.",
+      inputSchema: z.object({
+        boardId: z.string().min(1),
+        dueFilter: kanbanDueFilterSchema.describe(
+          "Filtro de prazo alinhado à UI do board",
+        ),
+        from: dueDateYmdSchema
+          .optional()
+          .describe("Início do período (obrigatório com dueFilter=custom)"),
+        to: dueDateYmdSchema
+          .optional()
+          .describe("Fim do período (obrigatório com dueFilter=custom)"),
+        columnId: z.string().min(1).optional(),
+        columnName: z.string().min(1).max(80).optional(),
+        assigneeId: z
+          .string()
+          .min(1)
+          .nullable()
+          .optional()
+          .describe("Filtra por responsável; null = sem responsável"),
+        query: z
+          .string()
+          .max(120)
+          .optional()
+          .describe("Busca no título do card"),
+        limit: z.number().int().min(1).max(50).optional(),
+      }),
+      execute: async ({
+        boardId,
+        dueFilter,
+        from,
+        to,
+        columnId,
+        columnName,
+        assigneeId,
+        query,
+        limit = 30,
+      }) => {
+        const board = await prisma.kanbanBoard.findFirst({
+          where: { id: boardId, workspaceId, deletedAt: null },
+          select: {
+            id: true,
+            title: true,
+            columns: {
+              select: { id: true, name: true },
+            },
+          },
+        });
+        if (!board) {
+          return { error: "Board Kanban não encontrado neste workspace." };
+        }
+
+        let resolvedColumnId: string | undefined;
+        if (columnId || columnName) {
+          const resolved = await resolveKanbanColumnId({
+            boardId,
+            columnId,
+            columnName,
+          });
+          if ("error" in resolved) return resolved;
+          resolvedColumnId = resolved.columnId;
+        }
+
+        if (dueFilter === "custom" && (!from || !to)) {
+          return {
+            error: "dueFilter=custom exige from e to em YYYY-MM-DD.",
+          };
+        }
+        if (from && to && from > to) {
+          return { error: "from deve ser anterior ou igual a to." };
+        }
+
+        const columnNameById = new Map(
+          board.columns.map((column) => [column.id, column.name]),
+        );
+
+        const cards = await prisma.kanbanCard.findMany({
+          where: {
+            boardId,
+            ...(resolvedColumnId && { columnId: resolvedColumnId }),
+            ...(assigneeId !== undefined && { assigneeId }),
+            ...(query?.trim() && {
+              title: { contains: query.trim(), mode: "insensitive" },
+            }),
+          },
+          orderBy: [{ dueDate: "asc" }, { position: "asc" }],
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            columnId: true,
+            position: true,
+            startDate: true,
+            dueDate: true,
+            assigneeId: true,
+          },
+        });
+
+        let filterFrom = from ?? null;
+        let filterTo = to ?? null;
+        let filterPreset: KanbanDueFilterPreset | null = null;
+
+        if (
+          dueFilter === "today" ||
+          dueFilter === "this_week" ||
+          dueFilter === "this_month" ||
+          dueFilter === "last_month"
+        ) {
+          const range = rangeForDueFilterPreset(dueFilter);
+          filterFrom = range.from;
+          filterTo = range.to;
+          filterPreset = dueFilter;
+        } else if (dueFilter === "custom") {
+          filterPreset = "custom";
+        }
+
+        const filtered = cards.filter((card) => {
+          const startIso = serializeKanbanDueDate(card.startDate);
+          const dueIso = serializeKanbanDueDate(card.dueDate);
+
+          if (dueFilter === "overdue") {
+            return isKanbanDueDateOverdue(dueIso);
+          }
+          if (dueFilter === "no_due") {
+            return !startIso && !dueIso;
+          }
+          if (filterPreset && filterFrom && filterTo) {
+            return cardMatchesDueFilter(startIso, dueIso, {
+              preset: filterPreset,
+              from: filterFrom,
+              to: filterTo,
+            });
+          }
+          return true;
+        });
+
+        const limited = filtered.slice(0, limit).map((card) => ({
+          id: card.id,
+          title: card.title,
+          description: card.description
+            ? truncate(card.description, 280)
+            : null,
+          columnId: card.columnId,
+          columnName: columnNameById.get(card.columnId) ?? null,
+          startDate: serializeKanbanDueDate(card.startDate),
+          dueDate: serializeKanbanDueDate(card.dueDate),
+          assigneeId: card.assigneeId,
+          overdue: isKanbanDueDateOverdue(card.dueDate),
+        }));
+
+        return {
+          boardId: board.id,
+          boardTitle: board.title,
+          dueFilter: dueFilter ?? null,
+          from: filterFrom,
+          to: filterTo,
+          cards: limited,
+          count: limited.length,
+          totalMatched: filtered.length,
         };
       },
     }),
@@ -644,6 +883,91 @@ export function createWorkspaceTools(params: {
           boardId,
           card: updated,
           message: `Card "${updated.title}" movido.`,
+        };
+      },
+    }),
+
+    deleteKanbanCard: tool({
+      description:
+        "Exclui permanentemente um card de um board Kanban. Confirme boardId e cardId.",
+      inputSchema: z.object({
+        boardId: z.string().min(1),
+        cardId: z.string().min(1),
+      }),
+      execute: async ({ boardId, cardId }) => {
+        const board = await prisma.kanbanBoard.findFirst({
+          where: { id: boardId, workspaceId, deletedAt: null },
+          select: { id: true, title: true },
+        });
+        if (!board) {
+          return { error: "Board Kanban não encontrado neste workspace." };
+        }
+
+        const card = await prisma.kanbanCard.findFirst({
+          where: { id: cardId, boardId },
+          select: { id: true, title: true },
+        });
+        if (!card) {
+          return { error: "Card não encontrado neste board." };
+        }
+
+        await prisma.kanbanCard.delete({ where: { id: cardId } });
+
+        return {
+          deleted: true,
+          boardId: board.id,
+          cardId: card.id,
+          title: card.title,
+          message: `Card "${card.title}" excluído de "${board.title}".`,
+        };
+      },
+    }),
+
+    deleteKanbanBoard: tool({
+      description:
+        "Exclui (soft-delete) um board Kanban do workspace. Só owner/admin. Só use com pedido explícito. Requer confirmação do usuário.",
+      inputSchema: z.object({
+        boardId: z.string().min(1).describe("Id do board Kanban"),
+      }),
+      needsApproval: true,
+      execute: async ({ boardId }) => {
+        const member = await prisma.member.findFirst({
+          where: { organizationId: workspaceId, userId },
+          select: { role: true },
+        });
+        if (!member || !isWorkspaceAdmin(member.role)) {
+          return {
+            error: "Apenas owner/admin pode excluir boards Kanban.",
+          };
+        }
+
+        const board = await prisma.kanbanBoard.findFirst({
+          where: { id: boardId, workspaceId, deletedAt: null },
+          select: {
+            id: true,
+            title: true,
+            _count: { select: { cards: true, columns: true } },
+          },
+        });
+        if (!board) {
+          return { error: "Board Kanban não encontrado neste workspace." };
+        }
+
+        await prisma.kanbanBoard.update({
+          where: { id: board.id },
+          data: { deletedAt: new Date() },
+        });
+
+        return {
+          deleted: true,
+          boardId: board.id,
+          board: {
+            id: board.id,
+            title: board.title,
+            cardsRemoved: board._count.cards,
+            columnsCount: board._count.columns,
+          },
+          message: `Board Kanban "${board.title}" excluído (${board._count.cards} card(s)).`,
         };
       },
     }),

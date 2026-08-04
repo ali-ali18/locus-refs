@@ -273,9 +273,12 @@ export function useAiChat({
               });
             }
             break;
+          case "tool-createKanbanBoard":
           case "tool-createKanbanCard":
           case "tool-updateKanbanCard":
           case "tool-moveKanbanCard":
+          case "tool-deleteKanbanCard":
+          case "tool-deleteKanbanBoard":
             void queryClient.invalidateQueries({
               queryKey: kanbanKeys.all(workspaceId),
             });
@@ -283,6 +286,14 @@ export function useAiChat({
               void queryClient.invalidateQueries({
                 queryKey: kanbanKeys.detail(workspaceId, output.boardId),
               });
+            }
+            if (output.board && typeof output.board === "object") {
+              const board = output.board as { id?: string };
+              if (board.id) {
+                void queryClient.invalidateQueries({
+                  queryKey: kanbanKeys.detail(workspaceId, board.id),
+                });
+              }
             }
             break;
           case "tool-createAgentSkill":

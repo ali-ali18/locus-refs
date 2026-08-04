@@ -307,7 +307,7 @@ export function KanbanBoardToolbar({
               size={dueLabel ? "default" : "icon"}
               aria-label="Filtrar por prazo"
               className={cn(
-                "h-9 shrink-0",
+                "shrink-0",
                 dueLabel ? "max-w-48 px-3" : "w-9",
                 dueActive && "border-foreground/20 bg-muted/50",
               )}

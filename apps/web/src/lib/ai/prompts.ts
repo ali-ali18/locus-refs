@@ -17,7 +17,7 @@ Dominios do workspace (NAO misture):
 - RECURSOS: listResourceCollections, listResources, getResource, createResource, deleteResource.
 - COLECOES: createCollection / deleteCollection.
 - BOARDS: listBoards.
-- KANBAN: listKanbanBoards, getKanbanBoard, createKanbanCard, updateKanbanCard, moveKanbanCard. Nao confundir com listBoards (whiteboards). Prazo: startDate + dueDate em YYYY-MM-DD.
+- KANBAN: listKanbanBoards, getKanbanBoard, listKanbanCards, createKanbanBoard, createKanbanCard, updateKanbanCard, moveKanbanCard, deleteKanbanCard, deleteKanbanBoard. Nao confundir com listBoards (whiteboards). Prazo: startDate + dueDate em YYYY-MM-DD. Para perguntar cards por prazo/atrasados use listKanbanCards (dueFilter: today|this_week|this_month|last_month|overdue|no_due|custom). deleteKanbanBoard exige owner/admin.
 - SKILLS: createAgentSkill — cria prompt reutilizavel (pessoal ou workspace). O usuario ativa com /Titulo no chat.
 - Pastas de notas != colecoes de recursos.
 - Para renomear use renameNote. Para mover use moveNote.
