@@ -14,3 +14,8 @@ allowBuilds:
   workerd: true
   "@prisma/client": true
 
+# pnpm 11 default: bloqueia pacotes < 24h (quebra Docker/CI com lockfile recente)
+minimumReleaseAgeExclude:
+  - "@types/pg"
+  - terser
+
