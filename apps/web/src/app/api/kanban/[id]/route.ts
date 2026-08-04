@@ -7,6 +7,11 @@ import {
 } from "@/lib/kanban/access";
 import prisma from "@/lib/prisma";
 import {
+  boardDeletedEvent,
+  boardUpdatedEvent,
+} from "@/lib/realtime/kanban-event-builders";
+import { publishKanbanEvent } from "@/lib/realtime/publish-kanban-event";
+import {
   isWorkspaceAdmin,
   requireWorkspaceAccess,
 } from "@/server/requireSession";
@@ -35,7 +40,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 export async function PATCH(request: NextRequest, context: RouteContext) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { workspaceId } = auth;
+  const { session, workspaceId } = auth;
   const { id } = await context.params;
 
   const existing = await prisma.kanbanBoard.findFirst({
@@ -68,6 +73,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       },
       include: kanbanBoardDetailInclude,
     });
+    void publishKanbanEvent(
+      boardUpdatedEvent(id, workspaceId, session.user.id, board),
+    );
     return NextResponse.json({ message: "Kanban board updated", data: board });
   } catch (_error) {
     return NextResponse.json(
@@ -83,7 +91,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 export async function DELETE(request: NextRequest, context: RouteContext) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { workspaceId, memberRole } = auth;
+  const { session, workspaceId, memberRole } = auth;
   const { id } = await context.params;
 
   if (!isWorkspaceAdmin(memberRole)) {
@@ -104,6 +112,9 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       where: { id },
       data: { deletedAt: new Date() },
     });
+    void publishKanbanEvent(
+      boardDeletedEvent(id, workspaceId, session.user.id),
+    );
     return NextResponse.json({ message: "Kanban board deleted" });
   } catch (_error) {
     return NextResponse.json(

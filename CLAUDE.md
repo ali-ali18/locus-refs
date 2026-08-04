@@ -10,6 +10,7 @@ Always use `pnpm` (never npm or yarn).
 pnpm dev              # web + collab + tldraw-sync (parallel)
 pnpm dev:web          # Next.js only (:3000)
 pnpm collab:dev       # Hocuspocus only
+pnpm dev:realtime     # Nest Socket.io Kanban (:4001)
 pnpm build            # @refstash/web production build
 pnpm start            # prisma migrate deploy + web start
 pnpm lint             # Biome check (repo root)
@@ -32,6 +33,7 @@ Never use `--no-verify` on git. If a hook fails, fix the problem.
 |---------|------|
 | `apps/web` (`@refstash/web`) | Next.js 16 App Router — UI + API |
 | `apps/collab` (`@refstash/collab`) | Hocuspocus / Y.js realtime for notes |
+| `apps/realtime` (`@refstash/realtime`) | Nest + Socket.io — Kanban fan-out (Redis) |
 | `apps/tldraw-sync` (`@refstash/tldraw-sync`) | Cloudflare Worker — tldraw board sync |
 | `packages/shared` (`@refstash/shared`) | Shared Zod schemas + types |
 | `prisma/` | PostgreSQL schema + migrations (root) |

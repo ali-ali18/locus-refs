@@ -287,14 +287,6 @@ export function useAiChat({
                 queryKey: kanbanKeys.detail(workspaceId, output.boardId),
               });
             }
-            if (output.board && typeof output.board === "object") {
-              const board = output.board as { id?: string };
-              if (board.id) {
-                void queryClient.invalidateQueries({
-                  queryKey: kanbanKeys.detail(workspaceId, board.id),
-                });
-              }
-            }
             break;
           case "tool-createAgentSkill":
             void queryClient.invalidateQueries({

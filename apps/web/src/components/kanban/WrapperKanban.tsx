@@ -1,9 +1,11 @@
 "use client";
 
+import { useRef } from "react";
 import { KanbanBoardTabs } from "@/components/kanban/KanbanBoardTabs";
 import { KanbanBoardView } from "@/components/kanban/KanbanBoardView";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useKanbanBoard } from "@/hook/kanban/useKanbanBoards";
+import { useKanbanRealtime } from "@/hook/kanban/useKanbanRealtime";
 
 interface Props {
   boardId: string;
@@ -11,6 +13,8 @@ interface Props {
 
 export function WrapperKanban({ boardId }: Props) {
   const { data: board, isLoading, isError } = useKanbanBoard(boardId);
+  const draggingCardIdRef = useRef<string | null>(null);
+  const { presence } = useKanbanRealtime({ boardId, draggingCardIdRef });
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] min-h-0 flex-col overflow-hidden">
@@ -31,7 +35,11 @@ export function WrapperKanban({ boardId }: Props) {
             Não foi possível carregar este kanban.
           </div>
         ) : (
-          <KanbanBoardView board={board} />
+          <KanbanBoardView
+            board={board}
+            draggingCardIdRef={draggingCardIdRef}
+            presence={presence}
+          />
         )}
       </div>
     </div>

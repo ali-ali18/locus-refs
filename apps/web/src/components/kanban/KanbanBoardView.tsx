@@ -6,7 +6,7 @@ import type {
   KanbanCard,
   KanbanUserSummary,
 } from "@refstash/shared";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import { toast } from "sonner";
 import { EditKanbanCardDialog } from "@/components/kanban/EditKanbanCardDialog";
 import {
@@ -33,6 +33,7 @@ import {
   useUpdateKanbanColumn,
 } from "@/hook/kanban/useKanbanColumns";
 import { useMoveKanbanCard } from "@/hook/kanban/useKanbanCards";
+import type { KanbanPresenceMember } from "@/hook/kanban/useKanbanRealtime";
 import { authClient } from "@/lib/auth-client";
 import {
   cardMatchesDueFilter,
@@ -201,9 +202,15 @@ function CardAssigneeFlow({
 
 interface Props {
   board: KanbanBoardDetail;
+  draggingCardIdRef?: MutableRefObject<string | null>;
+  presence?: KanbanPresenceMember[];
 }
 
-export function KanbanBoardView({ board }: Props) {
+export function KanbanBoardView({
+  board,
+  draggingCardIdRef: draggingCardIdRefProp,
+  presence = [],
+}: Props) {
   const { data: session } = authClient.useSession();
   const currentUserId = session?.user.id;
 
@@ -215,7 +222,8 @@ export function KanbanBoardView({ board }: Props) {
   const [columns, setColumns] = useState<DnDColumn[]>(() => toColumns(board));
   const itemsRef = useRef(items);
   const columnsRef = useRef(columns);
-  const draggingIdRef = useRef<string | null>(null);
+  const localDraggingIdRef = useRef<string | null>(null);
+  const draggingIdRef = draggingCardIdRefProp ?? localDraggingIdRef;
   const draggingKindRef = useRef<"card" | "column" | null>(null);
   const [cardDialog, setCardDialog] = useState<CardDialogState | null>(null);
   const [isAddingColumn, setIsAddingColumn] = useState(false);
@@ -356,6 +364,7 @@ export function KanbanBoardView({ board }: Props) {
         columns={columns}
         matchCount={visibleItems.length}
         totalCount={items.length}
+        presence={presence}
       />
 
       <div className="min-h-0 flex-1 overflow-x-auto p-5 pt-3">

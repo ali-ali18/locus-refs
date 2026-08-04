@@ -12,6 +12,7 @@ import {
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { KanbanDueDateFilterPanel } from "@/components/kanban/KanbanDueDateFilterPanel";
+import { KanbanPresenceAvatars } from "@/components/kanban/KanbanPresenceAvatars";
 import { Icon } from "@/components/shared/Icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { KanbanPresenceMember } from "@/hook/kanban/useKanbanRealtime";
 import { useWorkspaceMembers } from "@/hook/workspace/useWorkspaceMembers";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -74,6 +76,7 @@ interface Props {
   columns: KanbanFilterColumn[];
   matchCount: number;
   totalCount: number;
+  presence?: KanbanPresenceMember[];
 }
 
 export function KanbanBoardToolbar({
@@ -82,6 +85,7 @@ export function KanbanBoardToolbar({
   columns,
   matchCount,
   totalCount,
+  presence = [],
 }: Props) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [dueOpen, setDueOpen] = useState(false);
@@ -147,6 +151,7 @@ export function KanbanBoardToolbar({
 
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-2 px-5 pt-4">
+      <KanbanPresenceAvatars presence={presence} />
       <InputGroup className="max-w-md min-w-[240px] flex-1">
         <InputGroupInput
           placeholder="Buscar cards..."

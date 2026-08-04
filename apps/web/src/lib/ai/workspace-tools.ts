@@ -26,6 +26,13 @@ import {
   nextAppendPosition,
 } from "@/lib/kanban/position";
 import prisma from "@/lib/prisma";
+import {
+  boardDeletedEvent,
+  cardCreatedEvent,
+  cardDeletedEvent,
+  cardUpdatedEvent,
+} from "@/lib/realtime/kanban-event-builders";
+import { publishKanbanEvent } from "@/lib/realtime/publish-kanban-event";
 import { isWorkspaceAdmin } from "@/server/requireSession";
 
 const NOTE_TEXT_LIMIT = 4000;
@@ -646,11 +653,16 @@ export function createWorkspaceTools(params: {
             title: true,
             description: true,
             columnId: true,
+            position: true,
             startDate: true,
             dueDate: true,
             assigneeId: true,
           },
         });
+
+        void publishKanbanEvent(
+          cardCreatedEvent(board.id, workspaceId, userId, card),
+        );
 
         return {
           created: true,
@@ -753,11 +765,16 @@ export function createWorkspaceTools(params: {
             title: true,
             description: true,
             columnId: true,
+            position: true,
             startDate: true,
             dueDate: true,
             assigneeId: true,
           },
         });
+
+        void publishKanbanEvent(
+          cardUpdatedEvent(boardId, workspaceId, userId, card, false),
+        );
 
         return {
           updated: true,
@@ -873,10 +890,18 @@ export function createWorkspaceTools(params: {
           select: {
             id: true,
             title: true,
+            description: true,
             columnId: true,
             position: true,
+            startDate: true,
+            dueDate: true,
+            assigneeId: true,
           },
         });
+
+        void publishKanbanEvent(
+          cardUpdatedEvent(boardId, workspaceId, userId, updated, true),
+        );
 
         return {
           updated: true,
@@ -912,6 +937,10 @@ export function createWorkspaceTools(params: {
         }
 
         await prisma.kanbanCard.delete({ where: { id: cardId } });
+
+        void publishKanbanEvent(
+          cardDeletedEvent(board.id, workspaceId, userId, card.id),
+        );
 
         return {
           deleted: true,
@@ -957,6 +986,10 @@ export function createWorkspaceTools(params: {
           where: { id: board.id },
           data: { deletedAt: new Date() },
         });
+
+        void publishKanbanEvent(
+          boardDeletedEvent(board.id, workspaceId, userId),
+        );
 
         return {
           deleted: true,

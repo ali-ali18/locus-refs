@@ -1,4 +1,15 @@
 export {
+  KANBAN_EVENTS_CHANNEL,
+  type KanbanRealtimeEvent,
+  kanbanBoardRoom,
+} from "./realtime/kanban-realtime";
+export {
+  type CreateBoardSchema,
+  createBoardSchema,
+  type UpdateBoardSchema,
+  updateBoardSchema,
+} from "./schemas/board.schema";
+export {
   type CategoryDeleteSchema,
   type CategorySchema,
   categoryDeleteSchema,
@@ -10,20 +21,6 @@ export {
   type UpdateCollectionSchema,
   updateCollectionSchema,
 } from "./schemas/collection.schema";
-
-export {
-  type CreateNoteSchema,
-  createNoteSchema,
-  noteContentSchema,
-  type UpdateHeaderNoteSchema,
-  updateHeaderNoteSchema,
-} from "./schemas/note.schema";
-export {
-  type CreateBoardSchema,
-  createBoardSchema,
-  type UpdateBoardSchema,
-  updateBoardSchema,
-} from "./schemas/board.schema";
 export {
   type CreateKanbanBoardSchema,
   type CreateKanbanCardSchema,
@@ -42,6 +39,13 @@ export {
   updateKanbanColumnSchema,
 } from "./schemas/kanban.schema";
 export {
+  type CreateNoteSchema,
+  createNoteSchema,
+  noteContentSchema,
+  type UpdateHeaderNoteSchema,
+  updateHeaderNoteSchema,
+} from "./schemas/note.schema";
+export {
   type CreateWorkspaceSchema,
   createWorkspaceSchema,
   type InviteMemberSchema,
@@ -49,11 +53,9 @@ export {
   type UpdateWorkspaceSchema,
   updateWorkspaceSchema,
 } from "./schemas/workspace.schema";
+export type { Board } from "./types/board.type";
 export type { Category } from "./types/categories.type";
 export type { Collection } from "./types/collection.type";
-export type { Note, NoteContent, NotePinItem, NotePins } from "./types/note.type";
-export { EMPTY_NOTE_CONTENT } from "./types/note.type";
-export type { Board } from "./types/board.type";
 export type {
   KanbanBoard,
   KanbanBoardDetail,
@@ -61,6 +63,13 @@ export type {
   KanbanColumn,
   KanbanUserSummary,
 } from "./types/kanban.type";
+export type {
+  Note,
+  NoteContent,
+  NotePinItem,
+  NotePins,
+} from "./types/note.type";
+export { EMPTY_NOTE_CONTENT } from "./types/note.type";
 export type {
   Workspace,
   WorkspaceInvitation,

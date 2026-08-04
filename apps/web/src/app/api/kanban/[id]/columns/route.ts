@@ -6,6 +6,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import { boardNotFound, findKanbanBoardInWorkspace } from "@/lib/kanban/access";
 import { nextAppendPosition } from "@/lib/kanban/position";
 import prisma from "@/lib/prisma";
+import { columnCreatedEvent } from "@/lib/realtime/kanban-event-builders";
+import { publishKanbanEvent } from "@/lib/realtime/publish-kanban-event";
 import { requireWorkspaceAccess } from "@/server/requireSession";
 
 interface RouteContext {
@@ -15,7 +17,7 @@ interface RouteContext {
 export async function POST(request: NextRequest, context: RouteContext) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { workspaceId } = auth;
+  const { session, workspaceId } = auth;
   const { id: boardId } = await context.params;
 
   const board = await findKanbanBoardInWorkspace(boardId, workspaceId);
@@ -58,6 +60,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
         position: nextAppendPosition(agg._max.position),
       },
     });
+    void publishKanbanEvent(
+      columnCreatedEvent(boardId, workspaceId, session.user.id, column),
+    );
     return NextResponse.json(
       { message: "Kanban column created", data: column },
       { status: 201 },

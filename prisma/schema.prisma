@@ -8,6 +8,11 @@ generator collab_client {
   output   = "../apps/collab/src/generated/prisma"
 }
 
+generator realtime_client {
+  provider = "prisma-client"
+  output   = "../apps/realtime/src/generated/prisma"
+}
+
 datasource db {
   provider = "postgresql"
 }

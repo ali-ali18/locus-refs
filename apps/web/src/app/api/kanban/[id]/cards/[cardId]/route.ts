@@ -13,6 +13,11 @@ import {
   nextAppendPosition,
 } from "@/lib/kanban/position";
 import prisma from "@/lib/prisma";
+import {
+  cardDeletedEvent,
+  cardUpdatedEvent,
+} from "@/lib/realtime/kanban-event-builders";
+import { publishKanbanEvent } from "@/lib/realtime/publish-kanban-event";
 import { requireWorkspaceAccess } from "@/server/requireSession";
 
 interface RouteContext {
@@ -22,7 +27,7 @@ interface RouteContext {
 export async function PATCH(request: NextRequest, context: RouteContext) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { workspaceId } = auth;
+  const { session, workspaceId } = auth;
   const { id: boardId, cardId } = await context.params;
 
   const board = await findKanbanBoardInWorkspace(boardId, workspaceId);
@@ -156,6 +161,16 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       },
     });
 
+    void publishKanbanEvent(
+      cardUpdatedEvent(
+        boardId,
+        workspaceId,
+        session.user.id,
+        updated,
+        wantsMove,
+      ),
+    );
+
     return NextResponse.json({
       message: "Kanban card updated",
       data: updated,
@@ -174,7 +189,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 export async function DELETE(request: NextRequest, context: RouteContext) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { workspaceId } = auth;
+  const { session, workspaceId } = auth;
   const { id: boardId, cardId } = await context.params;
 
   const board = await findKanbanBoardInWorkspace(boardId, workspaceId);
@@ -188,6 +203,9 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
   try {
     await prisma.kanbanCard.delete({ where: { id: cardId } });
+    void publishKanbanEvent(
+      cardDeletedEvent(boardId, workspaceId, session.user.id, cardId),
+    );
     return NextResponse.json({ message: "Kanban card deleted" });
   } catch (_error) {
     return NextResponse.json(

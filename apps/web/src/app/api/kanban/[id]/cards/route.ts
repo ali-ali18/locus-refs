@@ -9,6 +9,8 @@ import { kanbanUserSelect } from "@/lib/kanban/defaults";
 import { parseKanbanDueDate } from "@/lib/kanban/due-date";
 import { nextAppendPosition } from "@/lib/kanban/position";
 import prisma from "@/lib/prisma";
+import { cardCreatedEvent } from "@/lib/realtime/kanban-event-builders";
+import { publishKanbanEvent } from "@/lib/realtime/publish-kanban-event";
 import { requireWorkspaceAccess } from "@/server/requireSession";
 
 interface RouteContext {
@@ -84,6 +86,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
         assignee: { select: kanbanUserSelect },
       },
     });
+
+    void publishKanbanEvent(
+      cardCreatedEvent(boardId, workspaceId, session.user.id, card),
+    );
 
     return NextResponse.json(
       { message: "Kanban card created", data: card },

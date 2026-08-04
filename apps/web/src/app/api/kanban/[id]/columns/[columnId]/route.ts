@@ -7,6 +7,11 @@ import {
 } from "@/lib/kanban/access";
 import { computeFractionalPosition } from "@/lib/kanban/position";
 import prisma from "@/lib/prisma";
+import {
+  columnDeletedEvent,
+  columnUpdatedEvent,
+} from "@/lib/realtime/kanban-event-builders";
+import { publishKanbanEvent } from "@/lib/realtime/publish-kanban-event";
 import { requireWorkspaceAccess } from "@/server/requireSession";
 
 interface RouteContext {
@@ -16,7 +21,7 @@ interface RouteContext {
 export async function PATCH(request: NextRequest, context: RouteContext) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { workspaceId } = auth;
+  const { session, workspaceId } = auth;
   const { id: boardId, columnId } = await context.params;
 
   const board = await findKanbanBoardInWorkspace(boardId, workspaceId);
@@ -77,6 +82,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         ...(position !== undefined && { position }),
       },
     });
+    void publishKanbanEvent(
+      columnUpdatedEvent(boardId, workspaceId, session.user.id, updated),
+    );
     return NextResponse.json({
       message: "Kanban column updated",
       data: updated,
@@ -95,7 +103,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 export async function DELETE(request: NextRequest, context: RouteContext) {
   const auth = await requireWorkspaceAccess(request);
   if ("error" in auth) return auth.error;
-  const { workspaceId } = auth;
+  const { session, workspaceId } = auth;
   const { id: boardId, columnId } = await context.params;
 
   const board = await findKanbanBoardInWorkspace(boardId, workspaceId);
@@ -120,6 +128,9 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
   try {
     await prisma.kanbanColumn.delete({ where: { id: columnId } });
+    void publishKanbanEvent(
+      columnDeletedEvent(boardId, workspaceId, session.user.id, columnId),
+    );
     return NextResponse.json({ message: "Kanban column deleted" });
   } catch (_error) {
     return NextResponse.json(
