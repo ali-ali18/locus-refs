@@ -83,3 +83,137 @@ export function isKanbanDueDateOverdue(
   ].join("-");
   return iso < todayIso;
 }
+
+export type KanbanDueFilterPreset =
+  | "today"
+  | "this_week"
+  | "this_month"
+  | "last_month"
+  | "month"
+  | "custom";
+
+export type KanbanDueFilterState = {
+  preset: KanbanDueFilterPreset | null;
+  from: string | null;
+  to: string | null;
+};
+
+export const EMPTY_KANBAN_DUE_FILTER: KanbanDueFilterState = {
+  preset: null,
+  from: null,
+  to: null,
+};
+
+function startOfLocalDay(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+/** Monday-start week (pt-BR). */
+function startOfWeekMonday(date: Date) {
+  const day = date.getDay();
+  const offset = day === 0 ? -6 : 1 - day;
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + offset);
+}
+
+function endOfWeekMonday(date: Date) {
+  const start = startOfWeekMonday(date);
+  return new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+}
+
+export function rangeForDueFilterPreset(
+  preset: Exclude<KanbanDueFilterPreset, "custom" | "month">,
+  now = new Date(),
+): { from: string; to: string } {
+  const today = startOfLocalDay(now);
+
+  switch (preset) {
+    case "today": {
+      const iso = localDateToKanbanDueDate(today);
+      return { from: iso, to: iso };
+    }
+    case "this_week": {
+      return {
+        from: localDateToKanbanDueDate(startOfWeekMonday(today)),
+        to: localDateToKanbanDueDate(endOfWeekMonday(today)),
+      };
+    }
+    case "this_month": {
+      const from = new Date(today.getFullYear(), today.getMonth(), 1);
+      const to = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      return {
+        from: localDateToKanbanDueDate(from),
+        to: localDateToKanbanDueDate(to),
+      };
+    }
+    case "last_month": {
+      const from = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const to = new Date(today.getFullYear(), today.getMonth(), 0);
+      return {
+        from: localDateToKanbanDueDate(from),
+        to: localDateToKanbanDueDate(to),
+      };
+    }
+    default: {
+      const _exhaustive: never = preset;
+      return _exhaustive;
+    }
+  }
+}
+
+export function rangeForMonth(year: number, monthIndex: number): {
+  from: string;
+  to: string;
+} {
+  const from = new Date(year, monthIndex, 1);
+  const to = new Date(year, monthIndex + 1, 0);
+  return {
+    from: localDateToKanbanDueDate(from),
+    to: localDateToKanbanDueDate(to),
+  };
+}
+
+/** True when the card's date range overlaps the filter window. */
+export function cardMatchesDueFilter(
+  startDate: string | null | undefined,
+  dueDate: string | null | undefined,
+  filter: KanbanDueFilterState,
+): boolean {
+  if (!filter.preset || !filter.from || !filter.to) return true;
+
+  const cardStart = formatKanbanDueDateInput(startDate ?? dueDate);
+  const cardEnd = formatKanbanDueDateInput(dueDate ?? startDate);
+  if (!cardStart && !cardEnd) return false;
+
+  const from = cardStart || cardEnd;
+  const to = cardEnd || cardStart;
+  return from <= filter.to && to >= filter.from;
+}
+
+export function formatDueFilterLabel(filter: KanbanDueFilterState): string | null {
+  if (!filter.preset || !filter.from || !filter.to) return null;
+
+  switch (filter.preset) {
+    case "today":
+      return "Hoje";
+    case "this_week":
+      return "Esta semana";
+    case "this_month":
+      return "Este mês";
+    case "last_month":
+      return "Mês passado";
+    case "month": {
+      const date = kanbanDueDateToLocalDate(filter.from);
+      if (!date) return "Mês";
+      return date.toLocaleDateString("pt-BR", {
+        month: "long",
+        year: "numeric",
+      });
+    }
+    case "custom":
+      return formatKanbanDueDateLabel(filter.from, filter.to);
+    default: {
+      const _exhaustive: never = filter.preset;
+      return _exhaustive;
+    }
+  }
+}

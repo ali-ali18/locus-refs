@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Calendar03Icon,
   Cancel01Icon,
   CheckmarkCircle02Icon,
   FilterMailIcon,
@@ -10,6 +11,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
+import { KanbanDueDateFilterPanel } from "@/components/kanban/KanbanDueDateFilterPanel";
 import { Icon } from "@/components/shared/Icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,11 @@ import {
 } from "@/components/ui/popover";
 import { useWorkspaceMembers } from "@/hook/workspace/useWorkspaceMembers";
 import { authClient } from "@/lib/auth-client";
+import {
+  EMPTY_KANBAN_DUE_FILTER,
+  formatDueFilterLabel,
+  type KanbanDueFilterState,
+} from "@/lib/kanban/due-date";
 import { cn } from "@/lib/utils";
 
 /** Special tokens + user ids. Empty = todos. */
@@ -36,6 +43,14 @@ export type KanbanBoardFiltersState = {
   assigneeIds: KanbanAssigneeToken[];
   /** Empty = all columns. Multiple ids = OR filter. */
   columnIds: string[];
+  dueDate: KanbanDueFilterState;
+};
+
+export const EMPTY_KANBAN_BOARD_FILTERS: KanbanBoardFiltersState = {
+  query: "",
+  assigneeIds: [],
+  columnIds: [],
+  dueDate: EMPTY_KANBAN_DUE_FILTER,
 };
 
 export type KanbanFilterColumn = {
@@ -69,15 +84,17 @@ export function KanbanBoardToolbar({
   totalCount,
 }: Props) {
   const [filterOpen, setFilterOpen] = useState(false);
+  const [dueOpen, setDueOpen] = useState(false);
   const { data: session } = authClient.useSession();
   const { data: membersQuery } = useWorkspaceMembers();
   const members = membersQuery?.data?.members ?? [];
 
   const selectionActive =
     value.assigneeIds.length > 0 || value.columnIds.length > 0;
+  const dueActive = Boolean(value.dueDate.preset);
 
   const hasActiveFilters =
-    value.query.trim().length > 0 || selectionActive;
+    value.query.trim().length > 0 || selectionActive || dueActive;
 
   const filterLabel = useMemo(() => {
     const parts: string[] = [];
@@ -104,6 +121,8 @@ export function KanbanBoardToolbar({
     return parts.join(" · ");
   }, [columns, members, value.assigneeIds, value.columnIds]);
 
+  const dueLabel = formatDueFilterLabel(value.dueDate);
+
   function toggleAssignee(token: KanbanAssigneeToken) {
     const selected = value.assigneeIds.includes(token)
       ? value.assigneeIds.filter((id) => id !== token)
@@ -123,12 +142,12 @@ export function KanbanBoardToolbar({
   }
 
   function clearFilters() {
-    onChange({ query: "", assigneeIds: [], columnIds: [] });
+    onChange(EMPTY_KANBAN_BOARD_FILTERS);
   }
 
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-2 px-5 pt-4">
-      <InputGroup className="h-9 max-w-md min-w-[240px] flex-1 rounded-xl">
+      <InputGroup className="max-w-md min-w-[240px] flex-1">
         <InputGroupInput
           placeholder="Buscar cards..."
           value={value.query}
@@ -154,7 +173,8 @@ export function KanbanBoardToolbar({
                 <InputGroupButton
                   size={filterLabel ? "xs" : "icon-xs"}
                   aria-label="Responsável e colunas"
-                  className={cn("rounded-xl",
+                  className={cn(
+                    "rounded-xl",
                     filterLabel && "max-w-40 px-1.5",
                     selectionActive && "text-foreground",
                   )}
@@ -178,70 +198,70 @@ export function KanbanBoardToolbar({
               </p>
 
               <div className="flex flex-col gap-1">
-              <FilterRow
-                active={value.assigneeIds.length === 0}
-                label="Todos"
-                onSelect={clearAssignees}
-                leading={
-                  <span className="flex size-6 items-center justify-center rounded-full bg-muted">
-                    <Icon
-                      icon={UserGroupIcon}
-                      className="size-3.5 text-muted-foreground"
-                    />
-                  </span>
-                }
-              />
-              <FilterRow
-                active={value.assigneeIds.includes("me")}
-                label="Atribuídos a mim"
-                disabled={!session?.user.id}
-                onSelect={() => toggleAssignee("me")}
-                leading={
-                  <span className="flex size-6 items-center justify-center rounded-full bg-muted">
-                    <Icon
-                      icon={UserIcon}
-                      className="size-3.5 text-muted-foreground"
-                    />
-                  </span>
-                }
-              />
-              <FilterRow
-                active={value.assigneeIds.includes("unassigned")}
-                label="Sem responsável"
-                onSelect={() => toggleAssignee("unassigned")}
-                leading={
-                  <span className="flex size-6 items-center justify-center rounded-full bg-muted">
-                    <Icon
-                      icon={Cancel01Icon}
-                      className="size-3 text-muted-foreground"
-                    />
-                  </span>
-                }
-              />
+                <FilterRow
+                  active={value.assigneeIds.length === 0}
+                  label="Todos"
+                  onSelect={clearAssignees}
+                  leading={
+                    <span className="flex size-6 items-center justify-center rounded-full bg-muted">
+                      <Icon
+                        icon={UserGroupIcon}
+                        className="size-3.5 text-muted-foreground"
+                      />
+                    </span>
+                  }
+                />
+                <FilterRow
+                  active={value.assigneeIds.includes("me")}
+                  label="Atribuídos a mim"
+                  disabled={!session?.user.id}
+                  onSelect={() => toggleAssignee("me")}
+                  leading={
+                    <span className="flex size-6 items-center justify-center rounded-full bg-muted">
+                      <Icon
+                        icon={UserIcon}
+                        className="size-3.5 text-muted-foreground"
+                      />
+                    </span>
+                  }
+                />
+                <FilterRow
+                  active={value.assigneeIds.includes("unassigned")}
+                  label="Sem responsável"
+                  onSelect={() => toggleAssignee("unassigned")}
+                  leading={
+                    <span className="flex size-6 items-center justify-center rounded-full bg-muted">
+                      <Icon
+                        icon={Cancel01Icon}
+                        className="size-3 text-muted-foreground"
+                      />
+                    </span>
+                  }
+                />
 
-              {members.length > 0 ? (
-                <div className="flex max-h-40 flex-col gap-1 overflow-y-auto scrollbar-none">
-                  {members.map((member) => (
-                    <FilterRow
-                      key={member.userId}
-                      active={value.assigneeIds.includes(member.userId)}
-                      label={member.user.name}
-                      onSelect={() => toggleAssignee(member.userId)}
-                      leading={
-                        <Avatar className="size-6 overflow-hidden ring-1 ring-border">
-                          <AvatarImage
-                            alt={member.user.name}
-                            src={member.user.image ?? undefined}
-                          />
-                          <AvatarFallback className="text-[10px]">
-                            {initials(member.user.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                      }
-                    />
-                  ))}
-                </div>
-              ) : null}
+                {members.length > 0 ? (
+                  <div className="flex max-h-40 flex-col gap-1 overflow-y-auto scrollbar-none">
+                    {members.map((member) => (
+                      <FilterRow
+                        key={member.userId}
+                        active={value.assigneeIds.includes(member.userId)}
+                        label={member.user.name}
+                        onSelect={() => toggleAssignee(member.userId)}
+                        leading={
+                          <Avatar className="size-6 overflow-hidden ring-1 ring-border">
+                            <AvatarImage
+                              alt={member.user.name}
+                              src={member.user.image ?? undefined}
+                            />
+                            <AvatarFallback className="text-[10px]">
+                              {initials(member.user.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                        }
+                      />
+                    ))}
+                  </div>
+                ) : null}
               </div>
 
               {columns.length > 0 ? (
@@ -278,6 +298,40 @@ export function KanbanBoardToolbar({
         </InputGroupAddon>
       </InputGroup>
 
+      <Popover open={dueOpen} onOpenChange={setDueOpen}>
+        <PopoverTrigger
+          render={
+            <Button
+              type="button"
+              variant="outline"
+              size={dueLabel ? "default" : "icon"}
+              aria-label="Filtrar por prazo"
+              className={cn(
+                "h-9 shrink-0",
+                dueLabel ? "max-w-48 px-3" : "w-9",
+                dueActive && "border-foreground/20 bg-muted/50",
+              )}
+            >
+              <Icon icon={Calendar03Icon} data-icon="inline-start" />
+              {dueLabel ? (
+                <span className="truncate first-letter:uppercase">
+                  {dueLabel}
+                </span>
+              ) : null}
+            </Button>
+          }
+        />
+        <PopoverContent
+          align="start"
+          className="w-auto gap-0 overflow-hidden rounded-2xl p-0"
+        >
+          <KanbanDueDateFilterPanel
+            value={value.dueDate}
+            onChange={(dueDate) => onChange({ ...value, dueDate })}
+          />
+        </PopoverContent>
+      </Popover>
+
       {hasActiveFilters ? (
         <>
           <span className="text-xs text-muted-foreground tabular-nums">
@@ -287,7 +341,7 @@ export function KanbanBoardToolbar({
             type="button"
             variant="ghost"
             size="sm"
-            className="h-9 rounded-xl text-muted-foreground"
+            className="h-9 text-muted-foreground"
             onClick={clearFilters}
           >
             Limpar

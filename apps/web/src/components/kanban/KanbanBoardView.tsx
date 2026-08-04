@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { EditKanbanCardDialog } from "@/components/kanban/EditKanbanCardDialog";
 import {
   type KanbanBoardFiltersState,
+  EMPTY_KANBAN_BOARD_FILTERS,
   KanbanBoardToolbar,
 } from "@/components/kanban/KanbanBoardToolbar";
 import { KanbanColumnMenu } from "@/components/kanban/KanbanColumnMenu";
@@ -34,6 +35,7 @@ import {
 import { useMoveKanbanCard } from "@/hook/kanban/useKanbanCards";
 import { authClient } from "@/lib/auth-client";
 import {
+  cardMatchesDueFilter,
   formatKanbanDueDateLabel,
   isKanbanDueDateOverdue,
 } from "@/lib/kanban/due-date";
@@ -105,6 +107,10 @@ function matchesFilters(
     filters.columnIds.length > 0 &&
     !filters.columnIds.includes(item.column)
   ) {
+    return false;
+  }
+
+  if (!cardMatchesDueFilter(item.startDate, item.dueDate, filters.dueDate)) {
     return false;
   }
 
@@ -214,11 +220,9 @@ export function KanbanBoardView({ board }: Props) {
   const [cardDialog, setCardDialog] = useState<CardDialogState | null>(null);
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newColumnName, setNewColumnName] = useState("");
-  const [filters, setFilters] = useState<KanbanBoardFiltersState>({
-    query: "",
-    assigneeIds: [],
-    columnIds: [],
-  });
+  const [filters, setFilters] = useState<KanbanBoardFiltersState>(
+    EMPTY_KANBAN_BOARD_FILTERS,
+  );
 
   useEffect(() => {
     if (draggingIdRef.current) return;
@@ -243,7 +247,8 @@ export function KanbanBoardView({ board }: Props) {
   const filtersActive =
     filters.query.trim().length > 0 ||
     filters.assigneeIds.length > 0 ||
-    filters.columnIds.length > 0;
+    filters.columnIds.length > 0 ||
+    Boolean(filters.dueDate.preset);
 
   const editingCard =
     cardDialog?.mode === "edit"
