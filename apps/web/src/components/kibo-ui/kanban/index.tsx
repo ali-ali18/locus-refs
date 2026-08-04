@@ -253,10 +253,16 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
 
   return (
     <>
-      <div style={style} {...listeners} {...attributes} ref={setNodeRef}>
+      <div
+        style={style}
+        {...listeners}
+        {...attributes}
+        ref={setNodeRef}
+        className="cursor-grab touch-none active:cursor-grabbing"
+      >
         <Card
           className={cn(
-            "cursor-grab gap-0 rounded-2xl border-0 bg-background p-3.5 shadow-none ring-1 ring-foreground/5",
+            "cursor-grab gap-0 rounded-2xl border-0 bg-background p-3.5 shadow-none ring-1 ring-foreground/5 active:cursor-grabbing",
             isDragging && "pointer-events-none cursor-grabbing opacity-30",
             className,
           )}

@@ -33,6 +33,16 @@ export function getToolPendingLabel(toolPart: ToolUIPart): string {
       return "Listando pastas de notas…";
     case "listBoards":
       return "Listando boards…";
+    case "listKanbanBoards":
+      return "Listando boards Kanban…";
+    case "getKanbanBoard":
+      return "Lendo board Kanban…";
+    case "createKanbanCard":
+      return "Criando card Kanban…";
+    case "updateKanbanCard":
+      return "Atualizando card Kanban…";
+    case "moveKanbanCard":
+      return "Movendo card Kanban…";
     case "listResourceCollections":
       return "Listando coleções de recursos…";
     case "listResources":
@@ -141,6 +151,32 @@ export function getToolDoneLabel(toolPart: ToolUIPart): string {
       return "Listou coleções de recursos";
     case "listBoards":
       return "Listou boards";
+    case "listKanbanBoards": {
+      const count = output?.count as number | undefined;
+      return typeof count === "number"
+        ? `Listou ${count} board(s) Kanban`
+        : "Listou boards Kanban";
+    }
+    case "getKanbanBoard":
+      return "Leu board Kanban";
+    case "createKanbanCard": {
+      const card = output?.card as { title?: string } | undefined;
+      return card?.title
+        ? `Criou card “${card.title}”`
+        : "Criou card Kanban";
+    }
+    case "updateKanbanCard": {
+      const card = output?.card as { title?: string } | undefined;
+      return card?.title
+        ? `Atualizou card “${card.title}”`
+        : "Atualizou card Kanban";
+    }
+    case "moveKanbanCard": {
+      const card = output?.card as { title?: string } | undefined;
+      return card?.title
+        ? `Moveu card “${card.title}”`
+        : "Moveu card Kanban";
+    }
     case "getResource":
       return "Leu recurso";
     case "getNoteBacklinks":
@@ -261,6 +297,24 @@ export function getToolCardTitle(toolPart: ToolUIPart): string {
       return "Coleções de recursos";
     case "listBoards":
       return "Boards";
+    case "listKanbanBoards":
+      return "Boards Kanban";
+    case "getKanbanBoard": {
+      const board = output?.board as { title?: string } | undefined;
+      return board?.title?.trim() || "Board Kanban";
+    }
+    case "createKanbanCard": {
+      const card = output?.card as { title?: string } | undefined;
+      return card?.title?.trim() || "Novo card Kanban";
+    }
+    case "updateKanbanCard": {
+      const card = output?.card as { title?: string } | undefined;
+      return card?.title?.trim() || "Atualizar card Kanban";
+    }
+    case "moveKanbanCard": {
+      const card = output?.card as { title?: string } | undefined;
+      return card?.title?.trim() || "Mover card Kanban";
+    }
     default:
       return getToolDoneLabel(toolPart);
   }
@@ -333,6 +387,28 @@ export function getToolCardSnippet(toolPart: ToolUIPart): string | null {
       const scope =
         skill.visibility === "workspace" ? "workspace" : "pessoal";
       return `${skill.title} (${scope})`;
+    }
+    case "listKanbanBoards": {
+      const boards = output.boards as Array<{ title?: string }> | undefined;
+      if (!boards?.length) return "Nenhum board Kanban";
+      return boards
+        .slice(0, 3)
+        .map((b) => b.title || "Sem título")
+        .join(" · ");
+    }
+    case "getKanbanBoard": {
+      const board = output.board as
+        | { title?: string; cards?: unknown[] }
+        | undefined;
+      if (!board?.title) return "Board Kanban";
+      const count = Array.isArray(board.cards) ? board.cards.length : 0;
+      return `${board.title} · ${count} card(s)`;
+    }
+    case "createKanbanCard":
+    case "updateKanbanCard":
+    case "moveKanbanCard": {
+      const card = output.card as { title?: string } | undefined;
+      return card?.title || null;
     }
     case "getNoteBacklinks": {
       const linked = output.linkedFrom as Array<{ title?: string }> | undefined;

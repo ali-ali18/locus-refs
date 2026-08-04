@@ -15,6 +15,7 @@ import { useWorkspace } from "@/context/workspace";
 import { agentSkillKeys } from "@/hook/ai/agentSkillKeys";
 import { agentThreadKeys } from "@/hook/ai/agentThreadKeys";
 import { useAgentThread, useAgentThreadMutations } from "@/hook/ai/useAgentThreads";
+import { kanbanKeys } from "@/hook/kanban/kanbanKeys";
 import { noteKeys } from "@/hook/notes/noteKeys";
 import type { AiMessageMetadata } from "@/lib/ai/intent";
 import { deleteChatUploads } from "@/lib/chat-upload-cleanup";
@@ -229,6 +230,7 @@ export function useAiChat({
               updated?: boolean;
               note?: { id?: string };
               resource?: { collectionId?: string };
+              boardId?: string;
             }
           | undefined;
         if (!output?.created && !output?.deleted && !output?.updated) continue;
@@ -268,6 +270,18 @@ export function useAiChat({
             if (output.resource?.collectionId) {
               void queryClient.invalidateQueries({
                 queryKey: ["resources", output.resource.collectionId],
+              });
+            }
+            break;
+          case "tool-createKanbanCard":
+          case "tool-updateKanbanCard":
+          case "tool-moveKanbanCard":
+            void queryClient.invalidateQueries({
+              queryKey: kanbanKeys.all(workspaceId),
+            });
+            if (output.boardId) {
+              void queryClient.invalidateQueries({
+                queryKey: kanbanKeys.detail(workspaceId, output.boardId),
               });
             }
             break;

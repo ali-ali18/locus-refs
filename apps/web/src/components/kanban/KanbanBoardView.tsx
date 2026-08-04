@@ -33,6 +33,10 @@ import {
 } from "@/hook/kanban/useKanbanColumns";
 import { useMoveKanbanCard } from "@/hook/kanban/useKanbanCards";
 import { authClient } from "@/lib/auth-client";
+import {
+  formatKanbanDueDateLabel,
+  isKanbanDueDateOverdue,
+} from "@/lib/kanban/due-date";
 import { cn } from "@/lib/utils";
 
 type CardDialogState =
@@ -44,6 +48,8 @@ type DnDItem = {
   name: string;
   column: string;
   description: string | null;
+  startDate: string | null;
+  dueDate: string | null;
   assigneeId: string | null;
   createdBy?: KanbanCard["createdBy"];
   assignee?: KanbanCard["assignee"];
@@ -63,6 +69,8 @@ function toItems(board: KanbanBoardDetail): DnDItem[] {
       name: card.title,
       column: card.columnId,
       description: card.description,
+      startDate: card.startDate,
+      dueDate: card.dueDate,
       assigneeId: card.assigneeId,
       createdBy: card.createdBy,
       assignee: card.assignee,
@@ -495,6 +503,12 @@ export function KanbanBoardView({ board }: Props) {
                   id={column.id}
                 >
                   {(item: DnDItem) => {
+                    const dueLabel = formatKanbanDueDateLabel(
+                      item.startDate,
+                      item.dueDate,
+                    );
+                    const overdue = isKanbanDueDateOverdue(item.dueDate);
+
                     return (
                       <KanbanCardUi
                         key={item.id}
@@ -505,7 +519,7 @@ export function KanbanBoardView({ board }: Props) {
                       >
                         <button
                           type="button"
-                          className="flex w-full flex-col gap-2 text-left"
+                          className="flex w-full cursor-grab flex-col gap-2 text-left active:cursor-grabbing"
                           onClick={() =>
                             setCardDialog({ mode: "edit", cardId: item.id })
                           }
@@ -529,6 +543,19 @@ export function KanbanBoardView({ board }: Props) {
                               Sem descrição
                             </p>
                           )}
+
+                          {dueLabel ? (
+                            <p
+                              className={cn(
+                                "text-[11px] font-medium tabular-nums",
+                                overdue
+                                  ? "text-destructive"
+                                  : "text-muted-foreground",
+                              )}
+                            >
+                              {dueLabel}
+                            </p>
+                          ) : null}
                         </button>
                       </KanbanCardUi>
                     );

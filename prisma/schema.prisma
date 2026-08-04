@@ -374,6 +374,8 @@ model KanbanCard {
   title       String
   description String?      @db.Text
   position    Float        @default(0)
+  startDate   DateTime?
+  dueDate     DateTime?
   createdById String
   createdBy   User         @relation("KanbanCardCreator", fields: [createdById], references: [id], onDelete: Cascade)
   assigneeId  String?
@@ -386,6 +388,8 @@ model KanbanCard {
   @@index([columnId, position])
   @@index([createdById])
   @@index([assigneeId])
+  @@index([startDate])
+  @@index([dueDate])
   @@map("kanban_card")
 }
 

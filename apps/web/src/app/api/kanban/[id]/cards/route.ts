@@ -6,6 +6,7 @@ import {
   resolveColumnId,
 } from "@/lib/kanban/access";
 import { kanbanUserSelect } from "@/lib/kanban/defaults";
+import { parseKanbanDueDate } from "@/lib/kanban/due-date";
 import { nextAppendPosition } from "@/lib/kanban/position";
 import prisma from "@/lib/prisma";
 import { requireWorkspaceAccess } from "@/server/requireSession";
@@ -73,6 +74,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
         title: parsed.data.title,
         description: parsed.data.description ?? null,
         assigneeId,
+        startDate: parseKanbanDueDate(parsed.data.startDate) ?? null,
+        dueDate: parseKanbanDueDate(parsed.data.dueDate) ?? null,
         position: nextAppendPosition(agg._max.position),
         createdById: session.user.id,
       },

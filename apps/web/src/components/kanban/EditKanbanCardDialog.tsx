@@ -4,6 +4,7 @@ import { Loading02Icon } from "@hugeicons/core-free-icons";
 import type { KanbanCard } from "@refstash/shared";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { KanbanDueDatePicker } from "@/components/kanban/KanbanDueDatePicker";
 import { KanbanMemberPicker } from "@/components/kanban/KanbanMemberPicker";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,10 @@ import {
   useDeleteKanbanCard,
   useUpdateKanbanCard,
 } from "@/hook/kanban/useKanbanCards";
+import {
+  formatKanbanDueDateInput,
+  type KanbanDueDateRange,
+} from "@/lib/kanban/due-date";
 
 interface Props {
   open: boolean;
@@ -33,6 +38,11 @@ interface Props {
   /** Required for create mode (card === null). */
   columnId?: string | null;
 }
+
+const emptyDueRange: KanbanDueDateRange = {
+  startDate: null,
+  dueDate: null,
+};
 
 export function EditKanbanCardDialog({
   open,
@@ -49,6 +59,7 @@ export function EditKanbanCardDialog({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [assigneeId, setAssigneeId] = useState<string | null>(null);
+  const [dueRange, setDueRange] = useState<KanbanDueDateRange>(emptyDueRange);
 
   useEffect(() => {
     if (!open) return;
@@ -56,11 +67,16 @@ export function EditKanbanCardDialog({
       setTitle(card.title);
       setDescription(card.description ?? "");
       setAssigneeId(card.assigneeId);
+      setDueRange({
+        startDate: formatKanbanDueDateInput(card.startDate) || null,
+        dueDate: formatKanbanDueDateInput(card.dueDate) || null,
+      });
       return;
     }
     setTitle("");
     setDescription("");
     setAssigneeId(null);
+    setDueRange(emptyDueRange);
   }, [card, open]);
 
   const isPending =
@@ -84,6 +100,8 @@ export function EditKanbanCardDialog({
           title: nextTitle,
           description: description.trim() || null,
           assigneeId,
+          startDate: dueRange.startDate,
+          dueDate: dueRange.dueDate,
         });
         toast.success("Card criado");
       } else {
@@ -93,6 +111,8 @@ export function EditKanbanCardDialog({
           title: nextTitle,
           description: description.trim() || null,
           assigneeId,
+          startDate: dueRange.startDate,
+          dueDate: dueRange.dueDate,
         });
         toast.success("Card atualizado");
       }
@@ -119,7 +139,7 @@ export function EditKanbanCardDialog({
         <DialogHeader>
           <DialogTitle>{isCreate ? "Novo card" : "Editar card"}</DialogTitle>
           <DialogDescription>
-            Título, descrição e responsável da tarefa
+            Título, descrição, prazo e responsável da tarefa
           </DialogDescription>
         </DialogHeader>
 
@@ -150,6 +170,15 @@ export function EditKanbanCardDialog({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Detalhes da tarefa..."
               className="min-h-24 rounded-xl"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="kanban-card-due-date">Prazo</Label>
+            <KanbanDueDatePicker
+              value={dueRange}
+              onChange={setDueRange}
+              disabled={isPending}
             />
           </div>
 

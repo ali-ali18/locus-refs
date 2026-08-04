@@ -34,6 +34,8 @@ export interface KanbanCard {
   title: string;
   description: string | null;
   position: number;
+  startDate: string | null;
+  dueDate: string | null;
   createdById: string;
   assigneeId: string | null;
   createdAt: string;

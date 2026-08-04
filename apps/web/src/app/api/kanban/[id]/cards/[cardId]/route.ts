@@ -7,6 +7,7 @@ import {
   resolveColumnId,
 } from "@/lib/kanban/access";
 import { kanbanUserSelect } from "@/lib/kanban/defaults";
+import { parseKanbanDueDate } from "@/lib/kanban/due-date";
 import {
   computeFractionalPosition,
   nextAppendPosition,
@@ -133,9 +134,20 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           description: parsed.data.description,
         }),
         ...(parsed.data.assigneeId !== undefined && {
-          assigneeId: parsed.data.assigneeId,
+          assignee:
+            parsed.data.assigneeId === null
+              ? { disconnect: true }
+              : { connect: { id: parsed.data.assigneeId } },
         }),
-        ...(wantsMove && { columnId: nextColumnId }),
+        ...(parsed.data.startDate !== undefined && {
+          startDate: parseKanbanDueDate(parsed.data.startDate) ?? null,
+        }),
+        ...(parsed.data.dueDate !== undefined && {
+          dueDate: parseKanbanDueDate(parsed.data.dueDate) ?? null,
+        }),
+        ...(wantsMove && {
+          column: { connect: { id: nextColumnId } },
+        }),
         ...(nextPosition !== undefined && { position: nextPosition }),
       },
       include: {
@@ -148,7 +160,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       message: "Kanban card updated",
       data: updated,
     });
-  } catch (_error) {
+  } catch {
     return NextResponse.json(
       {
         error: "Failed to update kanban card",

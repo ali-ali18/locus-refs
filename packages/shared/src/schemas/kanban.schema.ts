@@ -56,12 +56,38 @@ const columnTargetSchema = z
     message: "columnId or columnName is required",
   });
 
+const dateStringSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD");
+
+const dueDateSchema = dateStringSchema.nullable().optional();
+
+function refineDueRange(value: {
+  startDate?: string | null;
+  dueDate?: string | null;
+}) {
+  if (
+    typeof value.startDate === "string" &&
+    typeof value.dueDate === "string" &&
+    value.startDate > value.dueDate
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export const createKanbanCardSchema = columnTargetSchema.and(
-  z.object({
-    title: z.string().min(1).max(120),
-    description: z.string().max(10_000).nullable().optional(),
-    assigneeId: z.string().min(1).nullable().optional(),
-  }),
+  z
+    .object({
+      title: z.string().min(1).max(120),
+      description: z.string().max(10_000).nullable().optional(),
+      assigneeId: z.string().min(1).nullable().optional(),
+      startDate: dueDateSchema,
+      dueDate: dueDateSchema,
+    })
+    .refine(refineDueRange, {
+      message: "startDate must be on or before dueDate",
+    }),
 );
 
 export type CreateKanbanCardSchema = z.infer<typeof createKanbanCardSchema>;
@@ -71,6 +97,8 @@ export const updateKanbanCardSchema = z
     title: z.string().min(1).max(120).optional(),
     description: z.string().max(10_000).nullable().optional(),
     assigneeId: z.string().min(1).nullable().optional(),
+    startDate: dueDateSchema,
+    dueDate: dueDateSchema,
     columnId: z.string().min(1).optional(),
     columnName: z.string().min(1).max(80).optional(),
     beforeCardId: z.string().nullable().optional(),
@@ -81,12 +109,17 @@ export const updateKanbanCardSchema = z
       value.title !== undefined ||
       value.description !== undefined ||
       value.assigneeId !== undefined ||
+      value.startDate !== undefined ||
+      value.dueDate !== undefined ||
       value.columnId !== undefined ||
       value.columnName !== undefined ||
       value.beforeCardId !== undefined ||
       value.afterCardId !== undefined,
     { message: "At least one field must be provided" },
-  );
+  )
+  .refine(refineDueRange, {
+    message: "startDate must be on or before dueDate",
+  });
 
 export type UpdateKanbanCardSchema = z.infer<typeof updateKanbanCardSchema>;
 
