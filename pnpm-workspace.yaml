@@ -19,4 +19,9 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - "@types/pg"
   - terser
+  - "@hocuspocus/common"
+  - "@hocuspocus/extension-database"
+  - "@hocuspocus/provider"
+  - "@hocuspocus/server"
+
 
