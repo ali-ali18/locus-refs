@@ -9,6 +9,7 @@ import {
   type UIMessage,
 } from "ai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { toast } from "sonner";
 import { useChatPanel } from "@/context/chatPanel";
 import { useNoteEditor } from "@/context/noteEditor";
 import { useWorkspace } from "@/context/workspace";
@@ -149,6 +150,16 @@ export function useAiChat({
     transport,
     experimental_throttle: 30,
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
+    onError: (error) => {
+      const raw = error.message?.trim() || "Falha ao processar resposta da IA";
+      const friendly = raw.includes("Request Entity Too Large")
+        || raw.includes("request_too_large")
+        ? "A resposta do modelo ficou grande demais. Tente outra pergunta ou modelo."
+        : raw.length > 180
+          ? `${raw.slice(0, 180)}…`
+          : raw;
+      toast.error(friendly);
+    },
   });
 
   useEffect(() => {

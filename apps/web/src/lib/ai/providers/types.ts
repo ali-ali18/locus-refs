@@ -27,8 +27,13 @@ export interface ModelMetadata {
   supportsTools?: boolean;
   /** Modelo expõe raciocínio (thinking) configurável. */
   supportsThinking?: boolean;
-  /** Como habilitar thinking na API Anthropic-compatible. */
-  thinkingMode?: "adaptive" | "budget";
+  /**
+   * Como habilitar thinking:
+   * - adaptive / budget → Anthropic-compatible
+   * - effort → Groq gpt-oss (low|medium|high)
+   * - toggle → Groq Qwen-style (none|default)
+   */
+  thinkingMode?: "adaptive" | "budget" | "effort" | "toggle";
   deprecated?: boolean;
 }
 
@@ -38,6 +43,8 @@ export interface ProviderDefinition {
   id: string;
   name: string;
   icon?: string;
+  /** Protocolo da API — thinking Anthropic só aplica com "anthropic". */
+  protocol?: "anthropic" | "openai";
   configSchema: ProviderConfigSchema;
   defaultConfig: () => Record<string, unknown>;
   isConfigured: (config: Record<string, unknown>) => boolean;

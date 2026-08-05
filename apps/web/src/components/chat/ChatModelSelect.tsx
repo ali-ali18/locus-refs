@@ -11,11 +11,11 @@ import {
   ModelSelectorInput,
   ModelSelectorItem,
   ModelSelectorList,
-  ModelSelectorLogo,
   ModelSelectorName,
   ModelSelectorTrigger,
 } from "@/components/ai-elements/model-selector";
 import { PromptInputButton } from "@/components/ai-elements/prompt-input";
+import { ProviderLogo } from "@/components/chat/ProviderLogo";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +45,8 @@ type ModelOption = NonNullable<ReturnType<typeof useAiModels>["data"]>[number];
 const PROVIDER_LABELS: Record<string, string> = {
   anthropic: "Anthropic",
   minimax: "MiniMax",
+  atlas: "Atlas Cloud",
+  groq: "Groq",
 };
 
 function providerLabel(provider: string): string {
@@ -149,7 +151,7 @@ function MobileModelRow({
           className="flex w-full items-start gap-2.5 text-left outline-none"
           onClick={onSelect}
         >
-          <ModelSelectorLogo
+          <ProviderLogo
             provider={model.provider}
             className="mt-0.5 size-4"
           />
@@ -186,7 +188,7 @@ function MobileModelRow({
       className="flex w-full items-center gap-2.5 rounded-xl px-3.5 py-3 text-left outline-none transition-colors hover:bg-muted/50 active:bg-muted"
       onClick={onSelect}
     >
-      <ModelSelectorLogo provider={model.provider} className="size-4" />
+      <ProviderLogo provider={model.provider} className="size-4" />
       <span className="min-w-0 flex-1 truncate text-sm text-foreground">
         {model.label}
       </span>
@@ -305,7 +307,7 @@ export function ChatModelSelect() {
       type="button"
     >
       {currentModel ? (
-        <ModelSelectorLogo provider={currentModel.provider} />
+        <ProviderLogo provider={currentModel.provider} />
       ) : null}
       <span
         className={cn(
@@ -364,7 +366,7 @@ export function ChatModelSelect() {
     >
       <ModelSelectorTrigger render={<PromptInputButton className="gap-1.5 text-xs" size="sm" />}>
         {currentModel ? (
-          <ModelSelectorLogo provider={currentModel.provider} />
+          <ProviderLogo provider={currentModel.provider} />
         ) : null}
         <ModelSelectorName className="max-w-28 flex-none truncate sm:max-w-none">
           {currentModel?.label ?? "Modelo"}
@@ -401,7 +403,7 @@ export function ChatModelSelect() {
                         />
                       }
                     >
-                      <ModelSelectorLogo provider={model.provider} />
+                      <ProviderLogo provider={model.provider} />
                       <ModelSelectorName>{model.label}</ModelSelectorName>
                       {modelThinkingOn ? (
                         <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">

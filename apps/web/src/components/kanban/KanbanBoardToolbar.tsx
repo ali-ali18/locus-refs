@@ -327,8 +327,9 @@ export function KanbanBoardToolbar({
           }
         />
         <PopoverContent
-          align="start"
-          className="w-auto gap-0 overflow-hidden rounded-2xl p-0"
+          align="end"
+          side="bottom"
+          className="max-h-[min(var(--available-height),80dvh)] w-auto max-w-[min(var(--available-width),calc(100vw-1.5rem))] gap-0 overflow-y-auto rounded-2xl p-0"
         >
           <KanbanDueDateFilterPanel
             value={value.dueDate}
