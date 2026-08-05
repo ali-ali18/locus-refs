@@ -38,6 +38,9 @@ COPY --from=builder /app/apps/realtime/dist ./apps/realtime/dist
 COPY --from=builder /app/apps/realtime/package.json ./apps/realtime/package.json
 # @refstash/shared exporta .ts — carregado via tsx no CMD
 COPY --from=builder /app/packages/shared ./packages/shared
+# pnpm liga o workspace em apps/realtime/node_modules — sem isso, MODULE_NOT_FOUND
+RUN mkdir -p apps/realtime/node_modules/@refstash \
+  && ln -s ../../../../packages/shared apps/realtime/node_modules/@refstash/shared
 
 WORKDIR /app/apps/realtime
 EXPOSE 4001
