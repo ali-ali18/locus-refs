@@ -47,6 +47,9 @@ RUN pnpm --filter @refstash/web build
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+# Docker define HOSTNAME=id do container; sem isso o Next binda só nesse host e Traefik/127.0.0.1 falham.
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 
 # Standalone output — Next.js traça e inclui apenas os node_modules necessários
 COPY --from=builder /app/apps/web/.next/standalone ./
