@@ -24,7 +24,11 @@ export const GROQ_CAPABILITIES = {
 const TEXT: ModelMetadata["inputModalities"] = ["text"];
 const TEXT_IMAGE: ModelMetadata["inputModalities"] = ["text", "image"];
 
-/** Curadoria de modelos chat de produção / preview útil na Groq. */
+/**
+ * Curadoria de modelos chat na Groq.
+ * Usa createOpenAI().chat() — Groq é OpenAI-compatible (Chat Completions).
+ * Compound removido: busca built-in não é o foco e estoura 413 com frequência.
+ */
 export const GROQ_STATIC_MODELS: readonly ModelMetadata[] = [
   {
     id: "groq-llama-3.3-70b",
@@ -32,7 +36,7 @@ export const GROQ_STATIC_MODELS: readonly ModelMetadata[] = [
     label: "Llama 3.3 70B",
     description: "Qualidade sólida, rápido — via Groq",
     contextWindow: 131_072,
-    maxOutputTokens: 8_192,
+    maxOutputTokens: 32_768,
     inputModalities: TEXT,
     outputModalities: ["text"],
     supportsTools: true,
@@ -43,7 +47,7 @@ export const GROQ_STATIC_MODELS: readonly ModelMetadata[] = [
     label: "Llama 3.1 8B Instant",
     description: "Ultra-rápido / barato — via Groq",
     contextWindow: 131_072,
-    maxOutputTokens: 8_192,
+    maxOutputTokens: 131_072,
     inputModalities: TEXT,
     outputModalities: ["text"],
     supportsTools: true,
@@ -52,23 +56,27 @@ export const GROQ_STATIC_MODELS: readonly ModelMetadata[] = [
     id: "groq-gpt-oss-120b",
     modelId: "openai/gpt-oss-120b",
     label: "GPT OSS 120B",
-    description: "OpenAI open-weight flagship — via Groq",
+    description: "OpenAI open-weight flagship + reasoning — via Groq",
     contextWindow: 131_072,
-    maxOutputTokens: 8_192,
+    maxOutputTokens: 65_536,
     inputModalities: TEXT,
     outputModalities: ["text"],
     supportsTools: true,
+    supportsThinking: true,
+    thinkingMode: "effort",
   },
   {
     id: "groq-gpt-oss-20b",
     modelId: "openai/gpt-oss-20b",
     label: "GPT OSS 20B",
-    description: "Open-weight rápido (~1000 t/s) — via Groq",
+    description: "Open-weight rápido (~1000 t/s) + reasoning — via Groq",
     contextWindow: 131_072,
-    maxOutputTokens: 8_192,
+    maxOutputTokens: 65_536,
     inputModalities: TEXT,
     outputModalities: ["text"],
     supportsTools: true,
+    supportsThinking: true,
+    thinkingMode: "effort",
   },
   {
     id: "groq-qwen-3.6-27b",
@@ -76,10 +84,23 @@ export const GROQ_STATIC_MODELS: readonly ModelMetadata[] = [
     label: "Qwen 3.6 27B",
     description: "Reasoning + visão (preview) — via Groq",
     contextWindow: 131_072,
-    maxOutputTokens: 8_192,
+    maxOutputTokens: 16_384,
     inputModalities: TEXT_IMAGE,
     outputModalities: ["text"],
     supportsTools: true,
+    supportsThinking: true,
+    thinkingMode: "toggle",
+  },
+  {
+    id: "groq-allam-2-7b",
+    modelId: "allam-2-7b",
+    label: "ALLaM 2 7B",
+    description: "Árabe/inglês bilingue, ~1800 t/s — via Groq",
+    contextWindow: 4_096,
+    maxOutputTokens: 4_096,
+    inputModalities: TEXT,
+    outputModalities: ["text"],
+    supportsTools: false,
   },
 ];
 
@@ -98,7 +119,8 @@ export const groqProvider: ProviderDefinition = {
   },
   buildModel: (modelId, config) => {
     const { apiKey, baseURL } = groqConfigSchema.parse(config);
-    return createOpenAI({ apiKey, baseURL })(modelId);
+    // .chat() força Chat Completions (Groq não usa Responses API).
+    return createOpenAI({ apiKey, baseURL }).chat(modelId);
   },
   capabilities: GROQ_CAPABILITIES,
   staticModels: GROQ_STATIC_MODELS,

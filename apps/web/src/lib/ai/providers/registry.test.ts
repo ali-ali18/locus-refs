@@ -16,7 +16,12 @@ vi.mock("@ai-sdk/anthropic", () => ({
 }));
 
 vi.mock("@ai-sdk/openai", () => ({
-  createOpenAI: vi.fn(() => () => "fake-openai-model"),
+  createOpenAI: vi.fn(() => {
+    const provider = Object.assign(() => "fake-openai-model", {
+      chat: () => "fake-openai-chat-model",
+    });
+    return provider;
+  }),
 }));
 
 describe("providerRegistry", () => {

@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockCreateOpenAI } = vi.hoisted(() => {
-  const mockCreateOpenAI = vi.fn(() => () => "fake-openai-model");
-  return { mockCreateOpenAI };
+const { mockCreateOpenAI, mockChat } = vi.hoisted(() => {
+  const mockChat = vi.fn(() => "fake-openai-model");
+  const mockCreateOpenAI = vi.fn(() => ({ chat: mockChat }));
+  return { mockCreateOpenAI, mockChat };
 });
 
 vi.mock("@ai-sdk/openai", () => ({
@@ -88,23 +89,45 @@ describe("groqProvider", () => {
 
   describe("staticModels", () => {
     it("contém modelos chat curados", () => {
-      expect(GROQ_STATIC_MODELS).toHaveLength(5);
+      expect(GROQ_STATIC_MODELS).toHaveLength(6);
       expect(GROQ_STATIC_MODELS.map((m) => m.id)).toEqual([
         "groq-llama-3.3-70b",
         "groq-llama-3.1-8b",
         "groq-gpt-oss-120b",
         "groq-gpt-oss-20b",
         "groq-qwen-3.6-27b",
+        "groq-allam-2-7b",
       ]);
-      for (const m of GROQ_STATIC_MODELS) {
-        expect(m.supportsTools).toBe(true);
-        expect(m.contextWindow).toBe(131_072);
-      }
     });
 
     it("marca visão no Qwen 3.6 27B", () => {
       const qwen = GROQ_STATIC_MODELS.find((m) => m.id === "groq-qwen-3.6-27b");
       expect(qwen?.inputModalities).toContain("image");
+    });
+
+    it("marca reasoning nos modelos GPT OSS e Qwen", () => {
+      for (const id of [
+        "groq-gpt-oss-120b",
+        "groq-gpt-oss-20b",
+        "groq-qwen-3.6-27b",
+      ]) {
+        const model = GROQ_STATIC_MODELS.find((m) => m.id === id);
+        expect(model?.supportsThinking).toBe(true);
+      }
+      expect(
+        GROQ_STATIC_MODELS.find((m) => m.id === "groq-gpt-oss-120b")
+          ?.thinkingMode,
+      ).toBe("effort");
+      expect(
+        GROQ_STATIC_MODELS.find((m) => m.id === "groq-qwen-3.6-27b")
+          ?.thinkingMode,
+      ).toBe("toggle");
+    });
+
+    it("ALLaM não expõe custom tools", () => {
+      expect(
+        GROQ_STATIC_MODELS.find((m) => m.id === "groq-allam-2-7b")?.supportsTools,
+      ).toBe(false);
     });
   });
 
@@ -115,7 +138,7 @@ describe("groqProvider", () => {
       ).toThrowError(/GROQ_API_KEY/i);
     });
 
-    it("usa createOpenAI com apiKey e baseURL", () => {
+    it("usa createOpenAI().chat com apiKey e baseURL", () => {
       const result = groqProvider.buildModel("llama-3.3-70b-versatile", {
         apiKey: "groq-fake",
       });
@@ -124,6 +147,7 @@ describe("groqProvider", () => {
         apiKey: "groq-fake",
         baseURL: "https://api.groq.com/openai/v1",
       });
+      expect(mockChat).toHaveBeenCalledWith("llama-3.3-70b-versatile");
     });
   });
 });

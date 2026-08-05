@@ -30,13 +30,13 @@ describe("models facade", () => {
 
   describe("AI_MODELS", () => {
     it("inclui anthropic, minimax, atlas e groq", () => {
-      expect(AI_MODELS).toHaveLength(19);
+      expect(AI_MODELS).toHaveLength(20);
       expect(AI_MODELS.filter((m) => m.provider === "anthropic")).toHaveLength(
         2,
       );
       expect(AI_MODELS.filter((m) => m.provider === "minimax")).toHaveLength(2);
       expect(AI_MODELS.filter((m) => m.provider === "atlas")).toHaveLength(10);
-      expect(AI_MODELS.filter((m) => m.provider === "groq")).toHaveLength(5);
+      expect(AI_MODELS.filter((m) => m.provider === "groq")).toHaveLength(6);
     });
 
     it("expõe metadata não-vazio para cada modelo", () => {
@@ -133,21 +133,21 @@ describe("models facade", () => {
       expect(available.every((m) => m.provider === "atlas")).toBe(true);
     });
 
-    it("retorna 5 modelos (Groq) só com GROQ_API_KEY", () => {
+    it("retorna 6 modelos (Groq) só com GROQ_API_KEY", () => {
       vi.stubEnv("GROQ_API_KEY", "groq-fake");
 
       const available = getAvailableModels();
-      expect(available).toHaveLength(5);
+      expect(available).toHaveLength(6);
       expect(available.every((m) => m.provider === "groq")).toBe(true);
     });
 
-    it("retorna 19 modelos quando todas as keys estão setadas", () => {
+    it("retorna 20 modelos quando todas as keys estão setadas", () => {
       vi.stubEnv("ANTHROPIC_API_KEY", "sk-fake");
       vi.stubEnv("MINIMAX_API_KEY", "minimax-fake");
       vi.stubEnv("ATLASCLOUD_API_KEY", "atlas-fake");
       vi.stubEnv("GROQ_API_KEY", "groq-fake");
 
-      expect(getAvailableModels()).toHaveLength(19);
+      expect(getAvailableModels()).toHaveLength(20);
     });
 
     it("retorna 0 modelos quando nenhuma API key está setada", () => {

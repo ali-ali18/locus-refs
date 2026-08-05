@@ -20,7 +20,7 @@ function PopoverContent({
   side = "bottom",
   sideOffset = 4,
   collisionPadding = 12,
-  collisionBoundary = "viewport",
+  collisionBoundary,
   positionMethod = "fixed",
   ...props
 }: PopoverPrimitive.Popup.Props &

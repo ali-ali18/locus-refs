@@ -479,10 +479,13 @@ export async function POST(request: NextRequest) {
       currentNoteId: typeof noteId === "string" ? noteId : null,
     });
 
-    const tools = {
-      ...workspaceTools,
-      ...(hasOpenNote ? noteEditTools : {}),
-    };
+    const modelSupportsTools = model.metadata?.supportsTools !== false;
+    const tools = modelSupportsTools
+      ? {
+          ...workspaceTools,
+          ...(hasOpenNote ? noteEditTools : {}),
+        }
+      : undefined;
 
     // PDFs/TXT → texto na mensagem do usuario; imagens → data URL para vision.
     const messagesForModel = [];
@@ -567,8 +570,7 @@ export async function POST(request: NextRequest) {
       messages: await convertToModelMessages(
         messagesForModel as Parameters<typeof convertToModelMessages>[0],
       ),
-      tools,
-      stopWhen: stepCountIs(6),
+      ...(tools ? { tools, stopWhen: stepCountIs(6) } : {}),
       experimental_transform: smoothStream({ chunking: "word", delayInMs: 15 }),
       ...(providerOptions ? { providerOptions } : {}),
     });
@@ -577,6 +579,10 @@ export async function POST(request: NextRequest) {
       sendReasoning: Boolean(
         thinkingEnabled && model.metadata?.supportsThinking,
       ),
+      onError: (error) => {
+        if (error instanceof Error) return error.message;
+        return "Falha ao gerar resposta da IA";
+      },
       messageMetadata: ({ part }): AiMessageMetadata | undefined => {
         if (part.type === "start") {
           return { intent: noteId ? "suggestion" : "chat" };
