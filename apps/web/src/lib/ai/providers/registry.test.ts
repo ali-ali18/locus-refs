@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { anthropicProvider } from "./anthropic";
 import { atlasProvider } from "./atlas";
+import { groqProvider } from "./groq";
 import { minimaxProvider } from "./minimax";
 import {
   getProvider,
@@ -19,15 +20,17 @@ vi.mock("@ai-sdk/openai", () => ({
 }));
 
 describe("providerRegistry", () => {
-  it("contém anthropic, minimax e atlas nessa ordem", () => {
-    expect(providerRegistry).toHaveLength(3);
+  it("contém anthropic, minimax, atlas e groq nessa ordem", () => {
+    expect(providerRegistry).toHaveLength(4);
     expect(providerRegistry[0]).toBe(anthropicProvider);
     expect(providerRegistry[1]).toBe(minimaxProvider);
     expect(providerRegistry[2]).toBe(atlasProvider);
+    expect(providerRegistry[3]).toBe(groqProvider);
     expect(providerRegistry.map((p) => p.id)).toEqual([
       "anthropic",
       "minimax",
       "atlas",
+      "groq",
     ]);
   });
 });
@@ -45,9 +48,13 @@ describe("getProvider", () => {
     expect(getProvider("atlas")).toBe(atlasProvider);
   });
 
+  it("retorna o groqProvider quando id === 'groq'", () => {
+    expect(getProvider("groq")).toBe(groqProvider);
+  });
+
   it("lança Error com id errado e lista de registrados quando provider não existe", () => {
     expect(() => getProvider("nao-existe")).toThrowError(
-      /Provider "nao-existe" não registrado\. Registrados: anthropic, minimax, atlas\./,
+      /Provider "nao-existe" não registrado\. Registrados: anthropic, minimax, atlas, groq\./,
     );
   });
 });
@@ -80,6 +87,17 @@ describe("resolveModel", () => {
 
     expect(result.model).toBeTruthy();
     expect(result.metadata?.modelId).toBe("deepseek-ai/deepseek-v4-pro");
+  });
+
+  it("resolve modelo Groq pelo id interno", () => {
+    const result = resolveModel({
+      providerId: "groq",
+      modelId: "groq-llama-3.3-70b",
+      config: { apiKey: "groq-fake" },
+    });
+
+    expect(result.model).toBeTruthy();
+    expect(result.metadata?.modelId).toBe("llama-3.3-70b-versatile");
   });
 
   it("faz merge do config padrão com o config fornecido (config sobrescreve)", () => {

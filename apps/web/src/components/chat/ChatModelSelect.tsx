@@ -46,6 +46,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   anthropic: "Anthropic",
   minimax: "MiniMax",
   atlas: "Atlas Cloud",
+  groq: "Groq",
 };
 
 function providerLabel(provider: string): string {

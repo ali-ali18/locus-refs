@@ -1,6 +1,7 @@
 import type { LanguageModel } from "ai";
 import { anthropicProvider } from "./anthropic";
 import { atlasProvider } from "./atlas";
+import { groqProvider } from "./groq";
 import { minimaxProvider } from "./minimax";
 import type { ModelMetadata, ProviderDefinition } from "./types";
 
@@ -8,6 +9,7 @@ export const providerRegistry: readonly ProviderDefinition[] = [
   anthropicProvider,
   minimaxProvider,
   atlasProvider,
+  groqProvider,
 ];
 
 export function getProvider(id: string): ProviderDefinition {
