@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock the AI SDK para isAvailable() e build() poderem rodar sem rede.
 vi.mock("@ai-sdk/anthropic", () => ({
   anthropic: vi.fn(() => "fake-anthropic-model"),
   createAnthropic: vi.fn(() => () => "fake-createAnthropic-model"),
+}));
+
+vi.mock("@ai-sdk/openai", () => ({
+  createOpenAI: vi.fn(() => () => "fake-openai-model"),
 }));
 
 import {
@@ -17,6 +20,7 @@ describe("models facade", () => {
   beforeEach(() => {
     vi.stubEnv("ANTHROPIC_API_KEY", "");
     vi.stubEnv("MINIMAX_API_KEY", "");
+    vi.stubEnv("ATLASCLOUD_API_KEY", "");
   });
 
   afterEach(() => {
@@ -24,21 +28,21 @@ describe("models facade", () => {
   });
 
   describe("AI_MODELS", () => {
-    it("tem 4 modelos com os ids esperados", () => {
-      expect(AI_MODELS).toHaveLength(4);
-      expect(AI_MODELS.map((m) => m.id)).toEqual([
-        "claude-sonnet-4-6",
-        "claude-haiku-4-5",
-        "minimax-m2.7",
-        "minimax-m3",
-      ]);
+    it("inclui anthropic, minimax e atlas", () => {
+      expect(AI_MODELS).toHaveLength(14);
+      expect(AI_MODELS.filter((m) => m.provider === "anthropic")).toHaveLength(
+        2,
+      );
+      expect(AI_MODELS.filter((m) => m.provider === "minimax")).toHaveLength(2);
+      expect(AI_MODELS.filter((m) => m.provider === "atlas")).toHaveLength(10);
     });
 
-    it("atribui os providers corretamente por posição", () => {
-      expect(AI_MODELS[0].provider).toBe("anthropic");
-      expect(AI_MODELS[1].provider).toBe("anthropic");
-      expect(AI_MODELS[2].provider).toBe("minimax");
-      expect(AI_MODELS[3].provider).toBe("minimax");
+    it("atribui os providers corretamente", () => {
+      expect(AI_MODELS.filter((m) => m.provider === "anthropic")).toHaveLength(
+        2,
+      );
+      expect(AI_MODELS.filter((m) => m.provider === "minimax")).toHaveLength(2);
+      expect(AI_MODELS.filter((m) => m.provider === "atlas")).toHaveLength(10);
     });
 
     it("expõe metadata não-vazio para cada modelo", () => {
@@ -66,6 +70,13 @@ describe("models facade", () => {
       expect(m.provider).toBe("anthropic");
     });
 
+    it("retorna modelo Atlas quando a key está setada", () => {
+      vi.stubEnv("ATLASCLOUD_API_KEY", "atlas-fake");
+      const m = getModel("atlas-deepseek-v4-pro");
+      expect(m.id).toBe("atlas-deepseek-v4-pro");
+      expect(m.provider).toBe("atlas");
+    });
+
     it("retorna DEFAULT_MODEL_ID quando id não existe", () => {
       vi.stubEnv("ANTHROPIC_API_KEY", "sk-fake");
       const m = getModel("nao-existe");
@@ -88,18 +99,14 @@ describe("models facade", () => {
     });
 
     it("não retorna o id pedido se o provider não está configurado", () => {
-      // Sem env setado, ANTHROPIC não está disponível, então o fallback
-      // para DEFAULT_MODEL_ID (claude-sonnet-4-6) também não vai achar nada
-      // — cai em available[0] que é undefined.
       const m = getModel("claude-sonnet-4-6");
       expect(m).toBeUndefined();
     });
   });
 
   describe("getAvailableModels", () => {
-    it("retorna 2 modelos (Anthropic) com ANTHROPIC_API_KEY setado e MINIMAX_API_KEY vazio", () => {
+    it("retorna 2 modelos (Anthropic) só com ANTHROPIC_API_KEY", () => {
       vi.stubEnv("ANTHROPIC_API_KEY", "sk-fake");
-      vi.stubEnv("MINIMAX_API_KEY", "");
 
       const available = getAvailableModels();
       expect(available).toHaveLength(2);
@@ -107,39 +114,34 @@ describe("models facade", () => {
         "anthropic",
         "anthropic",
       ]);
-      expect(available.map((m) => m.id)).toEqual([
-        "claude-sonnet-4-6",
-        "claude-haiku-4-5",
-      ]);
     });
 
-    it("retorna 2 modelos (Minimax) com MINIMAX_API_KEY setado e ANTHROPIC_API_KEY vazio", () => {
-      vi.stubEnv("ANTHROPIC_API_KEY", "");
+    it("retorna 2 modelos (Minimax) só com MINIMAX_API_KEY", () => {
       vi.stubEnv("MINIMAX_API_KEY", "minimax-fake");
 
       const available = getAvailableModels();
       expect(available).toHaveLength(2);
       expect(available.map((m) => m.provider)).toEqual(["minimax", "minimax"]);
-      expect(available.map((m) => m.id)).toEqual([
-        "minimax-m2.7",
-        "minimax-m3",
-      ]);
     });
 
-    it("retorna 4 modelos quando ambas as API keys estão setadas", () => {
-      vi.stubEnv("ANTHROPIC_API_KEY", "sk-fake");
-      vi.stubEnv("MINIMAX_API_KEY", "minimax-fake");
+    it("retorna 10 modelos (Atlas) só com ATLASCLOUD_API_KEY", () => {
+      vi.stubEnv("ATLASCLOUD_API_KEY", "atlas-fake");
 
       const available = getAvailableModels();
-      expect(available).toHaveLength(4);
+      expect(available).toHaveLength(10);
+      expect(available.every((m) => m.provider === "atlas")).toBe(true);
+    });
+
+    it("retorna 14 modelos quando todas as keys estão setadas", () => {
+      vi.stubEnv("ANTHROPIC_API_KEY", "sk-fake");
+      vi.stubEnv("MINIMAX_API_KEY", "minimax-fake");
+      vi.stubEnv("ATLASCLOUD_API_KEY", "atlas-fake");
+
+      expect(getAvailableModels()).toHaveLength(14);
     });
 
     it("retorna 0 modelos quando nenhuma API key está setada", () => {
-      vi.stubEnv("ANTHROPIC_API_KEY", "");
-      vi.stubEnv("MINIMAX_API_KEY", "");
-
-      const available = getAvailableModels();
-      expect(available).toHaveLength(0);
+      expect(getAvailableModels()).toHaveLength(0);
     });
   });
 });

@@ -9,12 +9,14 @@ type AnthropicThinkingOption =
 
 /**
  * Opções Anthropic-compatible para thinking (Claude + MiniMax via createAnthropic).
- * Retorna undefined quando o modelo não suporta thinking.
+ * Providers OpenAI-compatible (ex. Atlas) não recebem estas opções.
  */
 export function buildThinkingProviderOptions(
   metadata: ModelMetadata | undefined,
   thinkingEnabled: boolean,
+  protocol: "anthropic" | "openai" = "anthropic",
 ): { anthropic: { thinking: AnthropicThinkingOption; sendReasoning: boolean } } | undefined {
+  if (protocol !== "anthropic") return undefined;
   if (!metadata?.supportsThinking) return undefined;
 
   const thinking: AnthropicThinkingOption = thinkingEnabled

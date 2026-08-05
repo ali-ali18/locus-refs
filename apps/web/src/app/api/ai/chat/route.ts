@@ -12,6 +12,7 @@ import {
   noteJsonToText,
 } from "@/lib/ai/note-to-text";
 import { pdfBufferToText } from "@/lib/ai/pdf-to-text";
+import { getProvider } from "@/lib/ai/providers/registry";
 import { buildThinkingProviderOptions } from "@/lib/ai/thinking";
 import {
   AGENT_WORKSPACE_BOUND_PROMPT,
@@ -552,9 +553,12 @@ export async function POST(request: NextRequest) {
     }
 
     const thinkingEnabled = aiSettings?.thinkingEnabled ?? false;
+    const providerProtocol =
+      getProvider(model.provider).protocol ?? "anthropic";
     const providerOptions = buildThinkingProviderOptions(
       model.metadata,
       thinkingEnabled,
+      providerProtocol,
     );
 
     const result = streamText({

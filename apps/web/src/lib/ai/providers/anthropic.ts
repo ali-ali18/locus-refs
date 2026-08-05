@@ -54,6 +54,7 @@ export const ANTHROPIC_STATIC_MODELS: readonly ModelMetadata[] = [
 export const anthropicProvider: ProviderDefinition = {
   id: "anthropic",
   name: "Anthropic",
+  protocol: "anthropic",
   configSchema: anthropicConfigSchema,
   defaultConfig: () => ({
     apiKey: process.env.ANTHROPIC_API_KEY ?? "",

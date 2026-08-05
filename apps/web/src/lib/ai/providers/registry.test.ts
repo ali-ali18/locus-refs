@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { anthropicProvider } from "./anthropic";
+import { atlasProvider } from "./atlas";
 import { minimaxProvider } from "./minimax";
 import {
   getProvider,
@@ -8,18 +9,26 @@ import {
   resolveModel,
 } from "./registry";
 
-// Mock the AI SDK so resolveModel() does not hit a real network call.
 vi.mock("@ai-sdk/anthropic", () => ({
   anthropic: vi.fn(() => "fake-anthropic-model"),
   createAnthropic: vi.fn(() => () => "fake-anthropic-model"),
 }));
 
+vi.mock("@ai-sdk/openai", () => ({
+  createOpenAI: vi.fn(() => () => "fake-openai-model"),
+}));
+
 describe("providerRegistry", () => {
-  it("contém exatamente 2 providers (anthropic, minimax) nessa ordem", () => {
-    expect(providerRegistry).toHaveLength(2);
+  it("contém anthropic, minimax e atlas nessa ordem", () => {
+    expect(providerRegistry).toHaveLength(3);
     expect(providerRegistry[0]).toBe(anthropicProvider);
     expect(providerRegistry[1]).toBe(minimaxProvider);
-    expect(providerRegistry.map((p) => p.id)).toEqual(["anthropic", "minimax"]);
+    expect(providerRegistry[2]).toBe(atlasProvider);
+    expect(providerRegistry.map((p) => p.id)).toEqual([
+      "anthropic",
+      "minimax",
+      "atlas",
+    ]);
   });
 });
 
@@ -32,9 +41,13 @@ describe("getProvider", () => {
     expect(getProvider("minimax")).toBe(minimaxProvider);
   });
 
+  it("retorna o atlasProvider quando id === 'atlas'", () => {
+    expect(getProvider("atlas")).toBe(atlasProvider);
+  });
+
   it("lança Error com id errado e lista de registrados quando provider não existe", () => {
     expect(() => getProvider("nao-existe")).toThrowError(
-      /Provider "nao-existe" não registrado\. Registrados: anthropic, minimax\./,
+      /Provider "nao-existe" não registrado\. Registrados: anthropic, minimax, atlas\./,
     );
   });
 });
@@ -56,6 +69,17 @@ describe("resolveModel", () => {
     expect(result.model).toBeTruthy();
     expect(result.metadata).toBeDefined();
     expect(result.metadata?.id).toBe("claude-sonnet-4-6");
+  });
+
+  it("resolve modelo Atlas pelo id interno", () => {
+    const result = resolveModel({
+      providerId: "atlas",
+      modelId: "atlas-deepseek-v4-pro",
+      config: { apiKey: "atlas-fake" },
+    });
+
+    expect(result.model).toBeTruthy();
+    expect(result.metadata?.modelId).toBe("deepseek-ai/deepseek-v4-pro");
   });
 
   it("faz merge do config padrão com o config fornecido (config sobrescreve)", () => {

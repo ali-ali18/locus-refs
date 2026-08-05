@@ -11,6 +11,7 @@ import { ptBR } from "react-day-picker/locale";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { useIsMobile } from "@/hook/use-mobile";
 import {
   EMPTY_KANBAN_DUE_FILTER,
   formatDueFilterLabel,
@@ -56,6 +57,7 @@ interface Props {
 }
 
 export function KanbanDueDateFilterPanel({ value, onChange }: Props) {
+  const isMobile = useIsMobile();
   const [panel, setPanel] = useState<"calendar" | "months">(
     value.preset === "month" ? "months" : "calendar",
   );
@@ -127,6 +129,50 @@ export function KanbanDueDateFilterPanel({ value, onChange }: Props) {
     applyPreset(id);
   }
 
+  function clearFilter() {
+    setPanel("calendar");
+    onChange(EMPTY_KANBAN_DUE_FILTER);
+  }
+
+  const calendar = (
+    <Calendar
+      mode="range"
+      locale={ptBR}
+      numberOfMonths={1}
+      defaultMonth={selected?.from}
+      selected={selected}
+      onSelect={handleCustomSelect}
+      data-range-complete={
+        selected?.from &&
+        selected.to &&
+        selected.from.getTime() !== selected.to.getTime()
+          ? "true"
+          : undefined
+      }
+    />
+  );
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col">
+        {calendar}
+        {value.preset ? (
+          <div className="border-t border-border p-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="w-full rounded-xl text-muted-foreground"
+              onClick={clearFilter}
+            >
+              Limpar prazo
+            </Button>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-w-0">
       <div className="flex w-44 shrink-0 flex-col gap-1 border-r border-border p-2">
@@ -163,10 +209,7 @@ export function KanbanDueDateFilterPanel({ value, onChange }: Props) {
             variant="ghost"
             size="sm"
             className="mt-1 w-full justify-start rounded-xl text-muted-foreground"
-            onClick={() => {
-              setPanel("calendar");
-              onChange(EMPTY_KANBAN_DUE_FILTER);
-            }}
+            onClick={clearFilter}
           >
             Limpar prazo
           </Button>
@@ -222,7 +265,8 @@ export function KanbanDueDateFilterPanel({ value, onChange }: Props) {
                     onClick={() => applyMonth(monthIndex)}
                     className={cn(
                       "rounded-xl px-2 py-2 text-sm transition-colors hover:bg-muted",
-                      active && "bg-primary text-primary-foreground hover:bg-primary",
+                      active &&
+                        "bg-primary text-primary-foreground hover:bg-primary",
                     )}
                   >
                     {label}
@@ -232,21 +276,7 @@ export function KanbanDueDateFilterPanel({ value, onChange }: Props) {
             </div>
           </div>
         ) : (
-          <Calendar
-            mode="range"
-            locale={ptBR}
-            numberOfMonths={1}
-            defaultMonth={selected?.from}
-            selected={selected}
-            onSelect={handleCustomSelect}
-            data-range-complete={
-              selected?.from &&
-              selected.to &&
-              selected.from.getTime() !== selected.to.getTime()
-                ? "true"
-                : undefined
-            }
-          />
+          calendar
         )}
       </div>
     </div>

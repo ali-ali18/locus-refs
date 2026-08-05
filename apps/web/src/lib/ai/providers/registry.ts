@@ -1,11 +1,13 @@
 import type { LanguageModel } from "ai";
 import { anthropicProvider } from "./anthropic";
+import { atlasProvider } from "./atlas";
 import { minimaxProvider } from "./minimax";
 import type { ModelMetadata, ProviderDefinition } from "./types";
 
 export const providerRegistry: readonly ProviderDefinition[] = [
   anthropicProvider,
   minimaxProvider,
+  atlasProvider,
 ];
 
 export function getProvider(id: string): ProviderDefinition {
@@ -39,8 +41,12 @@ export function resolveModel(opts: ResolveModelOptions): {
     ...provider.defaultConfig(),
     ...(opts.config ?? {}),
   };
+  const metadata = provider.staticModels?.find(
+    (m) => m.id === opts.modelId || m.modelId === opts.modelId,
+  );
+  const apiModelId = metadata?.modelId ?? opts.modelId;
   return {
-    model: provider.buildModel(opts.modelId, config),
-    metadata: provider.staticModels?.find((m) => m.id === opts.modelId),
+    model: provider.buildModel(apiModelId, config),
+    metadata,
   };
 }

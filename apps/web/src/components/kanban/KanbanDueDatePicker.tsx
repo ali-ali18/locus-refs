@@ -12,6 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useIsMobile } from "@/hook/use-mobile";
 import {
   formatKanbanDueDateLabel,
   kanbanDueDateToLocalDate,
@@ -53,6 +54,7 @@ function isSameDay(a: Date, b: Date) {
 }
 
 export function KanbanDueDatePicker({ value, onChange, disabled }: Props) {
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() =>
     toDateRange(value),
@@ -119,14 +121,18 @@ export function KanbanDueDatePicker({ value, onChange, disabled }: Props) {
           </Button>
         }
       />
-      <PopoverContent className="w-auto rounded-xl p-0" align="start">
+      <PopoverContent
+        align={isMobile ? "center" : "start"}
+        side="bottom"
+        className="max-h-[min(var(--available-height),80dvh)] w-auto max-w-[min(var(--available-width),calc(100vw-1.5rem))] gap-0 overflow-y-auto rounded-xl p-0"
+      >
         <Calendar
           mode="range"
           locale={ptBR}
           defaultMonth={dateRange?.from ?? startOfToday()}
           selected={dateRange}
           onSelect={handleSelect}
-          numberOfMonths={2}
+          numberOfMonths={isMobile ? 1 : 2}
           data-range-complete={rangeComplete ? "true" : undefined}
         />
         <div className="border-t border-border p-2">

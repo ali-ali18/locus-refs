@@ -193,9 +193,7 @@ export function EditKanbanCardDialog({
         </div>
 
         <DialogFooter
-          className={
-            isCreate ? "gap-2" : "gap-2 sm:justify-between"
-          }
+          className={isCreate ? undefined : "sm:justify-between"}
         >
           {!isCreate ? (
             <Button
@@ -207,10 +205,11 @@ export function EditKanbanCardDialog({
               Deletar
             </Button>
           ) : null}
-          <div className="flex gap-2">
+          <div className="flex w-full gap-2 sm:w-auto">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
+              className="flex-1 sm:flex-initial"
               onClick={() => onOpenChange(false)}
             >
               Cancelar
@@ -218,6 +217,7 @@ export function EditKanbanCardDialog({
             <Button
               type="button"
               disabled={isPending}
+              className="flex-1 sm:flex-initial"
               onClick={() => void handleSave()}
             >
               {isPending ? (

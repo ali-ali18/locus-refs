@@ -42,6 +42,7 @@ export const MINIMAX_STATIC_MODELS: readonly ModelMetadata[] = [
 export const minimaxProvider: ProviderDefinition = {
   id: "minimax",
   name: "MiniMax",
+  protocol: "anthropic",
   configSchema: minimaxConfigSchema,
   defaultConfig: () => ({
     apiKey: process.env.MINIMAX_API_KEY ?? "",
