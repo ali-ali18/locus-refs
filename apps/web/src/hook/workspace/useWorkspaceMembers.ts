@@ -62,6 +62,7 @@ export function useWorkspaceMembers() {
   return {
     ...query,
     members,
+    allMembers,
     currentMember,
     removeMember: removeMemberMutation.mutate,
     isRemoving: removeMemberMutation.isPending,

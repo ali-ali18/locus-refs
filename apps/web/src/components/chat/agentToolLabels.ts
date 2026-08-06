@@ -51,6 +51,16 @@ export function getToolPendingLabel(toolPart: ToolUIPart): string {
       return "Excluindo card Kanban…";
     case "deleteKanbanBoard":
       return "Excluindo board Kanban…";
+    case "listCalendarEvents":
+      return "Listando eventos…";
+    case "getCalendarEvent":
+      return "Lendo evento…";
+    case "createCalendarEvent":
+      return "Criando evento…";
+    case "updateCalendarEvent":
+      return "Atualizando evento…";
+    case "deleteCalendarEvent":
+      return "Excluindo evento…";
     case "listResourceCollections":
       return "Listando coleções de recursos…";
     case "listResources":
@@ -206,6 +216,30 @@ export function getToolDoneLabel(toolPart: ToolUIPart): string {
       return board?.title
         ? `Excluiu board “${board.title}”`
         : "Excluiu board Kanban";
+    }
+    case "listCalendarEvents": {
+      const count = output?.count as number | undefined;
+      return typeof count === "number"
+        ? `Listou ${count} evento(s)`
+        : "Listou eventos";
+    }
+    case "getCalendarEvent":
+      return "Leu evento";
+    case "createCalendarEvent": {
+      const event = output?.event as { title?: string } | undefined;
+      return event?.title
+        ? `Criou evento “${event.title}”`
+        : "Criou evento";
+    }
+    case "updateCalendarEvent": {
+      const event = output?.event as { title?: string } | undefined;
+      return event?.title
+        ? `Atualizou evento “${event.title}”`
+        : "Atualizou evento";
+    }
+    case "deleteCalendarEvent": {
+      const title = output?.title as string | undefined;
+      return title ? `Excluiu evento “${title}”` : "Excluiu evento";
     }
     case "getResource":
       return "Leu recurso";
@@ -363,6 +397,28 @@ export function getToolCardTitle(toolPart: ToolUIPart): string {
       const board = output?.board as { title?: string } | undefined;
       return board?.title?.trim() || "Excluir board Kanban";
     }
+    case "listCalendarEvents": {
+      const count = output?.count as number | undefined;
+      return typeof count === "number"
+        ? `${count} evento(s)`
+        : "Eventos";
+    }
+    case "getCalendarEvent": {
+      const event = output?.event as { title?: string } | undefined;
+      return event?.title?.trim() || "Evento";
+    }
+    case "createCalendarEvent": {
+      const event = output?.event as { title?: string } | undefined;
+      return event?.title?.trim() || "Novo evento";
+    }
+    case "updateCalendarEvent": {
+      const event = output?.event as { title?: string } | undefined;
+      return event?.title?.trim() || "Atualizar evento";
+    }
+    case "deleteCalendarEvent": {
+      const title = output?.title as string | undefined;
+      return title?.trim() || "Excluir evento";
+    }
     default:
       return getToolDoneLabel(toolPart);
   }
@@ -482,6 +538,24 @@ export function getToolCardSnippet(toolPart: ToolUIPart): string | null {
       const board = output.board as { title?: string } | undefined;
       return board?.title ? `Excluído: ${board.title}` : "Board excluído";
     }
+    case "listCalendarEvents": {
+      const events = output.events as Array<{ title?: string }> | undefined;
+      if (!events?.length) return "Nenhum evento";
+      return events
+        .slice(0, 3)
+        .map((e) => e.title || "Sem título")
+        .join(" · ");
+    }
+    case "getCalendarEvent":
+    case "createCalendarEvent":
+    case "updateCalendarEvent": {
+      const event = output.event as { title?: string } | undefined;
+      return event?.title || null;
+    }
+    case "deleteCalendarEvent": {
+      const title = output.title as string | undefined;
+      return title ? `Excluído: ${title}` : "Evento excluído";
+    }
     case "getNoteBacklinks": {
       const linked = output.linkedFrom as Array<{ title?: string }> | undefined;
       if (!linked?.length) return "Sem backlinks";
@@ -500,6 +574,7 @@ export function getToolDomainLabel(toolPart: ToolUIPart): string {
   if (name.includes("Resource") || name === "listResources") return "Recurso";
   if (name.includes("Collection")) return "Coleção";
   if (name.includes("Kanban")) return "Kanban";
+  if (name.includes("Calendar") || name.includes("calendar")) return "Calendário";
   if (name.includes("Board")) return "Board";
   if (name.includes("Skill") || name === "createAgentSkill") return "Skill";
   if (name.includes("Note") || name === "searchNotes" || name === "listNotes") {

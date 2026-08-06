@@ -40,6 +40,8 @@ model User {
   kanbanBoards          KanbanBoard[]
   kanbanCardsCreated    KanbanCard[]  @relation("KanbanCardCreator")
   kanbanCardsAssigned   KanbanCard[]  @relation("KanbanCardAssignee")
+  calendarEvents        CalendarEvent[]
+  calendarEventAssignees CalendarEventAssignee[]
 
   @@unique([email])
   @@map("user")
@@ -211,6 +213,7 @@ model Organization {
   agentThreads AgentThread[]
   agentSkills  AgentSkill[]
   kanbanBoards KanbanBoard[]
+  calendarEvents CalendarEvent[]
 
   @@unique([slug])
   @@map("organization")
@@ -428,4 +431,47 @@ model DatabaseRow {
   updatedAt  DateTime @updatedAt
 
   @@index([databaseId])
+}
+
+enum CalendarEventVisibility {
+  personal
+  workspace
+}
+
+model CalendarEvent {
+  id          String                  @id @default(uuid())
+  title       String
+  description String?
+  startAt     DateTime
+  endAt       DateTime?
+  allDay      Boolean                 @default(true)
+  remindAt    DateTime?
+  visibility  CalendarEventVisibility @default(personal)
+  color       String?
+  imageUrl    String?
+
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String?
+  workspace   Organization? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  assignees   CalendarEventAssignee[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, visibility, startAt])
+  @@index([workspaceId, visibility, startAt])
+  @@map("calendar_events")
+}
+
+model CalendarEventAssignee {
+  id      String @id @default(uuid())
+  eventId String
+  userId  String
+  event   CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId])
+  @@map("calendar_event_assignees")
 }

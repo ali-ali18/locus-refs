@@ -11,6 +11,7 @@ const ROUTE_LABELS: Record<string, string> = {
   boards: "Boards",
   config: "Configuração",
   kanban: "Kanban",
+  calendar: "Calendário"
 };
 
 type ResolvedSegment = { label: string; icon?: string | null };

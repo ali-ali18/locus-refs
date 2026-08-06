@@ -2,6 +2,7 @@
 
 import {
   BubbleChatIcon,
+  Calendar03Icon,
   DashboardSquare01Icon,
   Folder01FreeIcons,
   Home01Icon,
@@ -53,6 +54,12 @@ export function NavQuick() {
       href: `/${workspaceSlug}/kanban`,
       icon: KanbanIcon,
       label: "Kanban",
+      match: "prefix" as const,
+    },
+    {
+      href: `/${workspaceSlug}/calendar`,
+      icon: Calendar03Icon,
+      label: "Calendário",
       match: "prefix" as const,
     },
   ];

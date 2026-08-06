@@ -16,7 +16,11 @@ function createPrismaClient(): PrismaClient {
 
 const cached = globalThis.__prisma;
 const prisma =
-  cached && "agentThread" in cached && cached.agentThread
+  cached &&
+  "agentThread" in cached &&
+  cached.agentThread &&
+  "calendarEventAssignee" in cached &&
+  cached.calendarEventAssignee
     ? cached
     : createPrismaClient();
 
