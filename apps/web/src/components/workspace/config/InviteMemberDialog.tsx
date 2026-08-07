@@ -29,8 +29,21 @@ import {
 } from "@/components/ui/select";
 import { useWorkspaceInvitations } from "@/hook/workspace/useWorkspaceInvitations";
 
-export function InviteMemberDialog() {
-  const [open, setOpen] = useState(false);
+interface Props {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Quando omitido com `open` controlado, não renderiza trigger. */
+  showDefaultTrigger?: boolean;
+}
+
+export function InviteMemberDialog({
+  open: openProp,
+  onOpenChange,
+  showDefaultTrigger = true,
+}: Props = {}) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = openProp ?? uncontrolledOpen;
+  const setOpen = onOpenChange ?? setUncontrolledOpen;
   const { inviteMember, isInviting } = useWorkspaceInvitations();
 
   const {
@@ -52,9 +65,11 @@ export function InviteMemberDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="default" type="button" />}>
-        <Icon icon={Users} /> Criar um convite
-      </DialogTrigger>
+      {showDefaultTrigger && openProp === undefined ? (
+        <DialogTrigger render={<Button variant="default" type="button" />}>
+          <Icon icon={Users} /> Criar um convite
+        </DialogTrigger>
+      ) : null}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Convidar um novo membro</DialogTitle>
