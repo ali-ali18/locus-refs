@@ -18,12 +18,14 @@ export function InputGroupApp({
   lastElement,
   autoComplete = "on",
   align = "inline-start",
+  className,
+  ref,
   ...props
 }: InputGroupAppProps) {
   return (
-    <InputGroup className={cn("rounded-xl", props.className)}>
+    <InputGroup className={cn("rounded-xl", className)}>
       {firstElement && <InputGroupAddon>{firstElement}</InputGroupAddon>}
-      <InputGroupInput {...props} autoComplete={autoComplete} />
+      <InputGroupInput ref={ref} {...props} autoComplete={autoComplete} />
       {lastElement && (
         <InputGroupAddon align={align}>{lastElement}</InputGroupAddon>
       )}

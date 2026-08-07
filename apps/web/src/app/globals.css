@@ -27,6 +27,14 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-cal-event-sky: var(--cal-event-sky);
+  --color-cal-event-mint: var(--cal-event-mint);
+  --color-cal-event-sand: var(--cal-event-sand);
+  --color-cal-event-rose: var(--cal-event-rose);
+  --color-cal-event-lilac: var(--cal-event-lilac);
+  --color-surface-contrast: var(--surface-contrast);
+  --color-surface-contrast-foreground: var(--surface-contrast-foreground);
+  --color-surface-contrast-muted: var(--surface-contrast-muted);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -88,6 +96,16 @@
   --chart-3: oklch(0.7444 0.156 62.8767);
   --chart-4: oklch(0.6402 0.1949 25.1437);
   --chart-5: oklch(0.6 0.2575 319.5427);
+  /* Pastéis do calendário — L alto, C baixa */
+  --cal-event-sky: oklch(0.93 0.035 250);
+  --cal-event-mint: oklch(0.94 0.04 160);
+  --cal-event-sand: oklch(0.94 0.04 90);
+  --cal-event-rose: oklch(0.93 0.04 20);
+  --cal-event-lilac: oklch(0.93 0.04 300);
+  /* Cards de contraste do dashboard (escuros nos dois temas) */
+  --surface-contrast: oklch(0.22 0.006 106);
+  --surface-contrast-foreground: oklch(0.985 0.001 106);
+  --surface-contrast-muted: oklch(0.72 0.006 106);
   --sidebar: oklch(0.985 0.0041 91.4457);
   --sidebar-foreground: oklch(0.3666 0.005 106.6459);
   --sidebar-primary: oklch(0.4902 0.2546 263.8475);
@@ -167,6 +185,14 @@
   --chart-3: oklch(0.7807 0.1712 66.6715);
   --chart-4: oklch(0.6752 0.2126 24.8868);
   --chart-5: oklch(0.6309 0.2349 299.8352);
+  --cal-event-sky: oklch(0.38 0.05 250);
+  --cal-event-mint: oklch(0.38 0.05 160);
+  --cal-event-sand: oklch(0.4 0.05 90);
+  --cal-event-rose: oklch(0.38 0.05 20);
+  --cal-event-lilac: oklch(0.38 0.05 300);
+  --surface-contrast: oklch(0.16 0.005 274);
+  --surface-contrast-foreground: oklch(0.97 0.001 106);
+  --surface-contrast-muted: oklch(0.68 0.008 274);
   --sidebar: oklch(0.2097 0.008 274.5332);
   --sidebar-foreground: oklch(0.9789 0.0013 106.4235);
   --sidebar-primary: oklch(0.4793 0.2304 264.0187);

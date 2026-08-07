@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import slugify from "slugify";
 import { z } from "zod";
+import { createCalendarWorkspaceTools } from "@/lib/ai/calendar-workspace-tools";
 import {
   listDocBlocks,
   removeBlockAt,
@@ -136,8 +137,10 @@ export function createWorkspaceTools(params: {
   currentNoteId?: string | null;
 }) {
   const { workspaceId, userId, currentNoteId } = params;
+  const calendarTools = createCalendarWorkspaceTools({ workspaceId, userId });
 
   return {
+    ...calendarTools,
     searchNotes: tool({
       description:
         "Busca notas no workspace ativo por título OU conteúdo. Retorna id, título, ícone e snippet do trecho encontrado.",

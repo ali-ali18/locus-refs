@@ -16,6 +16,7 @@ import { useWorkspace } from "@/context/workspace";
 import { agentSkillKeys } from "@/hook/ai/agentSkillKeys";
 import { agentThreadKeys } from "@/hook/ai/agentThreadKeys";
 import { useAgentThread, useAgentThreadMutations } from "@/hook/ai/useAgentThreads";
+import { calendarEventKeys } from "@/hook/calendar/calendarEventKeys";
 import { kanbanKeys } from "@/hook/kanban/kanbanKeys";
 import { noteKeys } from "@/hook/notes/noteKeys";
 import type { AiMessageMetadata } from "@/lib/ai/intent";
@@ -298,6 +299,13 @@ export function useAiChat({
                 queryKey: kanbanKeys.detail(workspaceId, output.boardId),
               });
             }
+            break;
+          case "tool-createCalendarEvent":
+          case "tool-updateCalendarEvent":
+          case "tool-deleteCalendarEvent":
+            void queryClient.invalidateQueries({
+              queryKey: calendarEventKeys.all(workspaceId),
+            });
             break;
           case "tool-createAgentSkill":
             void queryClient.invalidateQueries({

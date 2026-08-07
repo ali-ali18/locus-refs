@@ -10,8 +10,11 @@ import { cn } from "@/lib/utils";
 
 export function WorkspaceShell({ children }: { children: ReactNode }) {
   const { open: agentOpen } = useChatPanel();
-  const { open: sidebarOpen, setOpen: setSidebarOpen, setOpenMobile } =
-    useSidebar();
+  const {
+    open: sidebarOpen,
+    setOpen: setSidebarOpen,
+    setOpenMobile,
+  } = useSidebar();
   const sidebarBeforeAgentRef = useRef<boolean | null>(null);
 
   useEffect(() => {
@@ -32,9 +35,8 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <AppSidebar />
-      <SidebarInset className="flex h-svh max-h-svh min-w-0 flex-col overflow-hidden">
-        {/* Mantém a página montada sob o Agent para tools client (Yjs) da nota aberta. */}
+      <AppSidebar variant="inset"/>
+      <SidebarInset>
         <div
           className={cn(
             "flex min-h-0 flex-1 flex-col overflow-hidden",

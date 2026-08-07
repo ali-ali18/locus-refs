@@ -13,12 +13,11 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
 } from "@/components/ui/sidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" className="border-r-0" {...props}>
+    <Sidebar collapsible="offcanvas" variant="inset" {...props}>
       <SidebarHeader>
         <TeamSwitcher />
         <CommandPaletteTrigger />
@@ -35,7 +34,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter className="mt-auto">
         <NavUser />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   );
 }

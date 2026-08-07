@@ -2,16 +2,16 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { NoteFavoriteHeaderAction } from "@/components/notes/note/NoteFavoriteHeaderAction";
+import { NavActions } from "@/components/sidebar/NavActions";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BreadcrumbRenderer } from "@/components/breadcrumb/BreadcrumbRenderer";
 import {
   NoteTrailBreadcrumb,
   NoteTrailSync,
   useHasActiveNoteTrail,
 } from "@/components/breadcrumb/NoteTrailBreadcrumb";
-import { NoteFavoriteHeaderAction } from "@/components/notes/note/NoteFavoriteHeaderAction";
-import { NavActions } from "@/components/sidebar/NavActions";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { resolveBreadcrumb } from "@/lib/breadcrumb/actions/resolve-breadcrumb";
 import type { BreadcrumbItem } from "@/lib/breadcrumb/route-resolvers";
 

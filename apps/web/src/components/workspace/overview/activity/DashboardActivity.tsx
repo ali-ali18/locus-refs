@@ -1,72 +1,44 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useMemo } from "react";
 import { useWorkspace } from "@/context/workspace";
-import { useCollections } from "@/hook/collections/useCollections";
-import { useNotes } from "@/hook/notes/useNotes";
+import { useDashboardOverview } from "../data/useDashboardOverview";
 import { ActivityListItem } from "./ActivityListItem";
+import { buildRecentActivity } from "./buildRecentActivity";
 
 export function DashboardActivity() {
   const { workspaceSlug } = useWorkspace();
-  const { data: notes = [], isLoading: loadingNotes } = useNotes();
-  const { collections, isLoading: loadingCollections } = useCollections();
+  const { notes, collections, boards } = useDashboardOverview();
 
-  const isLoading = loadingNotes || loadingCollections;
-
-  const recent = [
-    ...notes.map((n) => ({
-      id: n.id,
-      name: n.title,
-      type: "note" as const,
-      updatedAt: n.updatedAt,
-    })),
-    ...collections.map((c) => ({
-      id: c.id,
-      name: c.name,
-      type: "collection" as const,
-      updatedAt: c.updatedAt,
-    })),
-  ]
-    .sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-    )
-    .slice(0, 8);
+  const recent = useMemo(
+    () => buildRecentActivity(notes, collections, boards),
+    [notes, collections, boards],
+  );
 
   return (
-    <Card className="rounded-xl">
-      <CardHeader>
-        <CardTitle>Atividade recente</CardTitle>
-        <CardDescription>
-          Veja as últimas notas e coleções atualizadas.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-2">
-        {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-9 w-full rounded-xl" />
-          ))
-        ) : recent.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Nenhuma atividade ainda.
+    <section className="flex min-w-0 flex-col gap-3 overflow-hidden rounded-3xl bg-surface-contrast p-4 text-surface-contrast-foreground">
+      <header className="flex flex-col gap-1 px-1">
+        <h2 className="text-base font-semibold">Atividade recente</h2>
+        <p className="text-xs text-surface-contrast-muted">
+          Últimas notas, coleções e boards tocados.
+        </p>
+      </header>
+
+      <div className="flex flex-col gap-0.5">
+        {recent.length === 0 ? (
+          <p className="px-1 py-4 text-sm text-surface-contrast-muted">
+            Nada por aqui ainda — crie sua primeira nota ou coleção.
           </p>
         ) : (
           recent.map((item) => (
             <ActivityListItem
               key={`${item.type}-${item.id}`}
-              {...item}
+              item={item}
               workspaceSlug={workspaceSlug}
             />
           ))
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }
