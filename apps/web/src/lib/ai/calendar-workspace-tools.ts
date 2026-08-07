@@ -55,7 +55,15 @@ function canViewEvent(
 }
 
 function summarizeEvent(
-  event: ReturnType<typeof serializeCalendarEvent> & {
+  event: {
+    id: string;
+    title: string;
+    description: string | null;
+    startAt: string;
+    endAt: string | null;
+    allDay: boolean;
+    visibility: string;
+    color: string | null;
     assignees?: { user: { id: string; name: string } }[];
     user?: { id: string; name: string } | null;
   },

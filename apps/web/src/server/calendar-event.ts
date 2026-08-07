@@ -18,7 +18,15 @@ export function serializeCalendarEvent<
     createdAt: Date;
     updatedAt: Date;
   },
->(event: T) {
+>(
+  event: T,
+): Omit<T, "startAt" | "endAt" | "remindAt" | "createdAt" | "updatedAt"> & {
+  startAt: string;
+  endAt: string | null;
+  remindAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+} {
   return {
     ...event,
     startAt: event.startAt.toISOString(),

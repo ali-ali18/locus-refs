@@ -227,8 +227,11 @@ export function useCalendarEventDialog({
       }
 
       const { startTime: _s, endTime: _e, ...rest } = values;
+      const resolvedVisibility = values.visibility ?? "personal";
       const payload = {
         ...rest,
+        allDay: values.allDay ?? false,
+        visibility: resolvedVisibility,
         startAt: startAtIso,
         endAt: endAtIso,
         description: values.description || null,
@@ -236,7 +239,7 @@ export function useCalendarEventDialog({
         color: values.color || null,
         imageUrl: nextImageUrl,
         assigneeIds:
-          values.visibility === "workspace" ? (values.assigneeIds ?? []) : [],
+          resolvedVisibility === "workspace" ? (values.assigneeIds ?? []) : [],
       };
 
       if (isEdit && event) {
