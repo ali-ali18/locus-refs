@@ -3,7 +3,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { type NextRequest, NextResponse } from "next/server";
 import { s3Client } from "@/lib/storage";
 import { deleteObjects } from "@/server/upload";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
 const PDF_EXTENSIONS = new Set(["pdf"]);
@@ -52,7 +52,9 @@ function isValidPlainText(buffer: Buffer): boolean {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentThread: ["create"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 
@@ -171,7 +173,9 @@ export async function POST(request: NextRequest) {
 
 /** Remove anexos do chat que nao foram enviados / falharam no envio. */
 export async function DELETE(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentThread: ["create"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 

@@ -26,18 +26,18 @@ import {
   useAgentSkillMutations,
   useAgentSkills,
 } from "@/hook/ai/useAgentSkills";
-import { useWorkspaceMembers } from "@/hook/workspace/useWorkspaceMembers";
+import { useWorkspacePermissions } from "@/hook/workspace/useWorkspacePermissions";
 import { useSession } from "@/lib/auth-client";
 import type { AgentSkill } from "@/types/agent-skill.type";
 
 function canManageSkill(
   skill: AgentSkill,
   userId: string | undefined,
-  isAdmin: boolean,
+  canManageWorkspaceSkills: boolean,
 ): boolean {
   if (!userId) return false;
   if (skill.userId === userId) return true;
-  return skill.visibility === "workspace" && isAdmin;
+  return skill.visibility === "workspace" && canManageWorkspaceSkills;
 }
 
 function formatUpdatedAt(value: string): string {
@@ -63,9 +63,10 @@ function typeLabel(visibility: AgentSkill["visibility"]): string {
 export function WorkspaceAgentSkills() {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  const { currentMember } = useWorkspaceMembers();
-  const isAdmin =
-    currentMember?.role === "admin" || currentMember?.role === "owner";
+  const { can } = useWorkspacePermissions({
+    agentSkill: ["shareWorkspace"],
+  });
+  const canManageWorkspaceSkills = can("agentSkill", "shareWorkspace");
 
   const { data: skills = [], isLoading } = useAgentSkills();
   const { deleteSkill, isDeleting } = useAgentSkillMutations();
@@ -132,7 +133,11 @@ export function WorkspaceAgentSkills() {
           </TableHeader>
           <TableBody>
             {skills.map((skill) => {
-              const manageable = canManageSkill(skill, userId, isAdmin);
+              const manageable = canManageSkill(
+                skill,
+                userId,
+                canManageWorkspaceSkills,
+              );
               const name = authorLabel(skill, userId);
               const initial = name.charAt(0).toUpperCase();
 

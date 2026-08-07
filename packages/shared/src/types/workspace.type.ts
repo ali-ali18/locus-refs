@@ -7,7 +7,8 @@ export interface Workspace {
   updatedAt: string;
 }
 
-export type WorkspaceMemberRole = "owner" | "admin" | "member";
+/** Papéis base do Better Auth; cargos customizados são strings livres. */
+export type WorkspaceMemberRole = string;
 
 export interface WorkspaceMember {
   id: string;

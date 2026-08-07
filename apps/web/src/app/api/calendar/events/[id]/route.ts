@@ -5,33 +5,30 @@ import {
   resolveAssigneeIds,
   serializeCalendarEvent,
 } from "@/server/calendar-event";
-import {
-  isWorkspaceAdmin,
-  requireWorkspaceAccess,
-} from "@/server/requireSession";
+import { canInWorkspace, requireWorkspacePermission } from "@/server/permissions";
 import { updateCalendarEventSchema } from "@/types/schema/calendar-event.schema";
 
-function canManageEvent(
+async function canManageEvent(
   event: { userId: string; visibility: string; workspaceId: string | null },
   userId: string,
   workspaceId: string,
-  memberRole: string,
-): boolean {
+): Promise<boolean> {
   if (event.userId === userId) return true;
-  return (
-    event.visibility === "workspace" &&
-    event.workspaceId === workspaceId &&
-    isWorkspaceAdmin(memberRole)
-  );
+  if (event.visibility !== "workspace" || event.workspaceId !== workspaceId) {
+    return false;
+  }
+  return canInWorkspace(workspaceId, userId, {
+    calendar: ["manageWorkspace"],
+  });
 }
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { calendar: ["read"] });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const userId = session.user.id;
   const { id } = await params;
 
@@ -45,10 +42,7 @@ export async function PATCH(
     }
 
     const existing = await prisma.calendarEvent.findFirst({ where: { id } });
-    if (
-      !existing ||
-      !canManageEvent(existing, userId, workspaceId, memberRole)
-    ) {
+    if (!existing || !(await canManageEvent(existing, userId, workspaceId))) {
       return NextResponse.json(
         { error: "Evento não encontrado", code: "EVENT_NOT_FOUND" },
         { status: 404 },
@@ -150,18 +144,15 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { calendar: ["read"] });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const userId = session.user.id;
   const { id } = await params;
 
   try {
     const existing = await prisma.calendarEvent.findFirst({ where: { id } });
-    if (
-      !existing ||
-      !canManageEvent(existing, userId, workspaceId, memberRole)
-    ) {
+    if (!existing || !(await canManageEvent(existing, userId, workspaceId))) {
       return NextResponse.json(
         { error: "Evento não encontrado", code: "EVENT_NOT_FOUND" },
         { status: 404 },

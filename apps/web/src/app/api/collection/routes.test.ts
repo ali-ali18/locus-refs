@@ -16,11 +16,13 @@ const { mockFindMany, mockCreate, mockCollections } = vi.hoisted(() => {
 
 vi.mock("server-only", () => ({}));
 
-vi.mock("@/server/requireSession", () => ({
-  requireWorkspaceAccess: vi.fn().mockResolvedValue({
+vi.mock("@/server/permissions", () => ({
+  requireWorkspacePermission: vi.fn().mockResolvedValue({
     session: { user: { id: "user-1" } },
     workspaceId: "ws-1",
+    memberRole: "owner",
   }),
+  canInWorkspace: vi.fn().mockResolvedValue(true),
 }));
 
 vi.mock("@/lib/prisma", () => ({

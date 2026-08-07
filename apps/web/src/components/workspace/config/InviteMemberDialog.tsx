@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useWorkspaceInvitations } from "@/hook/workspace/useWorkspaceInvitations";
+import { useWorkspaceRoles } from "@/hook/workspace/useWorkspaceRoles";
 
 interface Props {
   open?: boolean;
@@ -45,6 +46,7 @@ export function InviteMemberDialog({
   const open = openProp ?? uncontrolledOpen;
   const setOpen = onOpenChange ?? setUncontrolledOpen;
   const { inviteMember, isInviting } = useWorkspaceInvitations();
+  const { assignableRoles } = useWorkspaceRoles();
 
   const {
     register,
@@ -106,8 +108,11 @@ export function InviteMemberDialog({
                   </SelectTrigger>
                   <SelectContent className={"rounded-xl"}>
                     <SelectGroup>
-                      <SelectItem value="member">Membro</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      {assignableRoles.map((r) => (
+                        <SelectItem key={r.role} value={r.role}>
+                          {r.label}
+                        </SelectItem>
+                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>

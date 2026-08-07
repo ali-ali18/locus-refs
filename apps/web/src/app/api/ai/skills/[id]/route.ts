@@ -1,32 +1,31 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import {
-  isWorkspaceAdmin,
-  requireWorkspaceAccess,
-} from "@/server/requireSession";
+import { canInWorkspace, requireWorkspacePermission } from "@/server/permissions";
 import { updateSchema } from "@/types/schema/skill.schema";
 
-function canManageSkill(
+async function canManageSkill(
   skill: { userId: string; visibility: string; workspaceId: string | null },
   userId: string,
   workspaceId: string,
-  memberRole: string,
-): boolean {
+): Promise<boolean> {
   if (skill.userId === userId) return true;
-  return (
-    skill.visibility === "workspace" &&
-    skill.workspaceId === workspaceId &&
-    isWorkspaceAdmin(memberRole)
-  );
+  if (skill.visibility !== "workspace" || skill.workspaceId !== workspaceId) {
+    return false;
+  }
+  return canInWorkspace(workspaceId, userId, {
+    agentSkill: ["shareWorkspace"],
+  });
 }
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentSkill: ["update"],
+  });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const userId = session.user.id;
   const { id } = await params;
 
@@ -44,7 +43,7 @@ export async function PATCH(
     });
     if (
       !existing ||
-      !canManageSkill(existing, userId, workspaceId, memberRole)
+      !(await canManageSkill(existing, userId, workspaceId))
     ) {
       return NextResponse.json(
         { error: "Skill not found", code: "SKILL_NOT_FOUND" },
@@ -52,7 +51,7 @@ export async function PATCH(
       );
     }
 
-    // Só o dono edita skill personal; admin pode editar workspace.
+    // Só o dono edita skill personal; quem tem shareWorkspace pode editar workspace.
     if (existing.visibility === "personal" && existing.userId !== userId) {
       return NextResponse.json(
         { error: "Skill not found", code: "SKILL_NOT_FOUND" },
@@ -97,9 +96,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentSkill: ["delete"],
+  });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const userId = session.user.id;
   const { id } = await params;
 
@@ -109,7 +110,7 @@ export async function DELETE(
     });
     if (
       !existing ||
-      !canManageSkill(existing, userId, workspaceId, memberRole)
+      !(await canManageSkill(existing, userId, workspaceId))
     ) {
       return NextResponse.json(
         { error: "Skill not found", code: "SKILL_NOT_FOUND" },

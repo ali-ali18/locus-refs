@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { type NextRequest, NextResponse } from "next/server";
 import { s3Client } from "@/lib/storage";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
 
@@ -33,7 +33,9 @@ function detectMimeType(buffer: Buffer): string | null {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    calendar: ["create"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 

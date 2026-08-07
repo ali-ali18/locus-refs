@@ -1,14 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server";
 import type { Prisma } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 import { updateSchema } from "@/types/schema/resources.schema";
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    resource: ["update"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 
@@ -90,7 +92,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    resource: ["delete"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 

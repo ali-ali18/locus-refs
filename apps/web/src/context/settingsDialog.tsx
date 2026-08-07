@@ -12,6 +12,7 @@ export type SettingsTabId =
   | "profile"
   | "workspace-general"
   | "workspace-members"
+  | "workspace-roles"
   | "workspace-ai";
 
 interface SettingsDialogContextValue {

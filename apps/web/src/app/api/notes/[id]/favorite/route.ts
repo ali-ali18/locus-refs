@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 const bodySchema = z.object({
   favorite: z.boolean(),
@@ -11,7 +11,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { note: ["read"] });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const { id: noteId } = await params;

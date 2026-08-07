@@ -34,7 +34,7 @@ import {
   cardUpdatedEvent,
 } from "@/lib/realtime/kanban-event-builders";
 import { publishKanbanEvent } from "@/lib/realtime/publish-kanban-event";
-import { isWorkspaceAdmin } from "@/server/requireSession";
+import { canInWorkspace } from "@/server/permissions";
 
 const NOTE_TEXT_LIMIT = 4000;
 
@@ -963,13 +963,12 @@ export function createWorkspaceTools(params: {
       }),
       needsApproval: true,
       execute: async ({ boardId }) => {
-        const member = await prisma.member.findFirst({
-          where: { organizationId: workspaceId, userId },
-          select: { role: true },
+        const canDeleteKanban = await canInWorkspace(workspaceId, userId, {
+          kanban: ["delete"],
         });
-        if (!member || !isWorkspaceAdmin(member.role)) {
+        if (!canDeleteKanban) {
           return {
-            error: "Apenas owner/admin pode excluir boards Kanban.",
+            error: "Sem permissão para excluir boards Kanban.",
           };
         }
 

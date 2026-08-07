@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { extractNoteLinkIds } from "@/lib/note-links";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 import { deleteObjects } from "@/server/upload";
 
 interface TiptapNode {
@@ -32,7 +32,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { note: ["read"] });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const { id } = await params;
@@ -74,7 +74,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { note: ["update"] });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
   const { id } = await params;
@@ -180,7 +180,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { note: ["delete"] });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
   const { id } = await params;

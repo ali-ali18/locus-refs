@@ -204,6 +204,7 @@ model Organization {
   metadata     String?
   members      Member[]
   invitations  Invitation[]
+  organizationRoles OrganizationRole[]
   collections  Collection[]
   categories   Category[]
   notes        Note[]
@@ -217,6 +218,21 @@ model Organization {
 
   @@unique([slug])
   @@map("organization")
+}
+
+model OrganizationRole {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           String
+  /// JSON: Record<resource, actions[]>
+  permission     String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime?    @updatedAt
+
+  @@index([organizationId])
+  @@index([role])
+  @@map("organization_role")
 }
 
 model WorkspaceAiSettings {

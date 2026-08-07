@@ -34,6 +34,10 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWorkspaceInvitations } from "@/hook/workspace/useWorkspaceInvitations";
 import { useWorkspaceMembers } from "@/hook/workspace/useWorkspaceMembers";
+import {
+  SETTINGS_PERMISSION_CHECKS,
+  useWorkspacePermissions,
+} from "@/hook/workspace/useWorkspacePermissions";
 import { InviteMemberDialog } from "./InviteMemberDialog";
 import { RemoveMemberDialog } from "./RemoveMemberDialog";
 import { UpdateMemberRoleDialog } from "./UpdateMemberRoleDialog";
@@ -49,15 +53,15 @@ export function WorkspaceUserList() {
   const { invitations, cancelInvitation, isCancelling } =
     useWorkspaceInvitations();
 
+  const { canInvite, canUpdateMember, canRemoveMember } =
+    useWorkspacePermissions(SETTINGS_PERMISSION_CHECKS);
+
   const [roleDialogMemberId, setRoleDialogMemberId] = useState<string | null>(
     null,
   );
   const [removeDialogMemberId, setRemoveDialogMemberId] = useState<
     string | null
   >(null);
-
-  const isAdminOrOwner =
-    currentMember?.role === "owner" || currentMember?.role === "admin";
 
   if (isLoading) {
     return (
@@ -77,7 +81,7 @@ export function WorkspaceUserList() {
           <span className="text-sm font-medium text-muted-foreground">
             Total de usuários ({membersData?.data?.total})
           </span>
-          {isAdminOrOwner && <InviteMemberDialog />}
+          {canInvite ? <InviteMemberDialog /> : null}
         </div>
 
         <ItemGroup>
@@ -116,66 +120,72 @@ export function WorkspaceUserList() {
               <ItemContent className="gap-0.5">
                 <ItemTitle>
                   {member.user.name}{" "}
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground capitalize">
                     ({member.role})
                   </span>
                 </ItemTitle>
                 <ItemDescription>{member.user.email}</ItemDescription>
               </ItemContent>
-              <ItemActions>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    className={"rounded-xl"}
-                    render={
-                      <Button variant={"ghost"}>
-                        <Icon icon={MoreHorizontalIcon} />
-                      </Button>
+              {canUpdateMember || canRemoveMember ? (
+                <ItemActions>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      className="rounded-xl"
+                      render={
+                        <Button variant="ghost">
+                          <Icon icon={MoreHorizontalIcon} />
+                        </Button>
+                      }
+                    />
+                    <DropdownMenuContent className="w-52">
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>Funções</DropdownMenuLabel>
+                        {canUpdateMember ? (
+                          <DropdownMenuItem
+                            onClick={() => setRoleDialogMemberId(member.id)}
+                          >
+                            <Icon icon={UserEdit01Icon} /> Alterar cargo
+                          </DropdownMenuItem>
+                        ) : null}
+                        {canRemoveMember ? (
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => setRemoveDialogMemberId(member.id)}
+                          >
+                            <Icon icon={UserBlock01Icon} /> Remover usuario
+                          </DropdownMenuItem>
+                        ) : null}
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <UpdateMemberRoleDialog
+                    memberId={member.id}
+                    memberName={member.user.name}
+                    currentRole={member.role}
+                    open={roleDialogMemberId === member.id}
+                    onOpenChange={(open) =>
+                      setRoleDialogMemberId(open ? member.id : null)
                     }
-                  ></DropdownMenuTrigger>
-                  <DropdownMenuContent className={"w-52"}>
-                    <DropdownMenuGroup>
-                      <DropdownMenuLabel>Funções</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => setRoleDialogMemberId(member.id)}
-                      >
-                        <Icon icon={UserEdit01Icon} /> Alterar cargo
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => setRemoveDialogMemberId(member.id)}
-                      >
-                        <Icon icon={UserBlock01Icon} /> Remover usuario
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  />
 
-                <UpdateMemberRoleDialog
-                  memberId={member.id}
-                  memberName={member.user.name}
-                  currentRole={member.role}
-                  open={roleDialogMemberId === member.id}
-                  onOpenChange={(open) =>
-                    setRoleDialogMemberId(open ? member.id : null)
-                  }
-                />
-
-                <RemoveMemberDialog
-                  memberId={member.id}
-                  memberName={member.user.name}
-                  memberEmail={member.user.email}
-                  open={removeDialogMemberId === member.id}
-                  onOpenChange={(open) =>
-                    setRemoveDialogMemberId(open ? member.id : null)
-                  }
-                />
-              </ItemActions>
+                  <RemoveMemberDialog
+                    memberId={member.id}
+                    memberName={member.user.name}
+                    memberEmail={member.user.email}
+                    open={removeDialogMemberId === member.id}
+                    onOpenChange={(open) =>
+                      setRemoveDialogMemberId(open ? member.id : null)
+                    }
+                  />
+                </ItemActions>
+              ) : null}
             </Item>
           ))}
         </ItemGroup>
       </div>
 
-      {isAdminOrOwner && invitations.length > 0 && (
+      {canInvite && invitations.length > 0 ? (
         <div className="flex flex-col gap-4">
           <span className="text-sm font-medium text-muted-foreground">
             Convites pendentes ({invitations.length})
@@ -213,7 +223,7 @@ export function WorkspaceUserList() {
             ))}
           </ItemGroup>
         </div>
-      )}
+      ) : null}
     </section>
   );
 }

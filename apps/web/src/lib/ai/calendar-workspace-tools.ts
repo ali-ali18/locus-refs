@@ -6,7 +6,7 @@ import {
   resolveAssigneeIds,
   serializeCalendarEvent,
 } from "@/server/calendar-event";
-import { isWorkspaceAdmin } from "@/server/requireSession";
+import { canInWorkspace } from "@/server/permissions";
 
 const isoDateTime = z
   .string()
@@ -22,18 +22,18 @@ const colorSchema = z
   .nullable()
   .optional();
 
-function canManageEvent(
+async function canManageEvent(
   event: { userId: string; visibility: string; workspaceId: string | null },
   userId: string,
   workspaceId: string,
-  memberRole: string,
-): boolean {
+): Promise<boolean> {
   if (event.userId === userId) return true;
-  return (
-    event.visibility === "workspace" &&
-    event.workspaceId === workspaceId &&
-    isWorkspaceAdmin(memberRole)
-  );
+  if (event.visibility !== "workspace" || event.workspaceId !== workspaceId) {
+    return false;
+  }
+  return canInWorkspace(workspaceId, userId, {
+    calendar: ["manageWorkspace"],
+  });
 }
 
 function canViewEvent(
@@ -312,7 +312,7 @@ export function createCalendarWorkspaceTools(params: {
         });
         if (
           !existing ||
-          !canManageEvent(existing, userId, workspaceId, member.role)
+          !(await canManageEvent(existing, userId, workspaceId))
         ) {
           return { error: "Evento não encontrado." };
         }
@@ -426,7 +426,7 @@ export function createCalendarWorkspaceTools(params: {
         });
         if (
           !existing ||
-          !canManageEvent(existing, userId, workspaceId, member.role)
+          !(await canManageEvent(existing, userId, workspaceId))
         ) {
           return { error: "Evento não encontrado." };
         }

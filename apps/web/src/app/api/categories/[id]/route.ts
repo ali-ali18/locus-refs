@@ -1,13 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server";
 import slugify from "slugify";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    category: ["delete"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 
@@ -39,7 +41,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    category: ["update"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 

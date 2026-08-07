@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { type NextRequest, NextResponse } from "next/server";
 import { s3Client } from "@/lib/storage";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 import { deleteObjects } from "@/server/upload";
 
 const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
@@ -34,7 +34,9 @@ function detectMimeType(buffer: Buffer): string | null {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    workspaceSettings: ["update"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 
@@ -101,7 +103,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    workspaceSettings: ["update"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 

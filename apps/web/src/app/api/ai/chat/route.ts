@@ -25,7 +25,7 @@ import { noteEditTools } from "@/lib/ai/tools";
 import { createWorkspaceTools } from "@/lib/ai/workspace-tools";
 import prisma from "@/lib/prisma";
 import { getStorageObjectBuffer } from "@/server/chat-uploads";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 interface SelectionContext {
   hasSelection?: boolean;
@@ -350,7 +350,9 @@ Regras:
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentThread: ["create"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId, session } = auth;
 

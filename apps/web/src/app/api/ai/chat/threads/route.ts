@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { toAgentThreadSummary } from "@/lib/ai/agent-thread-acl";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { canInWorkspace, requireWorkspacePermission } from "@/server/permissions";
 
 const createSchema = z.object({
   visibility: z.enum(["private", "workspace"]),
@@ -10,12 +10,18 @@ const createSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentThread: ["read"],
+  });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const userId = session.user.id;
 
   try {
+    const canDeleteAny = await canInWorkspace(workspaceId, userId, {
+      agentThread: ["delete"],
+    });
+
     const threads = await prisma.agentThread.findMany({
       where: {
         workspaceId,
@@ -32,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data: threads.map((thread) =>
-        toAgentThreadSummary(thread, userId, memberRole),
+        toAgentThreadSummary(thread, userId, canDeleteAny),
       ),
     });
   } catch (error) {
@@ -49,12 +55,18 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentThread: ["create"],
+  });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const userId = session.user.id;
 
   try {
+    const canDeleteAny = await canInWorkspace(workspaceId, userId, {
+      agentThread: ["delete"],
+    });
+
     const parsed = createSchema.safeParse(await request.json());
     if (!parsed.success) {
       return NextResponse.json(
@@ -87,7 +99,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         message: "Thread created",
-        data: toAgentThreadSummary(thread, userId, memberRole),
+        data: toAgentThreadSummary(thread, userId, canDeleteAny),
       },
       { status: 201 },
     );

@@ -5,14 +5,16 @@ import {
   resolveAssigneeIds,
   serializeCalendarEvent,
 } from "@/server/calendar-event";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 import {
   createCalendarEventSchema,
   listCalendarEventsQuerySchema,
 } from "@/types/schema/calendar-event.schema";
 
 export async function GET(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    calendar: ["read"],
+  });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const userId = session.user.id;
@@ -77,7 +79,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    calendar: ["create"],
+  });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const userId = session.user.id;

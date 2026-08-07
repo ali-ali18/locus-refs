@@ -7,7 +7,8 @@ export interface BoardTokenPayload {
   userId: string;
   workspaceId: string;
   boardId: string;
-  role: "owner" | "admin" | "member";
+  /** Papel do membro no workspace (base ou cargo customizado). */
+  role: string;
   exp?: number;
 }
 

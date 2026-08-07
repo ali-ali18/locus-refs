@@ -1,10 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 import { createSchema } from "@/types/schema/skill.schema";
 
 export async function GET(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentSkill: ["read"],
+  });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const userId = session.user.id;
@@ -33,7 +35,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentSkill: ["create"],
+  });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const userId = session.user.id;

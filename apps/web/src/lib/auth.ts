@@ -11,6 +11,7 @@ import { sendEmail } from "./email/email";
 import { InvitationEmail } from "./email/templates/InvitationEmail";
 import { VerifyEmailOtp } from "./email/templates/VerifyEmailOtp";
 import prisma from "./prisma";
+import { workspaceAc, workspaceRoles } from "./workspace-ac";
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
@@ -56,6 +57,12 @@ export const auth = betterAuth({
       },
     }),
     organization({
+      ac: workspaceAc,
+      roles: workspaceRoles,
+      dynamicAccessControl: {
+        enabled: true,
+        maximumRolesPerOrganization: 20,
+      },
       allowUserToCreateOrganization: true,
       organizationLimit: 10,
       membershipLimit: 50,

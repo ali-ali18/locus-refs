@@ -1,14 +1,14 @@
 import { updateBoardSchema } from "@refstash/shared";
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { board: ["read"] });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
   const { id } = await context.params;
@@ -23,18 +23,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { board: ["update"] });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId } = auth;
+  const { workspaceId } = auth;
   const { id } = await context.params;
-
-  const member = await prisma.member.findFirst({
-    where: { organizationId: workspaceId, userId: session.user.id },
-    select: { role: true },
-  });
-  if (member?.role === "member") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
 
   const parsed = updateBoardSchema.safeParse(await request.json());
   if (!parsed.success) {
@@ -63,18 +55,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { board: ["delete"] });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId } = auth;
+  const { workspaceId } = auth;
   const { id } = await context.params;
-
-  const member = await prisma.member.findFirst({
-    where: { organizationId: workspaceId, userId: session.user.id },
-    select: { role: true },
-  });
-  if (member?.role === "member") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
 
   try {
     await prisma.board.update({

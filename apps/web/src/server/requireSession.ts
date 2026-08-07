@@ -25,7 +25,7 @@ export async function requireSessionApiOrThrow() {
   return session;
 }
 
-type WorkspaceAccessResult =
+export type WorkspaceAccessResult =
   | {
       session: NonNullable<Awaited<ReturnType<typeof getSession>>>;
       workspaceId: string;
@@ -62,6 +62,10 @@ export async function requireWorkspaceAccess(
   return { session, workspaceId, memberRole: member.role };
 }
 
+/**
+ * @deprecated Preferir `requireWorkspacePermission` / `canInWorkspace`.
+ * Mantido temporariamente para ACLs que ainda checam owner|admin.
+ */
 export function isWorkspaceAdmin(role: string): boolean {
   return role === "owner" || role === "admin";
 }

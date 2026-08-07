@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useWorkspaceRoles } from "@/hook/workspace/useWorkspaceRoles";
 import { useUpdateMemberRole } from "./hooks/useUpdateMemberRole";
 
 interface UpdateMemberRoleDialogProps {
@@ -36,6 +37,7 @@ export function UpdateMemberRoleDialog({
   open,
   onOpenChange,
 }: UpdateMemberRoleDialogProps) {
+  const { assignableRoles } = useWorkspaceRoles();
   const { selectedRole, setSelectedRole, handleConfirm, isUpdatingRole } =
     useUpdateMemberRole(memberId, currentRole, () => onOpenChange(false));
 
@@ -63,8 +65,11 @@ export function UpdateMemberRoleDialog({
             </SelectTrigger>
             <SelectContent className="rounded-xl">
               <SelectGroup>
-                <SelectItem value="member">Membro</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
+                {assignableRoles.map((r) => (
+                  <SelectItem key={r.role} value={r.role}>
+                    {r.label}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>

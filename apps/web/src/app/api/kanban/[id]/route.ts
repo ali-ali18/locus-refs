@@ -11,17 +11,14 @@ import {
   boardUpdatedEvent,
 } from "@/lib/realtime/kanban-event-builders";
 import { publishKanbanEvent } from "@/lib/realtime/publish-kanban-event";
-import {
-  isWorkspaceAdmin,
-  requireWorkspaceAccess,
-} from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { kanban: ["read"] });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
   const { id } = await context.params;
@@ -38,7 +35,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { kanban: ["update"] });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const { id } = await context.params;
@@ -89,17 +86,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { kanban: ["delete"] });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const { id } = await context.params;
-
-  if (!isWorkspaceAdmin(memberRole)) {
-    return NextResponse.json(
-      { error: "Forbidden", code: "FORBIDDEN" },
-      { status: 403 },
-    );
-  }
 
   const existing = await prisma.kanbanBoard.findFirst({
     where: { id, workspaceId, deletedAt: null },

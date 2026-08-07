@@ -1,25 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 import { deleteObjects } from "@/server/upload";
 
 export async function DELETE(request: NextRequest) {
-  const access = await requireWorkspaceAccess(request);
-  if ("error" in access) return access.error;
-  const { workspaceId, session } = access;
-
-  const member = await prisma.member.findFirst({
-    where: { organizationId: workspaceId, userId: session.user.id },
-    select: { role: true },
+  const access = await requireWorkspacePermission(request, {
+    organization: ["delete"],
   });
-
-  if (member?.role !== "owner") {
-    return NextResponse.json(
-      { error: "Apenas o owner pode deletar o workspace", code: "FORBIDDEN" },
-      { status: 403 },
-    );
-  }
+  if ("error" in access) return access.error;
+  const { workspaceId } = access;
 
   const org = await prisma.organization.findUnique({
     where: { id: workspaceId },

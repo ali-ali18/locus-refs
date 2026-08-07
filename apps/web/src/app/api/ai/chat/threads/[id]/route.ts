@@ -8,7 +8,7 @@ import {
   toAgentThreadSummary,
 } from "@/lib/ai/agent-thread-acl";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { canInWorkspace, requireWorkspacePermission } from "@/server/permissions";
 
 const putSchema = z.object({
   messages: z.array(z.unknown()),
@@ -23,13 +23,19 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentThread: ["read"],
+  });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const userId = session.user.id;
   const { id } = await params;
 
   try {
+    const canDeleteAny = await canInWorkspace(workspaceId, userId, {
+      agentThread: ["delete"],
+    });
+
     const thread = await prisma.agentThread.findFirst({
       where: { id, workspaceId },
       include: { createdBy: { select: { name: true } } },
@@ -48,7 +54,7 @@ export async function GET(
 
     return NextResponse.json({
       data: {
-        ...toAgentThreadSummary(thread, userId, memberRole),
+        ...toAgentThreadSummary(thread, userId, canDeleteAny),
         messages: thread.messages,
       },
     });
@@ -64,13 +70,19 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentThread: ["update"],
+  });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const userId = session.user.id;
   const { id } = await params;
 
   try {
+    const canDeleteAny = await canInWorkspace(workspaceId, userId, {
+      agentThread: ["delete"],
+    });
+
     const parsed = putSchema.safeParse(await request.json());
     if (!parsed.success) {
       return NextResponse.json(
@@ -102,7 +114,7 @@ export async function PUT(
 
     return NextResponse.json({
       message: "Thread saved",
-      data: toAgentThreadSummary(updated, userId, memberRole),
+      data: toAgentThreadSummary(updated, userId, canDeleteAny),
     });
   } catch (_error) {
     return NextResponse.json(
@@ -116,13 +128,19 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentThread: ["share"],
+  });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const userId = session.user.id;
   const { id } = await params;
 
   try {
+    const canDeleteAny = await canInWorkspace(workspaceId, userId, {
+      agentThread: ["delete"],
+    });
+
     const parsed = patchSchema.safeParse(await request.json());
     if (!parsed.success) {
       return NextResponse.json(
@@ -155,7 +173,7 @@ export async function PATCH(
 
     return NextResponse.json({
       message: "Thread shared with workspace",
-      data: toAgentThreadSummary(updated, userId, memberRole),
+      data: toAgentThreadSummary(updated, userId, canDeleteAny),
     });
   } catch (_error) {
     return NextResponse.json(
@@ -169,13 +187,19 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    agentThread: ["read"],
+  });
   if ("error" in auth) return auth.error;
-  const { session, workspaceId, memberRole } = auth;
+  const { session, workspaceId } = auth;
   const userId = session.user.id;
   const { id } = await params;
 
   try {
+    const canDeleteAny = await canInWorkspace(workspaceId, userId, {
+      agentThread: ["delete"],
+    });
+
     const thread = await prisma.agentThread.findFirst({
       where: { id, workspaceId },
     });
@@ -185,7 +209,7 @@ export async function DELETE(
         { status: 404 },
       );
     }
-    if (!canDeleteAgentThread(thread, userId, memberRole)) {
+    if (!canDeleteAgentThread(thread, userId, canDeleteAny)) {
       return NextResponse.json(
         { error: "Forbidden", code: "FORBIDDEN" },
         { status: 403 },

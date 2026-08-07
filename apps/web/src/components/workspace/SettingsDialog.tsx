@@ -6,6 +6,7 @@ import {
   BubbleChatIcon,
   Cancel01Icon,
   Config,
+  UserEdit01Icon,
   UserIcon,
   UserListFreeIcons,
 } from "@hugeicons/core-free-icons";
@@ -27,12 +28,16 @@ import {
   useSettingsDialog,
 } from "@/context/settingsDialog";
 import { useIsMobile } from "@/hook/use-mobile";
-import { useWorkspaceMembers } from "@/hook/workspace/useWorkspaceMembers";
+import {
+  SETTINGS_PERMISSION_CHECKS,
+  useWorkspacePermissions,
+} from "@/hook/workspace/useWorkspacePermissions";
 import { cn } from "@/lib/utils";
 import { WorkspaceAiConfig } from "./config/WorkspaceAiConfig";
 import { WorkspaceConfig } from "./config/WorkspaceConfig";
 import { WorkspaceHeaderConfig } from "./config/WorkspaceHeaderConfig";
 import { WorkspaceUserList } from "./config/WorkspaceUserList";
+import { WorkspaceRolesList } from "./roles/WorkspaceRolesList";
 import { UserProfile } from "./settings/UserProfile";
 
 interface NavEntry {
@@ -68,6 +73,14 @@ const NAV_ENTRIES: Record<SettingsTabId, NavEntry> = {
     headerTitle: "Membros",
     headerDescription: "Gerencie os membros e convites do workspace.",
   },
+  "workspace-roles": {
+    id: "workspace-roles",
+    label: "Cargos",
+    icon: UserEdit01Icon,
+    headerTitle: "Cargos",
+    headerDescription:
+      "Crie e edite cargos com permissões personalizadas para o workspace.",
+  },
   "workspace-ai": {
     id: "workspace-ai",
     label: "Agent",
@@ -86,8 +99,14 @@ function SettingsTabContent({ id }: { id: SettingsTabId }) {
       return <WorkspaceConfig />;
     case "workspace-members":
       return <WorkspaceUserList />;
+    case "workspace-roles":
+      return <WorkspaceRolesList />;
     case "workspace-ai":
       return <WorkspaceAiConfig />;
+    default: {
+      const _exhaustive: never = id;
+      return _exhaustive;
+    }
   }
 }
 
@@ -97,27 +116,46 @@ function isWorkspaceTab(id: SettingsTabId): boolean {
 
 function useSettingsEntries() {
   const { activeTabId, setActiveTab } = useSettingsDialog();
-  const { currentMember, isLoading } = useWorkspaceMembers();
+  const {
+    can,
+    canManageRoles,
+    canUpdateWorkspace,
+    isLoading,
+  } = useWorkspacePermissions(SETTINGS_PERMISSION_CHECKS);
 
-  const isAdminOrOwner =
-    currentMember?.role === "admin" || currentMember?.role === "owner";
+  const canSeeGeneral =
+    canUpdateWorkspace || can("organization", "update");
+  const canSeeMembers =
+    can("invitation", "create") ||
+    can("member", "update") ||
+    can("member", "delete");
+  const canSeeRoles = canManageRoles || can("ac", "read");
 
   useEffect(() => {
-    if (
-      !isLoading &&
-      !isAdminOrOwner &&
-      (activeTabId === "workspace-general" ||
-        activeTabId === "workspace-members")
-    ) {
+    if (isLoading) return;
+
+    const forbidden =
+      (activeTabId === "workspace-general" && !canSeeGeneral) ||
+      (activeTabId === "workspace-members" && !canSeeMembers) ||
+      (activeTabId === "workspace-roles" && !canSeeRoles);
+
+    if (forbidden) {
       setActiveTab("profile");
     }
-  }, [isLoading, isAdminOrOwner, activeTabId, setActiveTab]);
+  }, [
+    isLoading,
+    activeTabId,
+    canSeeGeneral,
+    canSeeMembers,
+    canSeeRoles,
+    setActiveTab,
+  ]);
 
   const entries: NavEntry[] = [
     NAV_ENTRIES.profile,
-    ...(isAdminOrOwner
-      ? [NAV_ENTRIES["workspace-general"], NAV_ENTRIES["workspace-members"]]
-      : []),
+    ...(canSeeGeneral ? [NAV_ENTRIES["workspace-general"]] : []),
+    ...(canSeeMembers ? [NAV_ENTRIES["workspace-members"]] : []),
+    ...(canSeeRoles ? [NAV_ENTRIES["workspace-roles"]] : []),
     NAV_ENTRIES["workspace-ai"],
   ];
 

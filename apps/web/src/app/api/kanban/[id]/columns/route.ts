@@ -8,14 +8,14 @@ import { nextAppendPosition } from "@/lib/kanban/position";
 import prisma from "@/lib/prisma";
 import { columnCreatedEvent } from "@/lib/realtime/kanban-event-builders";
 import { publishKanbanEvent } from "@/lib/realtime/publish-kanban-event";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { kanban: ["create"] });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const { id: boardId } = await context.params;

@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 const RECENT_LIMIT = 12;
 
 export async function GET(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { note: ["read"] });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const userId = session.user.id;

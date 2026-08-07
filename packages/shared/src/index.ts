@@ -76,3 +76,21 @@ export type {
   WorkspaceMember,
   WorkspaceMemberRole,
 } from "./types/workspace.type";
+export {
+  BASE_ROLE_LABELS,
+  BASE_ROLE_NAMES,
+  EDITABLE_PERMISSION_RESOURCES,
+  isBaseRole,
+  isEditablePermissionResource,
+  organizationDefaultStatements,
+  PERMISSION_ACTION_LABELS,
+  PERMISSION_RESOURCE_LABELS,
+  workspaceAppStatements,
+  workspaceStatements,
+  type BaseRoleName,
+  type EditablePermissionResource,
+  type WorkspaceAction,
+  type WorkspacePermission,
+  type WorkspaceResource,
+  type WorkspaceStatements,
+} from "./permissions/workspace-permissions";

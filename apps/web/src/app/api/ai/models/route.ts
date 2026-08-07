@@ -1,9 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getAvailableModels } from "@/lib/ai/models";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 export async function GET(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    aiSettings: ["read"],
+  });
   if ("error" in auth) return auth.error;
 
   const models = getAvailableModels().map(

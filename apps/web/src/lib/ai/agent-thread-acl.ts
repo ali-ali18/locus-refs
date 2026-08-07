@@ -1,7 +1,6 @@
 import "server-only";
 
 import type { AgentThread } from "@/generated/prisma/client";
-import { isWorkspaceAdmin } from "@/server/requireSession";
 import type { AgentThreadSummary } from "@/types/agent-thread.type";
 
 export function canReadAgentThread(
@@ -22,9 +21,9 @@ export function canWriteAgentThread(
 export function canDeleteAgentThread(
   thread: Pick<AgentThread, "createdById">,
   userId: string,
-  memberRole: string,
+  hasWorkspaceDeletePermission: boolean,
 ): boolean {
-  if (isWorkspaceAdmin(memberRole)) return true;
+  if (hasWorkspaceDeletePermission) return true;
   return thread.createdById === userId;
 }
 
@@ -41,7 +40,7 @@ export function toAgentThreadSummary(
     createdBy?: { name: string | null } | null;
   },
   userId: string,
-  memberRole: string,
+  canDeleteAny: boolean,
 ): AgentThreadSummary {
   const messages = Array.isArray(thread.messages) ? thread.messages : [];
   return {
@@ -54,7 +53,7 @@ export function toAgentThreadSummary(
     updatedAt: thread.updatedAt.toISOString(),
     createdAt: thread.createdAt.toISOString(),
     messageCount: messages.length,
-    canDelete: canDeleteAgentThread(thread, userId, memberRole),
+    canDelete: canDeleteAgentThread(thread, userId, canDeleteAny),
     canShare: canShareAgentThread(thread, userId),
   };
 }

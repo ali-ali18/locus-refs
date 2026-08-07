@@ -21,7 +21,14 @@ export type UpdateWorkspaceSchema = z.infer<typeof updateWorkspaceSchema>;
 
 export const inviteMemberSchema = z.object({
   email: z.email("Email inválido"),
-  role: z.enum(["admin", "member"]),
+  role: z
+    .string()
+    .min(1, "Cargo obrigatório")
+    .max(50, "Cargo deve ter no máximo 50 caracteres")
+    .regex(
+      /^[a-z0-9][a-z0-9_-]*$/i,
+      "Use letras, números, hífen ou underscore",
+    ),
 });
 
 export type InviteMemberSchema = z.infer<typeof inviteMemberSchema>;

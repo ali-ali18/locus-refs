@@ -1,10 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { AI_MODELS, DEFAULT_MODEL_ID } from "@/lib/ai/models";
 import prisma from "@/lib/prisma";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 export async function GET(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    aiSettings: ["read"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 
@@ -26,7 +28,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, {
+    aiSettings: ["update"],
+  });
   if ("error" in auth) return auth.error;
   const { workspaceId } = auth;
 

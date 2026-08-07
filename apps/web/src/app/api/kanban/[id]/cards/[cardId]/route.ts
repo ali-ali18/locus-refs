@@ -18,14 +18,14 @@ import {
   cardUpdatedEvent,
 } from "@/lib/realtime/kanban-event-builders";
 import { publishKanbanEvent } from "@/lib/realtime/publish-kanban-event";
-import { requireWorkspaceAccess } from "@/server/requireSession";
+import { requireWorkspacePermission } from "@/server/permissions";
 
 interface RouteContext {
   params: Promise<{ id: string; cardId: string }>;
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { kanban: ["update"] });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const { id: boardId, cardId } = await context.params;
@@ -187,7 +187,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  const auth = await requireWorkspaceAccess(request);
+  const auth = await requireWorkspacePermission(request, { kanban: ["delete"] });
   if ("error" in auth) return auth.error;
   const { session, workspaceId } = auth;
   const { id: boardId, cardId } = await context.params;
