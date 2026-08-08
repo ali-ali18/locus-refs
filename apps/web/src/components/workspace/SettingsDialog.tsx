@@ -116,15 +116,10 @@ function isWorkspaceTab(id: SettingsTabId): boolean {
 
 function useSettingsEntries() {
   const { activeTabId, setActiveTab } = useSettingsDialog();
-  const {
-    can,
-    canManageRoles,
-    canUpdateWorkspace,
-    isLoading,
-  } = useWorkspacePermissions(SETTINGS_PERMISSION_CHECKS);
+  const { can, canManageRoles, canUpdateWorkspace, isLoading } =
+    useWorkspacePermissions(SETTINGS_PERMISSION_CHECKS);
 
-  const canSeeGeneral =
-    canUpdateWorkspace || can("organization", "update");
+  const canSeeGeneral = canUpdateWorkspace || can("organization", "update");
   const canSeeMembers =
     can("invitation", "create") ||
     can("member", "update") ||
@@ -297,11 +292,7 @@ function SettingsMobileDrawer() {
             ))}
         </div>
 
-        <Drawer
-          open={detailOpen}
-          onOpenChange={setDetailOpen}
-          showSwipeHandle
-        >
+        <Drawer open={detailOpen} onOpenChange={setDetailOpen} showSwipeHandle>
           <DrawerContent className="data-[swipe-direction=down]:rounded-t-3xl data-[swipe-direction=down]:[--drawer-content-height:min(85dvh,720px)]">
             <DrawerHeader className="relative w-full flex-row! items-center justify-between px-3 pt-1 pb-2 text-left!">
               <Button

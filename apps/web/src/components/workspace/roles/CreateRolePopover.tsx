@@ -1,33 +1,35 @@
 "use client";
 
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useWorkspaceRoles } from "@/hook/workspace/useWorkspaceRoles";
+import { cn } from "@/lib/utils";
 
-interface RoleFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+interface CreateRolePopoverProps {
   /** Chamado após criar com sucesso, com o nome do cargo. */
   onCreated?: (roleName: string) => void;
+  className?: string;
 }
 
-export function RoleFormDialog({
-  open,
-  onOpenChange,
+export function CreateRolePopover({
   onCreated,
-}: RoleFormDialogProps) {
+  className,
+}: CreateRolePopoverProps) {
   const { createRole, isCreating } = useWorkspaceRoles();
+  const [open, setOpen] = useState(false);
   const [roleName, setRoleName] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -41,7 +43,7 @@ export function RoleFormDialog({
     try {
       await createRole({ role: trimmed, permission: {} });
       setRoleName("");
-      onOpenChange(false);
+      setOpen(false);
       onCreated?.(trimmed);
     } catch {
       // toast no hook
@@ -49,20 +51,32 @@ export function RoleFormDialog({
   }
 
   return (
-    <Dialog
+    <Popover
       open={open}
       onOpenChange={(next) => {
-        onOpenChange(next);
+        setOpen(next);
         if (!next) setRoleName("");
       }}
     >
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Novo cargo</DialogTitle>
-          <DialogDescription>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="secondary"
+            className={cn("min-w-0", className)}
+            aria-label="Novo cargo"
+          >
+            <Icon icon={PlusSignIcon} />
+            Novo cargo
+          </Button>
+        }
+      />
+      <PopoverContent className="w-80" align="end">
+        <PopoverHeader>
+          <PopoverTitle>Novo cargo</PopoverTitle>
+          <PopoverDescription>
             Crie o cargo vazio e configure as permissões no painel.
-          </DialogDescription>
-        </DialogHeader>
+          </PopoverDescription>
+        </PopoverHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
@@ -73,16 +87,15 @@ export function RoleFormDialog({
               onChange={(e) => setRoleName(e.target.value)}
               placeholder="ex: editor"
               disabled={isCreating}
-              className="rounded-xl"
               autoFocus
             />
           </div>
 
-          <DialogFooter>
+          <div className="flex justify-end gap-2">
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => setOpen(false)}
               disabled={isCreating}
             >
               Cancelar
@@ -90,9 +103,9 @@ export function RoleFormDialog({
             <Button type="submit" disabled={isCreating || !roleName.trim()}>
               {isCreating ? "Criando..." : "Criar e configurar"}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </PopoverContent>
+    </Popover>
   );
 }

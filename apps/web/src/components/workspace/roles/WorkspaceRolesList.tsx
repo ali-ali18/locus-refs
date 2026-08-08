@@ -1,9 +1,8 @@
 "use client";
 
-import { ArrowRight01Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,9 +22,8 @@ import {
   useWorkspacePermissions,
 } from "@/hook/workspace/useWorkspacePermissions";
 import { useWorkspaceRoles } from "@/hook/workspace/useWorkspaceRoles";
+import { CreateRolePopover } from "./CreateRolePopover";
 import { countPermissions } from "./permission-utils";
-import { RoleFormDialog } from "./RoleFormDialog";
-
 export function WorkspaceRolesList() {
   const router = useRouter();
   const { workspaceSlug } = useWorkspace();
@@ -34,7 +32,6 @@ export function WorkspaceRolesList() {
   const { canManageRoles } = useWorkspacePermissions(
     SETTINGS_PERMISSION_CHECKS,
   );
-  const [createOpen, setCreateOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -53,10 +50,14 @@ export function WorkspaceRolesList() {
           Selecione um cargo para abrir o painel de permissões.
         </p>
         {canManageRoles ? (
-          <Button type="button" onClick={() => setCreateOpen(true)}>
-            <Icon icon={PlusSignIcon} />
-            Novo cargo
-          </Button>
+          <CreateRolePopover
+            onCreated={(roleName) => {
+              closeSettings();
+              router.push(
+                `/${workspaceSlug}/roles?role=${encodeURIComponent(roleName)}`,
+              );
+            }}
+          />
         ) : null}
       </div>
 
@@ -91,17 +92,6 @@ export function WorkspaceRolesList() {
           </Item>
         ))}
       </ItemGroup>
-
-      <RoleFormDialog
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        onCreated={(roleName) => {
-          closeSettings();
-          router.push(
-            `/${workspaceSlug}/roles?role=${encodeURIComponent(roleName)}`,
-          );
-        }}
-      />
     </section>
   );
 }

@@ -1,10 +1,7 @@
 "use client";
 
+import { Menu01FreeIcons } from "@hugeicons/core-free-icons";
 import type { WorkspacePermission } from "@refstash/shared";
-import {
-  ArrowLeft01Icon,
-  Menu01FreeIcons,
-} from "@hugeicons/core-free-icons";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
@@ -25,28 +22,31 @@ import {
   useWorkspacePermissions,
 } from "@/hook/workspace/useWorkspacePermissions";
 import {
-  type WorkspaceRoleItem,
   useWorkspaceRoles,
+  type WorkspaceRoleItem,
 } from "@/hook/workspace/useWorkspaceRoles";
+import { CreateRolePopover } from "./CreateRolePopover";
 import { DeleteRoleDialog } from "./DeleteRoleDialog";
-import { RoleFormDialog } from "./RoleFormDialog";
-import { RolePermissionModules } from "./RolePermissionModules";
-import { RolesSidebar } from "./RolesSidebar";
 import {
   cleanPermission,
   emptyPermissionMap,
   permissionsEqual,
 } from "./permission-utils";
+import { RolePermissionModules } from "./RolePermissionModules";
+import { RolesSidebar } from "./RolesSidebar";
 
 export function RolesControlPanel() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isMobile = useIsMobile();
   const { workspaceSlug } = useWorkspace();
-  const { openSettings, closeSettings } = useSettingsDialog();
+  const { closeSettings } = useSettingsDialog();
   const { roles, isLoading, updateRole, isUpdating } = useWorkspaceRoles();
-  const { can, canManageRoles, isLoading: permsLoading } =
-    useWorkspacePermissions(SETTINGS_PERMISSION_CHECKS);
+  const {
+    can,
+    canManageRoles,
+    isLoading: permsLoading,
+  } = useWorkspacePermissions(SETTINGS_PERMISSION_CHECKS);
 
   const canRead = can("ac", "read") || canManageRoles;
   const canUpdate = can("ac", "update") || canManageRoles;
@@ -62,7 +62,6 @@ export function RolesControlPanel() {
   );
 
   const [draft, setDraft] = useState<WorkspacePermission>(emptyPermissionMap());
-  const [createOpen, setCreateOpen] = useState(false);
   const [deletingRole, setDeletingRole] = useState<WorkspaceRoleItem | null>(
     null,
   );
@@ -106,17 +105,10 @@ export function RolesControlPanel() {
   async function handleSave() {
     if (!selectedRole || selectedRole.isBase || !dirty) return;
     await updateRole({
-      roleId: selectedRole.id.startsWith("base:")
-        ? undefined
-        : selectedRole.id,
+      roleId: selectedRole.id.startsWith("base:") ? undefined : selectedRole.id,
       roleName: selectedRole.role,
       data: { permission: cleanPermission(draft) },
     });
-  }
-
-  function handleBackToSettings() {
-    router.push(`/${workspaceSlug}`);
-    openSettings("workspace-roles");
   }
 
   if (permsLoading || (isLoading && roles.length === 0)) {
@@ -135,13 +127,8 @@ export function RolesControlPanel() {
       roles={roles}
       selectedRole={selectedRoleName}
       isLoading={isLoading}
-      canCreate={canCreate}
       canDelete={canDelete}
       onSelect={selectRole}
-      onCreate={() => {
-        setCreateOpen(true);
-        setSidebarOpen(false);
-      }}
       onDelete={(role) => {
         setDeletingRole(role);
         setSidebarOpen(false);
@@ -150,25 +137,25 @@ export function RolesControlPanel() {
   );
 
   return (
-    <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-6 p-4 md:p-6 lg:p-8">
-      <header className="flex flex-col gap-4">
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={handleBackToSettings}
-            aria-label="Voltar para configurações"
-          >
-            <Icon icon={ArrowLeft01Icon} />
-          </Button>
+    <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-7 p-4 md:p-6 lg:p-8">
+      <header className="flex flex-col gap-5">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+              Cargos e permissões
+            </h1>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Defina o que cada cargo pode acessar e editar no workspace.
+            </p>
+          </div>
 
-          <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2">
+          <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 sm:w-auto">
             {isMobile ? (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
+                className="min-w-0 flex-1 sm:flex-none"
                 onClick={() => setSidebarOpen(true)}
               >
                 <Icon icon={Menu01FreeIcons} />
@@ -176,36 +163,42 @@ export function RolesControlPanel() {
               </Button>
             ) : null}
 
+            {canCreate ? (
+              <CreateRolePopover
+                className="flex-1 sm:flex-none"
+                onCreated={(roleName) => {
+                  closeSettings();
+                  selectRole(roleName);
+                }}
+              />
+            ) : null}
+
             <Button
               type="button"
+              className="min-w-0 flex-1 sm:flex-none"
               disabled={!dirty || readOnly || isUpdating}
               onClick={handleSave}
             >
-              {isUpdating ? "Salvando..." : "Salvar alterações"}
+              {isUpdating
+                ? "Salvando..."
+                : dirty
+                  ? "Salvar alterações"
+                  : "Tudo salvo"}
             </Button>
           </div>
         </div>
-
-        <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Cargos e permissões
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Escolha um cargo e libere o que ele pode fazer em cada recurso.
-          </p>
-        </div>
       </header>
 
-      <div className="flex w-full min-w-0 items-start gap-6">
-        <div className="hidden w-[260px] shrink-0 lg:block">{sidebar}</div>
+      <div className="flex w-full min-w-0 items-start gap-10">
+        <aside className="hidden w-[240px] shrink-0 lg:block">{sidebar}</aside>
 
-        <section className="flex min-w-0 flex-1 flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-lg font-medium capitalize">
+        <section className="flex min-w-0 flex-1 flex-col gap-5">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 border-b border-border pb-4">
+            <h2 className="min-w-0 truncate text-lg font-semibold capitalize">
               {selectedRole?.label ?? "Selecione um cargo"}
             </h2>
             {selectedRole?.isBase ? (
-              <Badge variant="outline">Padrão · somente leitura</Badge>
+              <Badge variant="secondary">Somente leitura</Badge>
             ) : null}
             {dirty ? (
               <Badge variant="secondary">Alterações não salvas</Badge>
@@ -240,15 +233,6 @@ export function RolesControlPanel() {
           </div>
         </DrawerContent>
       </Drawer>
-
-      <RoleFormDialog
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        onCreated={(roleName) => {
-          closeSettings();
-          selectRole(roleName);
-        }}
-      />
 
       <DeleteRoleDialog
         role={deletingRole}

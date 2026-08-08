@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense } from "react";
-import { RolesControlPanel } from "@/components/workspace/roles/RolesControlPanel";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RolesControlPanel } from "@/components/workspace/roles/RolesControlPanel";
 
 function RolesPageFallback() {
   return (

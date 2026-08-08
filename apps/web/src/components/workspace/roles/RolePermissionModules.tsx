@@ -1,13 +1,5 @@
 "use client";
 
-import type { WorkspacePermission, WorkspaceResource } from "@refstash/shared";
-import {
-  isEditablePermissionResource,
-  PERMISSION_ACTION_LABELS,
-  PERMISSION_RESOURCE_LABELS,
-  workspaceStatements,
-} from "@refstash/shared";
-import type { IconSvgElement } from "@hugeicons/react";
 import {
   ArrowDown01Icon,
   BubbleChatIcon,
@@ -26,6 +18,14 @@ import {
   UserGroupIcon,
   UserListFreeIcons,
 } from "@hugeicons/core-free-icons";
+import type { IconSvgElement } from "@hugeicons/react";
+import type { WorkspacePermission, WorkspaceResource } from "@refstash/shared";
+import {
+  isEditablePermissionResource,
+  PERMISSION_ACTION_LABELS,
+  PERMISSION_RESOURCE_LABELS,
+  workspaceStatements,
+} from "@refstash/shared";
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { Badge } from "@/components/ui/badge";
@@ -38,10 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Toggle } from "@/components/ui/toggle";
-import {
-  setResourceActions,
-  togglePermissionAction,
-} from "./permission-utils";
+import { setResourceActions, togglePermissionAction } from "./permission-utils";
 
 const RESOURCE_ICONS: Record<WorkspaceResource, IconSvgElement> = {
   note: Note01FreeIcons,
@@ -133,10 +130,10 @@ function ResourceModuleCard({
   const icon = RESOURCE_ICONS[resource];
 
   return (
-    <article className="rounded-2xl border border-border bg-background p-4">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+    <article className="rounded-xl border border-border/80 bg-background/70 p-4 transition-colors hover:bg-background">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground">
             <Icon icon={icon} className="size-4" />
           </div>
           <div className="min-w-0">
@@ -188,20 +185,12 @@ function ResourceModuleCard({
               disabled={readOnly}
               onPressedChange={(pressed) =>
                 onChange(
-                  togglePermissionAction(
-                    permission,
-                    resource,
-                    action,
-                    pressed,
-                  ),
+                  togglePermissionAction(permission, resource, action, pressed),
                 )
               }
             >
               {selected ? (
-                <Icon
-                  icon={CheckmarkCircle02Icon}
-                  data-icon="inline-start"
-                />
+                <Icon icon={CheckmarkCircle02Icon} data-icon="inline-start" />
               ) : null}
               {PERMISSION_ACTION_LABELS[action] ?? action}
             </Toggle>
@@ -244,7 +233,7 @@ export function RolePermissionModules({
   }, [query]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <div className="relative">
         <Icon
           icon={Search01Icon}
@@ -258,40 +247,42 @@ export function RolePermissionModules({
         />
       </div>
 
-      <p className="text-sm text-muted-foreground">
-        Configure as permissões por módulo. Toque nas ações para liberar ou
-        revogar.
-      </p>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="text-sm text-muted-foreground">
+          Selecione as ações que este cargo pode executar.
+        </p>
+        <span className="text-xs text-muted-foreground">4 categorias</span>
+      </div>
 
       <div className="flex flex-col gap-3">
         {filteredBySection.map((section) => {
           const sectionPermCount = section.resources.reduce((sum, resource) => {
             return (
-              sum + ((permission[resource] as string[] | undefined)?.length ?? 0)
+              sum +
+              ((permission[resource] as string[] | undefined)?.length ?? 0)
             );
           }, 0);
 
           return (
             <Collapsible
               key={section.id}
-              defaultOpen={false}
-              className="group rounded-2xl border border-border bg-muted/40"
+              defaultOpen={section.id === "content"}
+              className="group rounded-xl border border-border/80 bg-muted/25"
             >
-              <CollapsibleTrigger className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left">
-                <div className="flex min-w-0 items-center gap-2">
-                  <span className="font-medium">{section.title}</span>
-                  <Badge variant="outline">
-                    {section.resources.length} módulos · {sectionPermCount}{" "}
-                    perms
-                  </Badge>
+              <CollapsibleTrigger className="flex min-h-14 w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                  <span className="font-medium text-foreground">
+                    {section.title}
+                  </span>
+                  <Badge variant="outline">{sectionPermCount} permissões</Badge>
                 </div>
                 <Icon
                   icon={ArrowDown01Icon}
                   className="size-4 shrink-0 text-muted-foreground transition-transform group-data-open:rotate-180"
                 />
               </CollapsibleTrigger>
-              <CollapsibleContent className="border-t border-border px-4 py-4">
-                <div className="flex flex-col gap-3">
+              <CollapsibleContent className="border-t border-border/80 px-3 py-3 sm:px-4 sm:py-4">
+                <div className="flex flex-col gap-2.5">
                   {section.resources.map((resource) => (
                     <ResourceModuleCard
                       key={resource}

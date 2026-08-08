@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Delete02Icon,
-  PlusSignIcon,
-  Search01Icon,
-} from "@hugeicons/core-free-icons";
+import { Delete02Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { useMemo, useState } from "react";
 import { Icon } from "@/components/shared/Icon";
 import { Button } from "@/components/ui/button";
@@ -18,10 +14,8 @@ interface RolesSidebarProps {
   roles: WorkspaceRoleItem[];
   selectedRole: string | null;
   isLoading: boolean;
-  canCreate: boolean;
   canDelete: boolean;
   onSelect: (roleName: string) => void;
-  onCreate: () => void;
   onDelete: (role: WorkspaceRoleItem) => void;
   className?: string;
 }
@@ -30,10 +24,8 @@ export function RolesSidebar({
   roles,
   selectedRole,
   isLoading,
-  canCreate,
   canDelete,
   onSelect,
-  onCreate,
   onDelete,
   className,
 }: RolesSidebarProps) {
@@ -44,8 +36,7 @@ export function RolesSidebar({
     if (!q) return roles;
     return roles.filter(
       (r) =>
-        r.role.toLowerCase().includes(q) ||
-        r.label.toLowerCase().includes(q),
+        r.role.toLowerCase().includes(q) || r.label.toLowerCase().includes(q),
     );
   }, [roles, query]);
 
@@ -55,17 +46,6 @@ export function RolesSidebar({
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Cargos
         </p>
-        {canCreate ? (
-          <Button
-            type="button"
-            size="icon-sm"
-            variant="secondary"
-            onClick={onCreate}
-            aria-label="Novo cargo"
-          >
-            <Icon icon={PlusSignIcon} />
-          </Button>
-        ) : null}
       </div>
 
       <div className="relative">
